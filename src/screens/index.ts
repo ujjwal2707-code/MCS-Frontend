@@ -1,2 +1,6 @@
 export {default as Home} from './home'
+export {default as ScanQr } from './scan-qr'
+export {default as ScanUrl} from './scan-url'
+export {default as WifiSecurity} from './wifi-security'
 export {default as AppPermission} from './app-permissions'
+export {default as SecurityAdvisor} from './security-advisor'
