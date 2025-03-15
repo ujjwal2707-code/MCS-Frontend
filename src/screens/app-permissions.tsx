@@ -4,10 +4,10 @@ import {
   Text,
   Image,
   ScrollView,
-  StyleSheet,
-  SafeAreaView,
+  StyleSheet
 } from 'react-native';
 import {NativeModules, Platform} from 'react-native';
+import FullScreenLoader from '../components/full-screen-loader';
 
 interface InstalledApp {
   packageName: string;
@@ -24,15 +24,19 @@ const {InstalledApps} = NativeModules as {InstalledApps: InstalledAppsModule};
 
 const AppPermissions = () => {
   const [apps, setApps] = useState<InstalledApp[]>([]);
+  const [loading, setLoading] = useState(false);
   console.log(apps);
   useEffect(() => {
     const init = async () => {
       if (Platform.OS === 'android') {
         try {
+          setLoading(true);
           const installedApps = await InstalledApps.getInstalledApps();
           setApps(installedApps);
         } catch (error) {
           console.error('Error fetching apps:', error);
+        } finally {
+          setLoading(false);
         }
       } else {
         console.warn('Listing installed apps is not supported on iOS.');
@@ -40,6 +44,11 @@ const AppPermissions = () => {
     };
     init();
   }, []);
+
+  if (loading) {
+    return <FullScreenLoader />;
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {apps.map((app, index) => (
