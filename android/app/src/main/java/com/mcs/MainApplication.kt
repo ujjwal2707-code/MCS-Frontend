@@ -27,6 +27,18 @@ class SecurityCheckModulePackage : ReactPackage {
     }
 }
 
+// Custom package to register WifiModule
+class WifiModulePackage : ReactPackage {
+    override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
+        val modules: MutableList<NativeModule> = ArrayList()
+        modules.add(WifiModule(reactContext))
+        return modules
+    }
+
+    override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
+        return emptyList()
+    }
+}
 
 class MainApplication : Application(), ReactApplication {
 
@@ -36,6 +48,7 @@ class MainApplication : Application(), ReactApplication {
           val packages = PackageList(this).packages.toMutableList()
           packages.add(InstalledAppsPackage())
           packages.add(SecurityCheckModulePackage())
+          packages.add(WifiModulePackage())
           return packages
         }
 
