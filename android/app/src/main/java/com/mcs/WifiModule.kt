@@ -1,11 +1,14 @@
 package com.mcs
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.net.wifi.ScanResult
-import android.net.wifi.WifiManager
 import android.net.wifi.WifiInfo
+import android.net.wifi.WifiManager
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -14,46 +17,63 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 
-class WifiModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class WifiModule(private val reactContext: ReactApplicationContext) :
+    ReactContextBaseJavaModule(reactContext) {
 
-    private val wifiManager: WifiManager = reactContext.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+    private val wifiManager: WifiManager =
+        reactContext.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
     override fun getName(): String = "WifiModule"
 
-    // Returns a list of nearby WiFi networks.
-    // Each network includes: SSID, BSSID, capabilities, frequency, level, timestamp,
-    // isSecure: Boolean, and securityRating: Int (1-5).
+    // Uses a BroadcastReceiver to listen for scan results.
     @ReactMethod
     fun scanWifiNetworks(promise: Promise) {
-    try {
-        // Start a new WiFi scan
-        wifiManager.startScan()
-        // Delay for a short period to allow the scan to complete.
-        // Note: In production, consider using a BroadcastReceiver.
-        Thread.sleep(2000) // 2 seconds delay (not recommended for production use)
-        
-        val results: List<ScanResult> = wifiManager.scanResults
-        val wifiArray: WritableArray = Arguments.createArray()
-        for (result in results) {
-            val map: WritableMap = Arguments.createMap()
-            map.putString("SSID", result.SSID)
-            map.putString("BSSID", result.BSSID)
-            map.putString("capabilities", result.capabilities)
-            map.putInt("frequency", result.frequency)
-            map.putInt("level", result.level)
-            map.putDouble("timestamp", result.timestamp.toDouble())
-            
-            val rating = calculateSecurityRating(result.capabilities)
-            map.putInt("securityRating", rating)
-            map.putBoolean("isSecure", rating > 1)
-            
-            wifiArray.pushMap(map)
+        try {
+            // Create and register the BroadcastReceiver
+            val scanResultsReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    try {
+                        val results: List<ScanResult> = wifiManager.scanResults
+                        val wifiArray: WritableArray = Arguments.createArray()
+                        for (result in results) {
+                            val map: WritableMap = Arguments.createMap()
+                            map.putString("SSID", result.SSID)      // WiFi network name
+                            map.putString("BSSID", result.BSSID)
+                            map.putString("capabilities", result.capabilities)
+                            map.putInt("frequency", result.frequency)
+                            map.putInt("level", result.level)
+                            // timestamp in microseconds (result.timestamp is already in microseconds)
+                            map.putDouble("timestamp", result.timestamp.toDouble())
+
+                            // Calculate security rating and secure flag.
+                            val rating = calculateSecurityRating(result.capabilities)
+                            map.putInt("securityRating", rating)
+                            map.putBoolean("isSecure", rating > 1)
+
+                            wifiArray.pushMap(map)
+                        }
+                        promise.resolve(wifiArray)
+                    } catch (e: Exception) {
+                        promise.reject("ERROR", e)
+                    } finally {
+                        // Always unregister the receiver to avoid leaks
+                        reactContext.unregisterReceiver(this)
+                    }
+                }
+            }
+            val intentFilter = IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+            reactContext.registerReceiver(scanResultsReceiver, intentFilter)
+
+            // Initiate a new WiFi scan.
+            val scanStarted = wifiManager.startScan()
+            if (!scanStarted) {
+                reactContext.unregisterReceiver(scanResultsReceiver)
+                promise.reject("ERROR", "Failed to start WiFi scan")
+            }
+        } catch (e: Exception) {
+            promise.reject("ERROR", e)
         }
-        promise.resolve(wifiArray)
-    } catch (e: Exception) {
-        promise.reject("ERROR", e)
     }
-}
 
     // Returns the IP (as an integer) of the currently connected WiFi network.
     @ReactMethod
@@ -74,7 +94,7 @@ class WifiModule(private val reactContext: ReactApplicationContext) : ReactConte
             val cm = reactContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
             val isConnected = activeNetwork != null && activeNetwork.isConnected &&
-                              activeNetwork.type == ConnectivityManager.TYPE_WIFI
+                    activeNetwork.type == ConnectivityManager.TYPE_WIFI
             promise.resolve(isConnected)
         } catch (e: Exception) {
             promise.reject("ERROR", e)

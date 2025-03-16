@@ -21,7 +21,7 @@ const WifiSecurity = () => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
 
   console.log('====================================');
-  console.log(networks);
+  console.log(networks,ip,isConnected);
   console.log('====================================');
 
   const requestLocationPermission = async () => {
@@ -30,13 +30,13 @@ const WifiSecurity = () => {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           {
-            title: "Location Permission Required",
+            title: 'Location Permission Required',
             message:
-              "This app needs location access to scan for WiFi networks.",
-            buttonNeutral: "Ask Me Later",
-            buttonNegative: "Cancel",
-            buttonPositive: "OK",
-          }
+              'This app needs location access to scan for WiFi networks.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
         );
         return granted === PermissionsAndroid.RESULTS.GRANTED;
       } catch (err) {
@@ -58,7 +58,36 @@ const WifiSecurity = () => {
       }
     };
     init();
+
+    // const fetchIp = async () => {
+    //   try {
+    //     const currentIp: number = await WifiModule.getIP();
+    //     setIp(currentIp);
+    //   } catch (error) {
+    //     console.error('Error getting IP:', error);
+    //   }
+    // };
+
+    // const fetchConnectionStatus = async () => {
+    //   try {
+    //     const status: boolean = await WifiModule.connectionStatus();
+    //     setIsConnected(status);
+    //   } catch (error) {
+    //     console.error('Error getting connection status:', error);
+    //   }
+    // };
+    // fetchIp();
+    // fetchConnectionStatus();
   }, []);
+
+  // const handleDisconnect = async () => {
+  //   try {
+  //     const result: boolean = await WifiModule.disconnect();
+  //     console.log('Disconnected:', result);
+  //   } catch (error) {
+  //     console.error('Error disconnecting:', error);
+  //   }
+  // };
 
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
