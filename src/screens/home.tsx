@@ -1,10 +1,16 @@
 import {FlatList, ScrollView} from 'react-native';
 import React from 'react';
 import {Paths} from '../navigation/paths';
-import {RootScreenProps, RootStackParamList} from '../navigation/types';
+import {NoParamsRoutes, RootScreenProps, RootStackParamList} from '../navigation/types';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FeatureTile from '../components/feauture-tile';
+
+// type NoParamsRoutes = {
+//   [K in keyof RootStackParamList]: RootStackParamList[K] extends undefined
+//     ? K
+//     : never;
+// }[keyof RootStackParamList];
 
 const Home = ({navigation}: RootScreenProps<Paths.Home>) => {
   return (
@@ -41,7 +47,7 @@ interface FeatureTileType {
   id: string;
   icon?: React.ReactNode;
   label: string;
-  route: keyof RootStackParamList;
+  route: NoParamsRoutes;
 }
 const featureTiles: FeatureTileType[] = [
   {

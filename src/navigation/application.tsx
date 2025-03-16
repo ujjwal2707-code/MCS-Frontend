@@ -9,6 +9,7 @@ import {Paths} from '../navigation/paths';
 import {
   Home,
   AppPermission,
+  AppPermissionDetails,
   ScanQr,
   ScanUrl,
   SecurityAdvisor,
@@ -30,6 +31,7 @@ const ApplicationNavigator = () => {
           <Stack.Screen component={ScanUrl} name={Paths.ScanUrl} />
           <Stack.Screen component={WifiSecurity} name={Paths.WifiSecurity} />
           <Stack.Screen component={AppPermission} name={Paths.AppPermission} />
+          <Stack.Screen component={AppPermissionDetails} name={Paths.AppPermissionDetails} />
           <Stack.Screen
             component={SecurityAdvisor}
             name={Paths.SecurityAdvisor}

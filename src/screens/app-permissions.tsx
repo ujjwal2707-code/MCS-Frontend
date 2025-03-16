@@ -4,17 +4,14 @@ import {
   Text,
   Image,
   ScrollView,
-  StyleSheet
+  StyleSheet,
+  TouchableOpacity,
 } from 'react-native';
 import {NativeModules, Platform} from 'react-native';
 import FullScreenLoader from '../components/full-screen-loader';
-
-interface InstalledApp {
-  packageName: string;
-  name: string;
-  icon: string;
-  permissions: string[];
-}
+import {InstalledApp} from '../../types/types';
+import {RootScreenProps} from '../navigation/types';
+import {Paths} from '../navigation/paths';
 
 interface InstalledAppsModule {
   getInstalledApps: () => Promise<InstalledApp[]>;
@@ -22,10 +19,10 @@ interface InstalledAppsModule {
 
 const {InstalledApps} = NativeModules as {InstalledApps: InstalledAppsModule};
 
-const AppPermissions = () => {
+const AppPermissions = ({navigation}: RootScreenProps<Paths.AppPermission>) => {
   const [apps, setApps] = useState<InstalledApp[]>([]);
   const [loading, setLoading] = useState(false);
-  console.log(apps);
+  // console.log(apps);
   useEffect(() => {
     const init = async () => {
       if (Platform.OS === 'android') {
@@ -45,6 +42,10 @@ const AppPermissions = () => {
     init();
   }, []);
 
+  const handleAppPress = (selectedApp: InstalledApp) => {
+    navigation.navigate(Paths.AppPermissionDetails, {app: selectedApp});
+  };
+
   if (loading) {
     return <FullScreenLoader />;
   }
@@ -52,17 +53,21 @@ const AppPermissions = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {apps.map((app, index) => (
-        <View key={index.toString()} style={styles.appContainer}>
-          {app.icon ? (
-            <Image
-              source={{uri: `data:image/png;base64,${app.icon}`}}
-              style={styles.appIcon}
-            />
-          ) : (
-            <Text style={styles.noIcon}>No Icon</Text>
-          )}
-          <Text style={styles.appName}>{app.name}</Text>
-        </View>
+        <TouchableOpacity
+          key={index.toString()}
+          onPress={() => handleAppPress(app)}>
+          <View style={styles.appContainer}>
+            {app.icon ? (
+              <Image
+                source={{uri: `data:image/png;base64,${app.icon}`}}
+                style={styles.appIcon}
+              />
+            ) : (
+              <Text style={styles.noIcon}>No Icon</Text>
+            )}
+            <Text style={styles.appName}>{app.name}</Text>
+          </View>
+        </TouchableOpacity>
       ))}
     </ScrollView>
   );
