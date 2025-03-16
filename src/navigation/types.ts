@@ -8,6 +8,10 @@ export type RootStackParamList = {
   [Paths.WifiSecurity]:undefined;
   [Paths.AppPermission]: undefined;
   [Paths.SecurityAdvisor]:undefined;
+  [Paths.ThreatAdvisor]:undefined;
+  [Paths.AdwareScan]:undefined;
+  [Paths.AppStatistics]:undefined;
+  [Paths.HiddenApps]:undefined;
 };
 
 export type RootScreenProps<

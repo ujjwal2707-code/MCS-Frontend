@@ -13,6 +13,10 @@ import {
   ScanUrl,
   SecurityAdvisor,
   WifiSecurity,
+  ThreatAdvisor,
+  AdwareScan,
+  AppStatistics,
+  HiddenApps,
 } from '../screens';
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -30,6 +34,10 @@ const ApplicationNavigator = () => {
             component={SecurityAdvisor}
             name={Paths.SecurityAdvisor}
           />
+          <Stack.Screen component={ThreatAdvisor} name={Paths.ThreatAdvisor} />
+          <Stack.Screen component={AdwareScan} name={Paths.AdwareScan} />
+          <Stack.Screen component={AppStatistics} name={Paths.AppStatistics} />
+          <Stack.Screen component={HiddenApps} name={Paths.HiddenApps} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

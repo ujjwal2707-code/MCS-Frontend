@@ -82,4 +82,20 @@ const featureTiles: FeatureTileType[] = [
     label: 'Security Advisor',
     route: Paths.SecurityAdvisor,
   },
+  {
+    id: '6',
+    icon: (
+      <MaterialCommunityIcons name="shield-alert" size={24} color="black" />
+    ),
+    label: 'Threat Analyzer',
+    route: Paths.ThreatAdvisor,
+  },
+  {
+    id: '7',
+    icon: (
+      <MaterialCommunityIcons name="shield-check" size={24} color="black" />
+    ),
+    label: 'Adware Scan',
+    route: Paths.AdwareScan,
+  },
 ];

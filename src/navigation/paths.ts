@@ -4,6 +4,10 @@ export const enum Paths {
     ScanUrl = 'scan-url',
     WifiSecurity = 'wifi-security',
     AppPermission = 'app-permission',
-    SecurityAdvisor = 'security-advisor'
+    SecurityAdvisor = 'security-advisor',
+    ThreatAdvisor = 'threat-advisor',
+    AdwareScan = 'adware-scan',
+    AppStatistics = 'app-statistics',
+    HiddenApps = 'hidden-apps'
   }
   
