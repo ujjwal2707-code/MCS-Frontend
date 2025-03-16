@@ -99,6 +99,11 @@ class InstalledAppsModule(private val reactContext: ReactApplicationContext) :
             val resultArray: WritableArray = Arguments.createArray()
 
             for (appInfo in apps) {
+                // Filter out system apps. If you want to include updated system apps, adjust the condition accordingly.
+                if ((appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0) {
+                    continue
+                }
+
                 val appMap: WritableMap = Arguments.createMap()
                 val packageName = appInfo.packageName
                 appMap.putString("packageName", packageName)
@@ -132,8 +137,8 @@ class InstalledAppsModule(private val reactContext: ReactApplicationContext) :
                 }
 
                 // Get the SHA-256 fingerprint for the app's signing certificate.
-            val sha256 = getSHA256Signature(packageName)
-            appMap.putString("sha256", sha256 ?: "")
+                val sha256 = getSHA256Signature(packageName)
+                appMap.putString("sha256", sha256 ?: "")
 
                 resultArray.pushMap(appMap)
             }
