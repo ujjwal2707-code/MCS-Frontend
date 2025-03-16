@@ -8,10 +8,11 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {NativeModules, Platform} from 'react-native';
-import FullScreenLoader from '../components/full-screen-loader';
-import {InstalledApp} from '../../types/types';
-import {RootScreenProps} from '../navigation/types';
-import {Paths} from '../navigation/paths';
+import FullScreenLoader from '../../components/full-screen-loader';
+import { InstalledApp } from '../../../types/types';
+import { RootScreenProps } from '../../navigation/types';
+import { Paths } from '../../navigation/paths';
+
 
 interface InstalledAppsModule {
   getInstalledApps: () => Promise<InstalledApp[]>;

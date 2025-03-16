@@ -1,6 +1,6 @@
 import {Image, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import {RootScreenProps} from '../navigation/types';
+import {RootScreenProps} from '../../navigation/types';
 import {ScrollView} from 'react-native-gesture-handler';
 
 const AppPermissionDetail: React.FC<RootScreenProps> = ({route}) => {

@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {NativeModules} from 'react-native';
-import FullScreenLoader from '../components/full-screen-loader';
+import FullScreenLoader from '../../components/full-screen-loader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface SecurityData {
