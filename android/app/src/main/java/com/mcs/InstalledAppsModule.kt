@@ -17,6 +17,9 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 import java.io.ByteArrayOutputStream
+import java.security.MessageDigest
+import java.io.File
+import java.io.FileInputStream
 
 class InstalledAppsModule(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
@@ -49,6 +52,44 @@ class InstalledAppsModule(private val reactContext: ReactApplicationContext) :
             }
         }
     }
+
+    // Helper function to get the SHA-256 fingerprint of an app's signing certificate.
+    private fun getSHA256Signature(packageName: String): String? {
+    return try {
+        val pm = reactContext.packageManager
+        val packageInfo = pm.getPackageInfo(
+            packageName,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                PackageManager.GET_SIGNING_CERTIFICATES
+            else
+                PackageManager.GET_SIGNATURES
+        )
+        // Use safe calls to handle nullable signingInfo and signatures.
+        val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            packageInfo.signingInfo?.apkContentsSigners ?: emptyArray()
+        } else {
+            packageInfo.signatures ?: emptyArray()
+        }
+        if (signatures.isNotEmpty()) {
+            val cert = signatures[0].toByteArray()
+            val md = MessageDigest.getInstance("SHA-256")
+            val digest = md.digest(cert)
+            val hexString = StringBuilder()
+            for (b in digest) {
+                val hex = Integer.toHexString(0xFF and b.toInt()).toUpperCase()
+                if (hex.length == 1) hexString.append("0")
+                hexString.append(hex)
+            }
+            hexString.toString()
+        } else {
+            null
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
 
     @ReactMethod
     fun getInstalledApps(promise: Promise) {
@@ -89,6 +130,10 @@ class InstalledAppsModule(private val reactContext: ReactApplicationContext) :
                 } catch (e: PackageManager.NameNotFoundException) {
                     appMap.putArray("permissions", Arguments.createArray())
                 }
+
+                // Get the SHA-256 fingerprint for the app's signing certificate.
+            val sha256 = getSHA256Signature(packageName)
+            appMap.putString("sha256", sha256 ?: "")
 
                 resultArray.pushMap(appMap)
             }
