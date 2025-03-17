@@ -40,6 +40,17 @@ class WifiModulePackage : ReactPackage {
     }
 }
 
+// Custom package to register HiddenAppsModule
+class HiddenAppsPackage : ReactPackage {
+    override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
+        return listOf(HiddenAppsModule(reactContext))
+    }
+
+    override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
+        return emptyList()
+    }
+}
+
 class MainApplication : Application(), ReactApplication {
 
   override val reactNativeHost: ReactNativeHost =
@@ -49,6 +60,7 @@ class MainApplication : Application(), ReactApplication {
           packages.add(InstalledAppsPackage())
           packages.add(SecurityCheckModulePackage())
           packages.add(WifiModulePackage())
+          packages.add(HiddenAppsPackage())
           return packages
         }
 
