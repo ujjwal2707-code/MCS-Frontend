@@ -14,10 +14,14 @@ import {
   ScanUrl,
   SecurityAdvisor,
   WifiSecurity,
+  WifiSecurityDetails,
   ThreatAdvisor,
   AdwareScan,
   AppStatistics,
   HiddenApps,
+  CyberNews,
+  OtpSecurity,
+  DataBreach
 } from '../screens';
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -30,6 +34,10 @@ const ApplicationNavigator = () => {
           <Stack.Screen component={ScanQr} name={Paths.ScanQr} />
           <Stack.Screen component={ScanUrl} name={Paths.ScanUrl} />
           <Stack.Screen component={WifiSecurity} name={Paths.WifiSecurity} />
+          <Stack.Screen component={WifiSecurityDetails} name={Paths.WifiSecurityDetails} />
+          <Stack.Screen component={CyberNews} name={Paths.CyberNews} />
+          <Stack.Screen component={OtpSecurity} name={Paths.OtpSecurity} />
+          <Stack.Screen component={DataBreach} name={Paths.DataBreach} />
           <Stack.Screen component={AppPermission} name={Paths.AppPermission} />
           <Stack.Screen component={AppPermissionDetails} name={Paths.AppPermissionDetails} />
           <Stack.Screen

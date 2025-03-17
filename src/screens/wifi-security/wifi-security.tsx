@@ -2,18 +2,10 @@ import {View, Text, Platform, PermissionsAndroid} from 'react-native';
 import React, {useEffect, useState} from 'react';
 
 import {NativeModules} from 'react-native';
+import { WifiNetwork } from '../../../types/types';
 
 const {WifiModule} = NativeModules;
-interface WifiNetwork {
-  SSID: string;
-  BSSID: string;
-  capabilities: string;
-  frequency: number;
-  level: number;
-  timestamp: number;
-  securityRating: number;
-  isSecure: boolean;
-}
+
 
 const WifiSecurity = () => {
   const [networks, setNetworks] = useState<WifiNetwork[]>([]);

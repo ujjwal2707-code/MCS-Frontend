@@ -69,6 +69,24 @@ const featureTiles: FeatureTileType[] = [
     route: Paths.WifiSecurity,
   },
   {
+    id: '8',
+    icon: <MaterialCommunityIcons name="wifi" size={24} color="black" />,
+    label: 'Cyber News',
+    route: Paths.CyberNews,
+  },
+  {
+    id: '9',
+    icon: <MaterialCommunityIcons name="wifi" size={24} color="black" />,
+    label: 'OTP Security',
+    route: Paths.OtpSecurity,
+  },
+  {
+    id: '10',
+    icon: <MaterialCommunityIcons name="wifi" size={24} color="black" />,
+    label: 'Data Breach',
+    route: Paths.DataBreach,
+  },
+  {
     id: '4',
     icon: (
       <MaterialCommunityIcons
@@ -103,5 +121,17 @@ const featureTiles: FeatureTileType[] = [
     ),
     label: 'Adware Scan',
     route: Paths.AdwareScan,
+  },
+  {
+    id: '11',
+    icon: <MaterialCommunityIcons name="wifi" size={24} color="black" />,
+    label: 'App Statistics',
+    route: Paths.AppStatistics,
+  },
+  {
+    id: '12',
+    icon: <MaterialCommunityIcons name="wifi" size={24} color="black" />,
+    label: 'Hidden Application',
+    route: Paths.HiddenApps,
   },
 ];

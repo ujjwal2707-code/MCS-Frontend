@@ -1,12 +1,16 @@
 import type {StackScreenProps} from '@react-navigation/stack';
 import type {Paths} from '../navigation/paths';
-import {InstalledApp} from '../../types/types';
+import {InstalledApp, WifiNetwork} from '../../types/types';
 
 export type RootStackParamList = {
   [Paths.Home]: undefined;
   [Paths.ScanQr]: undefined;
   [Paths.ScanUrl]: undefined;
   [Paths.WifiSecurity]: undefined;
+  [Paths.WifiSecurityDetails]: {wifi: WifiNetwork};
+  [Paths.CyberNews]: undefined;
+  [Paths.OtpSecurity]: undefined;
+  [Paths.DataBreach]: undefined;
   [Paths.AppPermission]: undefined;
   [Paths.AppPermissionDetails]: {app: InstalledApp};
   [Paths.SecurityAdvisor]: undefined;
