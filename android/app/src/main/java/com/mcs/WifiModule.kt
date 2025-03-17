@@ -16,6 +16,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
+import android.util.Log
 
 class WifiModule(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
@@ -36,6 +37,7 @@ class WifiModule(private val reactContext: ReactApplicationContext) :
                         val results: List<ScanResult> = wifiManager.scanResults
                         val wifiArray: WritableArray = Arguments.createArray()
                         for (result in results) {
+                            Log.d("WifiResult", result.toString())
                             val map: WritableMap = Arguments.createMap()
                             map.putString("SSID", result.SSID)      // WiFi network name
                             map.putString("BSSID", result.BSSID)

@@ -2,13 +2,11 @@ import {Image, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import {RootScreenProps} from '../../navigation/types';
 import {ScrollView} from 'react-native-gesture-handler';
+import { InstalledApp } from '../../../types/types';
 
 const AppPermissionDetail: React.FC<RootScreenProps> = ({route}) => {
-  const {app} = route.params!;
+  const { app } = route.params as { app: InstalledApp };
 
-  console.log('====================================');
-  console.log(app);
-  console.log('====================================');
   return (
     <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>{app.name}</Text>
