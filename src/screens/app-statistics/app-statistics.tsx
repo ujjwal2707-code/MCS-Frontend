@@ -37,7 +37,7 @@ const AppStatistics = ({navigation}: RootScreenProps<Paths.AppStatistics>) => {
   };
 
   console.log('====================================');
-  console.log(permissionGranted);
+  console.log(permissionGranted,apps);
   console.log('====================================');
 
   useEffect(() => {

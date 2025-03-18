@@ -14,9 +14,6 @@ import {Paths} from '../../navigation/paths';
 const AppUsageStats: React.FC<RootScreenProps> = ({route, navigation}) => {
   const {apps} = route.params as {apps: InstalledAppStats[]};
 
-  console.log('====================================');
-  console.log(apps);
-  console.log('====================================');
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {apps.map((app, index) => (

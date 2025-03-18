@@ -16,6 +16,7 @@ import android.text.format.DateFormat
 import android.util.Base64
 import android.content.Intent
 import android.provider.Settings
+import android.net.TrafficStats
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -147,7 +148,6 @@ class InstalledAppsStatisticsModule(private val reactContext: ReactApplicationCo
     return lastTimeUsed
     }
 
-
     @ReactMethod
     fun checkUsageStatsPermission(promise: Promise) {
     try {
@@ -241,6 +241,12 @@ class InstalledAppsStatisticsModule(private val reactContext: ReactApplicationCo
                 appMap.putDouble("dailyUsage", dailyUsage.toDouble())
                 appMap.putDouble("weeklyUsage", weeklyUsage.toDouble())
                 appMap.putDouble("monthlyUsage", monthlyUsage.toDouble())
+
+                // Add data usage using TrafficStats API
+                val txBytes = TrafficStats.getUidTxBytes(appInfo.uid)
+                val rxBytes = TrafficStats.getUidRxBytes(appInfo.uid)
+                appMap.putDouble("transmittedBytes", if (txBytes < 0) 0.0 else txBytes.toDouble() / (1024 * 1024))
+                appMap.putDouble("receivedBytes", if (rxBytes < 0) 0.0 else rxBytes.toDouble() / (1024 * 1024))
 
                 resultArray.pushMap(appMap)
             }

@@ -25,6 +25,8 @@ export interface InstalledAppStats {
   dailyUsage: number;
   weeklyUsage: number;
   monthlyUsage: number;
+  transmittedBytes:number;
+  receivedBytes:number;
 }
 
 export interface WifiNetwork {
