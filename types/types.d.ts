@@ -3,6 +3,13 @@ export interface InstalledApp {
   name: string;
   icon: string;
   permissions: string[];
+  sha256: string;
+  installerSource: string;
+  installedOn: string;
+  lastUsageDate: string;
+  dailyUsage: number;
+  weeklyUsage: number;
+  monthlyUsage: number;
 }
 
 export interface WifiNetwork {

@@ -11,5 +11,5 @@ export {default as AppPermissionDetails} from './app-permission/app-permission-d
 export {default as SecurityAdvisor} from './security-advisor/security-advisor'
 export {default as ThreatAdvisor} from './threat-advisor'
 export {default as AdwareScan} from './adware-scan'
-export {default as AppStatistics} from './app-statistics'
+export {default as AppStatistics} from './app-statistics/app-statistics'
 export {default as HiddenApps} from './hidden-apps'
