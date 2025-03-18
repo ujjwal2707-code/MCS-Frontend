@@ -1,6 +1,6 @@
 import type {StackScreenProps} from '@react-navigation/stack';
 import type {Paths} from '../navigation/paths';
-import {InstalledApp, WifiNetwork} from '../../types/types';
+import {InstalledApp, InstalledAppStats, WifiNetwork} from '../../types/types';
 
 export type RootStackParamList = {
   [Paths.Home]: undefined;
@@ -17,6 +17,9 @@ export type RootStackParamList = {
   [Paths.ThreatAdvisor]: undefined;
   [Paths.AdwareScan]: undefined;
   [Paths.AppStatistics]: undefined;
+  [Paths.AppUsageStats]:{apps:InstalledAppStats[]};
+  [Paths.DataUsageStats]:{apps:InstalledAppStats[]},
+  [Paths.ActiveTimeDetails]:{app:InstalledAppStats}
   [Paths.HiddenApps]: undefined;
 };
 

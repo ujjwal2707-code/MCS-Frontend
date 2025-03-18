@@ -13,6 +13,9 @@ export const enum Paths {
     ThreatAdvisor = 'threat-advisor',
     AdwareScan = 'adware-scan',
     AppStatistics = 'app-statistics',
+    AppUsageStats = 'app-usage-stats',
+    DataUsageStats = 'data-usage-stats',
+    ActiveTimeDetails = 'active-time-details',
     HiddenApps = 'hidden-apps'
   }
   

@@ -113,35 +113,40 @@ class InstalledAppsStatisticsModule(private val reactContext: ReactApplicationCo
 
     // Helper function to query usage stats and sum the foreground time for a given package.
     private fun getUsageTimeForPackage(packageName: String, startTime: Long, endTime: Long): Long {
-        val usageStatsManager =
-            reactContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+    val usageStatsManager =
+        reactContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+        // Aggregate the usage stats over the given period to avoid overlapping intervals.
+        val aggregatedStats = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
+        aggregatedStats[packageName]?.totalTimeInForeground ?: 0L
+    } else {
+        // Fallback for older devices: sum the daily stats.
         val usageStatsList: List<UsageStats> = usageStatsManager.queryUsageStats(
-            UsageStatsManager.INTERVAL_BEST, startTime, endTime
+            UsageStatsManager.INTERVAL_DAILY, startTime, endTime
         )
-        var totalTime = 0L
-        usageStatsList.forEach { stats ->
-            if (stats.packageName == packageName) {
-                totalTime += stats.totalTimeInForeground
-            }
-        }
-        return totalTime
+        usageStatsList.filter { it.packageName == packageName }
+            .sumOf { it.totalTimeInForeground }
+       }
     }
+
 
     // Helper function to get the last time the app was used within a given period.
     private fun getLastUsageForPackage(packageName: String, startTime: Long, endTime: Long): Long {
-        val usageStatsManager =
-            reactContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val usageStatsList: List<UsageStats> = usageStatsManager.queryUsageStats(
-            UsageStatsManager.INTERVAL_BEST, startTime, endTime
-        )
-        var lastTimeUsed = 0L
-        usageStatsList.forEach { stats ->
-            if (stats.packageName == packageName && stats.lastTimeUsed > lastTimeUsed) {
-                lastTimeUsed = stats.lastTimeUsed
-            }
+    val usageStatsManager =
+        reactContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+    val usageStatsList: List<UsageStats> = usageStatsManager.queryUsageStats(
+        UsageStatsManager.INTERVAL_DAILY, startTime, endTime
+    )
+    var lastTimeUsed = 0L
+    usageStatsList.forEach { stats ->
+        if (stats.packageName == packageName && stats.lastTimeUsed > lastTimeUsed) {
+            lastTimeUsed = stats.lastTimeUsed
         }
-        return lastTimeUsed
     }
+    return lastTimeUsed
+    }
+
 
     @ReactMethod
     fun checkUsageStatsPermission(promise: Promise) {

@@ -1,4 +1,19 @@
+export interface FeatureTileType {
+  id: string;
+  icon?: React.ReactNode;
+  label: string;
+  route: NoParamsRoutes;
+}
+
 export interface InstalledApp {
+  packageName: string;
+  name: string;
+  icon: string;
+  permissions: string[];
+  sha256: string;
+}
+
+export interface InstalledAppStats {
   packageName: string;
   name: string;
   icon: string;

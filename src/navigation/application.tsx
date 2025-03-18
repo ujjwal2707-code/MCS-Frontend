@@ -18,10 +18,13 @@ import {
   ThreatAdvisor,
   AdwareScan,
   AppStatistics,
+  AppUsageStats,
+  ActiveTimeDetails,
+  DataUsageStats,
   HiddenApps,
   CyberNews,
   OtpSecurity,
-  DataBreach
+  DataBreach,
 } from '../screens';
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -47,6 +50,9 @@ const ApplicationNavigator = () => {
           <Stack.Screen component={ThreatAdvisor} name={Paths.ThreatAdvisor} />
           <Stack.Screen component={AdwareScan} name={Paths.AdwareScan} />
           <Stack.Screen component={AppStatistics} name={Paths.AppStatistics} />
+          <Stack.Screen component={AppUsageStats} name={Paths.AppUsageStats} />
+          <Stack.Screen component={DataUsageStats} name={Paths.DataUsageStats} />
+          <Stack.Screen component={ActiveTimeDetails} name={Paths.ActiveTimeDetails} />
           <Stack.Screen component={HiddenApps} name={Paths.HiddenApps} />
         </Stack.Navigator>
       </NavigationContainer>

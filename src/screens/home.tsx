@@ -5,6 +5,7 @@ import {NoParamsRoutes, RootScreenProps, RootStackParamList} from '../navigation
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FeatureTile from '../components/feauture-tile';
+import { FeatureTileType } from '../../types/types';
 
 // type NoParamsRoutes = {
 //   [K in keyof RootStackParamList]: RootStackParamList[K] extends undefined
@@ -43,12 +44,7 @@ const Home = ({navigation}: RootScreenProps<Paths.Home>) => {
 
 export default Home;
 
-interface FeatureTileType {
-  id: string;
-  icon?: React.ReactNode;
-  label: string;
-  route: NoParamsRoutes;
-}
+
 const featureTiles: FeatureTileType[] = [
   {
     id: '1',
