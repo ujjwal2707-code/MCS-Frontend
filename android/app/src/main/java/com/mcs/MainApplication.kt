@@ -51,6 +51,18 @@ class HiddenAppsPackage : ReactPackage {
     }
 }
 
+// Custom package to register AdsServicesModule
+class AdsServicesPackage : ReactPackage {
+    override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
+        return listOf(AdsServicesModule(reactContext))
+    }
+
+    override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
+        return emptyList()
+    }
+}
+
+
 class MainApplication : Application(), ReactApplication {
 
   override val reactNativeHost: ReactNativeHost =
@@ -61,6 +73,7 @@ class MainApplication : Application(), ReactApplication {
           packages.add(SecurityCheckModulePackage())
           packages.add(WifiModulePackage())
           packages.add(HiddenAppsPackage())
+          packages.add(AdsServicesPackage())
           return packages
         }
 
