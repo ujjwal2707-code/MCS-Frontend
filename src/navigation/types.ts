@@ -20,6 +20,7 @@ export type RootStackParamList = {
   [Paths.AppUsageStats]:{apps:InstalledAppStats[]};
   [Paths.DataUsageStats]:{apps:InstalledAppStats[]},
   [Paths.ActiveTimeDetails]:{app:InstalledAppStats}
+  [Paths.AppUpdates]:undefined;
   [Paths.HiddenApps]: undefined;
 };
 

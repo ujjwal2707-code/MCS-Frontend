@@ -170,6 +170,70 @@ class InstalledAppsStatisticsModule(private val reactContext: ReactApplicationCo
     }
 
     @ReactMethod
+fun getAppUpdates(promise: Promise) {
+    try {
+        val pm: PackageManager = reactContext.packageManager
+        // Retrieve all installed applications
+        val apps: List<ApplicationInfo> = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+        
+        // Create arrays for different update thresholds.
+        // These arrays will contain apps that have not been updated for more than 1 month, 3 months, and 6 months respectively.
+        val past1Month: WritableArray = Arguments.createArray()
+        val past3Month: WritableArray = Arguments.createArray()
+        val past6Month: WritableArray = Arguments.createArray()
+        
+        val currentTime = System.currentTimeMillis()
+        // Define durations in milliseconds
+        val oneMonthMillis = 30L * 24 * 60 * 60 * 1000    // 30 days
+        val threeMonthMillis = 90L * 24 * 60 * 60 * 1000   // 90 days
+        val sixMonthMillis = 180L * 24 * 60 * 60 * 1000    // 180 days
+
+        // Loop through each app
+        for (appInfo in apps) {
+            // Only include apps with a launch intent (visible to the user)
+            if (pm.getLaunchIntentForPackage(appInfo.packageName) == null) continue
+
+            try {
+                // Get package info to access the lastUpdateTime
+                val pkgInfo = pm.getPackageInfo(appInfo.packageName, 0)
+                val lastUpdateTime = pkgInfo.lastUpdateTime
+                val diff = currentTime - lastUpdateTime
+
+                // Build a map for the app. You can add more details as needed.
+                val appMap: WritableMap = Arguments.createMap()
+                appMap.putString("packageName", appInfo.packageName)
+                val label = pm.getApplicationLabel(appInfo)
+                appMap.putString("name", label?.toString() ?: "")
+                // Optionally include the last update timestamp (in milliseconds)
+                appMap.putDouble("lastUpdateTime", lastUpdateTime.toDouble())
+
+                // Categorize the app based on how long ago it was updated.
+                // The highest threshold met is used (mutually exclusive categorization).
+                when {
+                    diff > sixMonthMillis -> past6Month.pushMap(appMap)
+                    diff > threeMonthMillis -> past3Month.pushMap(appMap)
+                    diff > oneMonthMillis -> past1Month.pushMap(appMap)
+                    // Apps updated within the past month are assumed to be up-to-date and are not added.
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // Continue processing other apps if one fails
+            }
+        }
+
+        // Build a result map containing all three arrays.
+        val resultMap: WritableMap = Arguments.createMap()
+        resultMap.putArray("past1Month", past1Month)
+        resultMap.putArray("past3Month", past3Month)
+        resultMap.putArray("past6Month", past6Month)
+
+        promise.resolve(resultMap)
+    } catch (e: Exception) {
+        promise.reject("ERROR", e)
+    }
+}
+
+    @ReactMethod
     fun getInstalledApps(promise: Promise) {
         try {
             // Check if the app has usage stats permission

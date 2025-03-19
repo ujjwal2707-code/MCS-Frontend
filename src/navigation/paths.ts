@@ -16,6 +16,7 @@ export const enum Paths {
     AppUsageStats = 'app-usage-stats',
     DataUsageStats = 'data-usage-stats',
     ActiveTimeDetails = 'active-time-details',
+    AppUpdates = 'app-updates',
     HiddenApps = 'hidden-apps'
   }
   

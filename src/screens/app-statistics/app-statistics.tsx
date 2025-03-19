@@ -87,9 +87,9 @@ const AppStatistics = ({navigation}: RootScreenProps<Paths.AppStatistics>) => {
         <FlatList
           data={featureTiles}
           keyExtractor={item => item.id}
-          numColumns={2}
+          numColumns={3}
           contentContainerStyle={{paddingHorizontal: 10, paddingTop: 10}}
-          columnWrapperStyle={{justifyContent: 'space-evenly'}}
+          columnWrapperStyle={{justifyContent: 'space-between'}}
           renderItem={({item}) => (
             <TouchableOpacity
               style={styles.container}
@@ -139,11 +139,17 @@ const featureTiles: FeatureTileType[] = [
     label: 'Data Usage Stats',
     route: Paths.DataUsageStats,
   },
+  {
+    id: '3',
+    icon: <Ionicons name="globe-outline" size={24} color="black" />,
+    label: 'App Updates',
+    route: Paths.AppUpdates,
+  },
 ];
 
 const styles = StyleSheet.create({
   container: {
-    width: '40%',
+    width: '30%',
     height: 112,
     margin: 8,
     padding: 8,
