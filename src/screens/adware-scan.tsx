@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, ScrollView, StyleSheet, Image} from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import {NativeModules} from 'react-native';
 
 const {AdsServices} = NativeModules;
@@ -21,6 +28,43 @@ type AppWithAds = {
   name: string;
   icon: string;
   ads: string[];
+};
+
+const AccordionItem = ({item}: {item: AppWithAds}) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <View style={styles.accordionItem}>
+      <TouchableOpacity
+        onPress={() => setExpanded(!expanded)}
+        style={styles.accordionHeader}>
+        {item.icon ? (
+          <Image
+            source={{uri: `data:image/png;base64,${item.icon}`}}
+            style={styles.icon}
+          />
+        ) : (
+          <View style={styles.noIcon}>
+            <Text>No Icon</Text>
+          </View>
+        )}
+        <View style={styles.appDetails}>
+          <Text style={styles.appName}>{item.name}</Text>
+          <Text style={styles.packageName}>{item.packageName}</Text>
+        </View>
+      </TouchableOpacity>
+      {expanded && (
+        <View style={styles.accordionContent}>
+          <Text style={styles.adsHeader}>Ads Services:</Text>
+          {item.ads.map((ad, index) => (
+            <View key={index} style={styles.adServiceItem}>
+              <Text style={styles.adServiceText}>{ad}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
 };
 
 const AdwareScan = () => {
@@ -63,7 +107,6 @@ const AdwareScan = () => {
         {} as {[key: string]: string[]},
       );
 
-      // Create a list of apps that have ads services.
       const combined: AppWithAds[] = apps
         .filter(app => groupedAds[app.packageName])
         .map(app => ({
@@ -81,24 +124,7 @@ const AdwareScan = () => {
     <ScrollView style={styles.container}>
       <Text style={styles.header}>Apps and their Ads Services</Text>
       {appsWithAds.map((item, index) => (
-        <View key={index} style={styles.appContainer}>
-          {item.icon ? (
-            <Image
-              source={{uri: `data:image/png;base64,${item.icon}`}}
-              style={styles.icon}
-            />
-          ) : (
-            <View style={styles.noIcon}>
-              <Text>No Icon</Text>
-            </View>
-          )}
-          <View style={styles.appDetails}>
-            <Text style={styles.appName}>{item.name}</Text>
-            <Text style={styles.packageName}>{item.packageName}</Text>
-            <Text style={styles.adsHeader}>Ads Services:</Text>
-            <Text style={styles.adsList}>{item.ads.join(', ')}</Text>
-          </View>
-        </View>
+        <AccordionItem key={index} item={item} />
       ))}
       {error && <Text style={styles.error}>{error}</Text>}
     </ScrollView>
@@ -118,22 +144,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 12,
   },
-  appContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    padding: 8,
+  accordionItem: {
+    marginBottom: 10,
     backgroundColor: '#f9f9f9',
     borderRadius: 8,
+    overflow: 'hidden',
+  },
+  accordionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
   },
   icon: {
-    width: 64,
-    height: 64,
+    width: 48,
+    height: 48,
     marginRight: 12,
   },
   noIcon: {
-    width: 64,
-    height: 64,
+    width: 48,
+    height: 48,
     marginRight: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -150,18 +179,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
-  adsHeader: {
-    marginTop: 8,
-    fontWeight: 'bold',
+  accordionContent: {
+    padding: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
   },
-  adsList: {
+  adsHeader: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  adServiceItem: {
+    paddingVertical: 4,
+  },
+  adServiceText: {
     fontSize: 16,
     color: '#333',
-    marginBottom:2
   },
   error: {
     color: 'red',
     marginTop: 16,
   },
 });
-
