@@ -6,6 +6,9 @@ export type RootStackParamList = {
   [Paths.Home]: undefined;
   [Paths.ScanQr]: undefined;
   [Paths.ScanUrl]: undefined;
+  [Paths.ScanWebUrl]:undefined;
+  [Paths.ScanPaymentUrl]:undefined;
+  [Paths.ScanAppUrl]:undefined;
   [Paths.WifiSecurity]: undefined;
   [Paths.WifiSecurityDetails]: {wifi: WifiNetwork};
   [Paths.CyberNews]: undefined;

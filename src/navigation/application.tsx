@@ -12,6 +12,9 @@ import {
   AppPermissionDetails,
   ScanQr,
   ScanUrl,
+  ScanWebUrl,
+  ScanPaymentURl,
+  ScanAppUrl,
   SecurityAdvisor,
   WifiSecurity,
   WifiSecurityDetails,
@@ -37,13 +40,25 @@ const ApplicationNavigator = () => {
           <Stack.Screen component={Home} name={Paths.Home} />
           <Stack.Screen component={ScanQr} name={Paths.ScanQr} />
           <Stack.Screen component={ScanUrl} name={Paths.ScanUrl} />
+          <Stack.Screen component={ScanWebUrl} name={Paths.ScanWebUrl} />
+          <Stack.Screen
+            component={ScanPaymentURl}
+            name={Paths.ScanPaymentUrl}
+          />
+          <Stack.Screen component={ScanAppUrl} name={Paths.ScanAppUrl} />
           <Stack.Screen component={WifiSecurity} name={Paths.WifiSecurity} />
-          <Stack.Screen component={WifiSecurityDetails} name={Paths.WifiSecurityDetails} />
+          <Stack.Screen
+            component={WifiSecurityDetails}
+            name={Paths.WifiSecurityDetails}
+          />
           <Stack.Screen component={CyberNews} name={Paths.CyberNews} />
           <Stack.Screen component={OtpSecurity} name={Paths.OtpSecurity} />
           <Stack.Screen component={DataBreach} name={Paths.DataBreach} />
           <Stack.Screen component={AppPermission} name={Paths.AppPermission} />
-          <Stack.Screen component={AppPermissionDetails} name={Paths.AppPermissionDetails} />
+          <Stack.Screen
+            component={AppPermissionDetails}
+            name={Paths.AppPermissionDetails}
+          />
           <Stack.Screen
             component={SecurityAdvisor}
             name={Paths.SecurityAdvisor}
@@ -52,8 +67,14 @@ const ApplicationNavigator = () => {
           <Stack.Screen component={AdwareScan} name={Paths.AdwareScan} />
           <Stack.Screen component={AppStatistics} name={Paths.AppStatistics} />
           <Stack.Screen component={AppUsageStats} name={Paths.AppUsageStats} />
-          <Stack.Screen component={DataUsageStats} name={Paths.DataUsageStats} />
-          <Stack.Screen component={ActiveTimeDetails} name={Paths.ActiveTimeDetails} />
+          <Stack.Screen
+            component={DataUsageStats}
+            name={Paths.DataUsageStats}
+          />
+          <Stack.Screen
+            component={ActiveTimeDetails}
+            name={Paths.ActiveTimeDetails}
+          />
           <Stack.Screen component={AppUpdates} name={Paths.AppUpdates} />
           <Stack.Screen component={HiddenApps} name={Paths.HiddenApps} />
         </Stack.Navigator>

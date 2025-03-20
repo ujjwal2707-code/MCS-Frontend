@@ -39,3 +39,35 @@ export interface WifiNetwork {
   securityRating: number;
   isSecure: boolean;
 }
+
+export interface VirusTotalResponse {
+  data: {
+    id: string;
+    type: string;
+    links: {
+      self: string;
+      item: string;
+    };
+    attributes: {
+      results: Record<string, EngineResult>;
+      stats: {
+        malicious: number;
+        suspicious: number;
+        undetected: number;
+        harmless: number;
+        timeout: number;
+      };
+      date: number;
+      status: string; // completed,queued
+    };
+  };
+  meta: {
+    url_info: {
+      id: string;
+      url: string;
+    };
+    file_info: {
+      sha256: string;
+    };
+  };
+}
