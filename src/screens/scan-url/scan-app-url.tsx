@@ -34,13 +34,13 @@ const ScanAppUrl = () => {
       console.log(url);
       console.log(isValid);
       
-      // if (!isValidUrl(url.trim())) {
-      //   Alert.alert(
-      //     'Error',
-      //     'Please enter a valid URL.(e.g., https://example.com,http://example.com)',
-      //   );
-      //   return;
-      // }
+      if (!isValidUrl(url.trim())) {
+        Alert.alert(
+          'Error',
+          'Please enter a valid URL.(e.g., https://example.com,http://example.com)',
+        );
+        return;
+      }
       if (!url.trim()) {
         Alert.alert('Error', 'Please enter a valid URL.');
         return;
