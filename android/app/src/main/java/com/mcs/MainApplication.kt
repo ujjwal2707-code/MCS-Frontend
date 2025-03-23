@@ -73,6 +73,17 @@ class AdsServicesPackage : ReactPackage {
     }
 }
 
+// Custom package to register InstalledAppsThreatAnalysisModule
+class InstalledAppsThreatAnalysisPackage : ReactPackage {
+    override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
+        return listOf(InstalledAppsThreatAnalysisModule(reactContext))
+    }
+
+    override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
+        return emptyList()
+    }
+}
+
 
 class MainApplication : Application(), ReactApplication {
 
@@ -86,6 +97,7 @@ class MainApplication : Application(), ReactApplication {
           packages.add(HiddenAppsPackage())
           packages.add(InstalledAppsStatisticsPackage())
           packages.add(AdsServicesPackage())
+          packages.add(InstalledAppsThreatAnalysisPackage())
           return packages
         }
 
