@@ -3,6 +3,11 @@ import type {Paths} from '../navigation/paths';
 import {InstalledApp, InstalledAppStats, WifiNetwork} from '../../types/types';
 
 export type RootStackParamList = {
+  [Paths.Register]:undefined;
+  [Paths.Login]:undefined;
+  [Paths.VerifyEmail]:{email:string};
+  [Paths.ForgetPassword]:undefined;
+  [Paths.Profile]:undefined;
   [Paths.Home]: undefined;
   [Paths.ScanQr]: undefined;
   [Paths.ScanUrl]: undefined;

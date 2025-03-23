@@ -1,3 +1,8 @@
+export {default as Login} from './auth/login'
+export {default as Register} from './auth/register'
+export {default as VerifyEmail} from './auth/verify-email'
+export {default as ForgetPassword} from './auth/forget-password'
+export {default as Profile} from './profile'
 export {default as Home} from './home'
 export {default as ScanQr } from './scan-qr'
 export {default as ScanUrl} from './scan-url/scn-url'

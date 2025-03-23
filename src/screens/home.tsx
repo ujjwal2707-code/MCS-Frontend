@@ -1,25 +1,65 @@
-import {FlatList, ScrollView} from 'react-native';
+import {FlatList, ScrollView, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {Paths} from '../navigation/paths';
-import {NoParamsRoutes, RootScreenProps, RootStackParamList} from '../navigation/types';
+import {RootScreenProps} from '../navigation/types';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FeatureTile from '../components/feauture-tile';
-import { FeatureTileType } from '../../types/types';
-
-// type NoParamsRoutes = {
-//   [K in keyof RootStackParamList]: RootStackParamList[K] extends undefined
-//     ? K
-//     : never;
-// }[keyof RootStackParamList];
+import {FeatureTileType} from '../../types/types';
+import {useAuth} from '../context/auth-context';
+import {apiService} from '../services';
+import {useQuery} from '@tanstack/react-query';
 
 const Home = ({navigation}: RootScreenProps<Paths.Home>) => {
+  const {token} = useAuth();
+
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['userProfile', token],
+    queryFn: async () => {
+      if (!token) throw new Error('Token is missing');
+
+      const response = await apiService.getUserProfile(token);
+      if (!response) {
+        throw new Error('API call failed: No response received.');
+      }
+      if (response.status !== 200) {
+        throw new Error(
+          `API Error: ${response.status} - ${response.statusText}`,
+        );
+      }
+      if (!response.data || !response.data.success) {
+        throw new Error('Invalid API response format.');
+      }
+
+      return response.data.data;
+    },
+    staleTime: 0,
+    retry: false, // Prevent retrying if token is missing
+  });
   return (
     <ScrollView
       contentContainerStyle={{
         flexGrow: 1,
         paddingBottom: 100,
       }}>
+      <TouchableOpacity
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          paddingBottom: 5,
+          paddingTop: 5,
+        }}
+        onPress={() => {
+          navigation.navigate(Paths.Profile);
+        }}>
+        <Text style={{fontSize: 20, fontWeight: 'bold'}}>
+          Welcome, {user?.name}
+        </Text>
+      </TouchableOpacity>
       <FlatList
         data={featureTiles}
         keyExtractor={item => item.id}
@@ -43,7 +83,6 @@ const Home = ({navigation}: RootScreenProps<Paths.Home>) => {
 };
 
 export default Home;
-
 
 const featureTiles: FeatureTileType[] = [
   {
