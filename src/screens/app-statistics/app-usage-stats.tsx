@@ -5,14 +5,39 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  NativeModules,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {RootScreenProps} from '../../navigation/types';
 import {InstalledAppStats} from '../../../types/types';
 import {Paths} from '../../navigation/paths';
+import FullScreenLoader from '../../components/full-screen-loader';
+
+const {InstalledAppsStatistics} = NativeModules;
 
 const AppUsageStats: React.FC<RootScreenProps> = ({route, navigation}) => {
-  const {apps} = route.params as {apps: InstalledAppStats[]};
+  const [apps, setApps] = useState<InstalledAppStats[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        setLoading(true);
+        const appsData: InstalledAppStats[] =
+          await InstalledAppsStatistics.getInstalledApps();
+        setApps(appsData);
+      } catch (error) {
+        console.error('Error scanning WiFi networks:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    init();
+  }, []);
+
+  if (loading) {
+    return <FullScreenLoader />;
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

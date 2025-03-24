@@ -25,8 +25,8 @@ export type RootStackParamList = {
   [Paths.ThreatAdvisor]: undefined;
   [Paths.AdwareScan]: undefined;
   [Paths.AppStatistics]: undefined;
-  [Paths.AppUsageStats]:{apps:InstalledAppStats[]};
-  [Paths.DataUsageStats]:{apps:InstalledAppStats[]},
+  [Paths.AppUsageStats]:undefined;
+  [Paths.DataUsageStats]:undefined;
   [Paths.ActiveTimeDetails]:{app:InstalledAppStats}
   [Paths.AppUpdates]:undefined;
   [Paths.HiddenApps]: undefined;

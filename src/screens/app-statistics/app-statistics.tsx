@@ -1,121 +1,120 @@
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
-  Alert,
-  ScrollView,
   FlatList,
   TouchableOpacity,
   StyleSheet,
   Button,
   Modal,
+  AppState
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-
 import {NativeModules} from 'react-native';
-import {FeatureTileType, InstalledAppStats} from '../../../types/types';
-import {Paths} from '../../navigation/paths';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {Paths} from '../../navigation/paths';
 import {RootScreenProps} from '../../navigation/types';
+import {FeatureTileType} from '../../../types/types';
 
 const {InstalledAppsStatistics} = NativeModules;
 
+type AllowedRoutes =
+  | Paths.AppUsageStats
+  | Paths.DataUsageStats
+  | Paths.AppUpdates;
+
 const AppStatistics = ({navigation}: RootScreenProps<Paths.AppStatistics>) => {
-  const [apps, setApps] = useState<InstalledAppStats[]>([]);
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(
     null,
   );
-
   const [openAlertModel, setOpenAlertModel] = useState(false);
 
-  const handleOpenAlertModel = () => {
-    setOpenAlertModel(true);
-  };
+  const checkPermission = useCallback(async () => {
+    try {
+      const hasPermission: boolean =
+        await InstalledAppsStatistics.checkUsageStatsPermission();
+      setPermissionGranted(hasPermission);
 
-  const handleCloseAlertModel = () => {
-    setOpenAlertModel(false);
-  };
-
-  console.log('====================================');
-  console.log(permissionGranted,apps);
-  console.log('====================================');
-
-  useEffect(() => {
-    const checkPermissionAndLoadApps = async () => {
-      try {
-        // Check if usage stats permission is granted
-        const hasPermission: boolean =
-          await InstalledAppsStatistics.checkUsageStatsPermission();
-        setPermissionGranted(hasPermission);
-
-        // If permission is missing, navigate user to usage setting
-        if (!hasPermission) {
-          handleOpenAlertModel();
-          return;
-        }
-
-        // If permission is granted, load your apps data
-        const appsData: InstalledAppStats[] =
-          await InstalledAppsStatistics.getInstalledApps();
-        setApps(appsData);
-      } catch (error) {
-        console.error('Error loading apps:', error);
+      if (!hasPermission) {
+        setOpenAlertModel(true);
+        return;
       }
-    };
-
-    checkPermissionAndLoadApps();
+    } catch (error) {
+      console.error('Error loading apps:', error);
+    }
   }, []);
 
-  const handleOpenSetting = async() =>{
+  useEffect(() => {
+    checkPermission();
+  }, [checkPermission]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener(
+      'change',
+      async nextAppState => {
+        if (nextAppState === 'active') {
+          checkPermission();
+        }
+      },
+    );
+
+    return () => subscription.remove();
+  }, [checkPermission]);
+
+  const handleOpenSetting = useCallback(async () => {
     try {
-      handleCloseAlertModel()
+      setOpenAlertModel(false);
       await InstalledAppsStatistics.openUsageAccessSettings();
     } catch (error) {
-      console.log(error);  
+      console.error(error);
     }
-  }
+  }, []);
+
+  const handlePress = useCallback(
+    (route: AllowedRoutes) => {
+      navigation.navigate(route);
+    },
+    [navigation],
+  );
+
+  const renderItem = useCallback(
+    ({item}: {item: FeatureTileType & {route: AllowedRoutes}}) => (
+      <TouchableOpacity
+        style={styles.container}
+        disabled={!permissionGranted}
+        onPress={() => handlePress(item.route)}>
+        {item.icon}
+        <Text style={styles.text} numberOfLines={2} ellipsizeMode="tail">
+          {item.label}
+        </Text>
+      </TouchableOpacity>
+    ),
+    [permissionGranted, handlePress],
+  );
 
   return (
     <>
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingBottom: 100,
-          paddingVertical: 5,
-        }}>
+      <FlatList
+        data={featureTiles}
+        keyExtractor={item => item.id}
+        numColumns={3}
+        contentContainerStyle={styles.flatListContentContainer}
+        columnWrapperStyle={{justifyContent: 'space-between'}}
+        renderItem={renderItem}
+      />
 
-        <FlatList
-          data={featureTiles}
-          keyExtractor={item => item.id}
-          numColumns={3}
-          contentContainerStyle={{paddingHorizontal: 10, paddingTop: 10}}
-          columnWrapperStyle={{justifyContent: 'space-between'}}
-          renderItem={({item}) => (
-            <TouchableOpacity
-              style={styles.container}
-              disabled={!permissionGranted}
-              onPress={() => navigation.navigate(item.route, {apps: apps})}>
-              {item.icon}
-              <Text style={styles.text} numberOfLines={2} ellipsizeMode="tail">
-                {item.label}
-              </Text>
-            </TouchableOpacity>
-          )}
-          scrollEnabled={false}
-        />
-      </ScrollView>
       <Modal
         animationType="slide"
-        transparent={true}
+        transparent
         visible={openAlertModel}
-        onRequestClose={handleCloseAlertModel}>
+        onRequestClose={() => setOpenAlertModel(false)}>
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
-            <Text style={{fontSize:18,fontWeight:400}}>
+            <Text style={styles.modalText}>
               Usage stats permission not granted. Please enable it in settings.
             </Text>
-            <View style={{padding:2,marginTop:4}}>
-            <Button title="Go to setting" onPress={handleOpenSetting} />
+            <View style={styles.modalButtonContainer}>
+              <Button title="Go to setting" onPress={handleOpenSetting} />
             </View>
           </View>
         </View>
@@ -126,7 +125,7 @@ const AppStatistics = ({navigation}: RootScreenProps<Paths.AppStatistics>) => {
 
 export default AppStatistics;
 
-const featureTiles: FeatureTileType[] = [
+const featureTiles: (FeatureTileType & {route: AllowedRoutes})[] = [
   {
     id: '1',
     icon: <MaterialCommunityIcons name="web-check" size={24} color="black" />,
@@ -148,6 +147,12 @@ const featureTiles: FeatureTileType[] = [
 ];
 
 const styles = StyleSheet.create({
+  flatListContentContainer: {
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: 100,
+    flexGrow: 1,
+  },
   container: {
     width: '30%',
     height: 112,
@@ -176,7 +181,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // optional: darken background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
     width: '80%',
@@ -185,5 +190,14 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     elevation: 5,
+  },
+  modalText: {
+    fontSize: 18,
+    fontWeight: '400',
+    textAlign: 'center',
+  },
+  modalButtonContainer: {
+    padding: 2,
+    marginTop: 4,
   },
 });
