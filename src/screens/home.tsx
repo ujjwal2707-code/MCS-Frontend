@@ -9,6 +9,7 @@ import {FeatureTileType} from '../../types/types';
 import {useAuth} from '../context/auth-context';
 import {apiService} from '../services';
 import {useQuery} from '@tanstack/react-query';
+import PhoneScan from '../components/phone-scan';
 
 const Home = ({navigation}: RootScreenProps<Paths.Home>) => {
   const {token} = useAuth();
@@ -60,6 +61,8 @@ const Home = ({navigation}: RootScreenProps<Paths.Home>) => {
           Welcome, {user?.name}
         </Text>
       </TouchableOpacity>
+
+      <PhoneScan />
       <FlatList
         data={featureTiles}
         keyExtractor={item => item.id}
