@@ -22,6 +22,9 @@
 		E60430D3A320465B871E4726 /* appicon.png in Resources */ = {isa = PBXBuildFile; fileRef = B2B30985EC404F558A5F4013 /* appicon.png */; };
 		9CA41DB61D9D4D08BE30D68A /* bgcirclesplash.png in Resources */ = {isa = PBXBuildFile; fileRef = 14E2EAC04D4B45A4B2A3F631 /* bgcirclesplash.png */; };
 		4B06B4947BD34F27844516F9 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 1C69B6F5399D475CBE3F5F0C /* logo.png */; };
+		CE0FDEAC161448DB81EA08ED /* bgcircleauth.png in Resources */ = {isa = PBXBuildFile; fileRef = F4B82DFCBF134E23ADD9343B /* bgcircleauth.png */; };
+		87CC99F5EAD745ABADA355DE /* bgcirclehome.png in Resources */ = {isa = PBXBuildFile; fileRef = FFE69D8324BF4118B532CCA7 /* bgcirclehome.png */; };
+		F7CCE8AB90BF4462BE9F7585 /* bgshadow.png in Resources */ = {isa = PBXBuildFile; fileRef = 2172C25F326544A691DC564E /* bgshadow.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +60,9 @@
 		B2B30985EC404F558A5F4013 /* appicon.png */ = {isa = PBXFileReference; name = "appicon.png"; path = "../src/assets/images/appicon.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		14E2EAC04D4B45A4B2A3F631 /* bgcirclesplash.png */ = {isa = PBXFileReference; name = "bgcirclesplash.png"; path = "../src/assets/images/bgcirclesplash.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		1C69B6F5399D475CBE3F5F0C /* logo.png */ = {isa = PBXFileReference; name = "logo.png"; path = "../src/assets/images/logo.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		F4B82DFCBF134E23ADD9343B /* bgcircleauth.png */ = {isa = PBXFileReference; name = "bgcircleauth.png"; path = "../src/assets/images/bgcircleauth.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		FFE69D8324BF4118B532CCA7 /* bgcirclehome.png */ = {isa = PBXFileReference; name = "bgcirclehome.png"; path = "../src/assets/images/bgcirclehome.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		2172C25F326544A691DC564E /* bgshadow.png */ = {isa = PBXFileReference; name = "bgshadow.png"; path = "../src/assets/images/bgshadow.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +159,9 @@
 				B2B30985EC404F558A5F4013 /* appicon.png */,
 				14E2EAC04D4B45A4B2A3F631 /* bgcirclesplash.png */,
 				1C69B6F5399D475CBE3F5F0C /* logo.png */,
+				F4B82DFCBF134E23ADD9343B /* bgcircleauth.png */,
+				FFE69D8324BF4118B532CCA7 /* bgcirclehome.png */,
+				2172C25F326544A691DC564E /* bgshadow.png */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -238,6 +247,9 @@
 				E60430D3A320465B871E4726 /* appicon.png in Resources */,
 				9CA41DB61D9D4D08BE30D68A /* bgcirclesplash.png in Resources */,
 				4B06B4947BD34F27844516F9 /* logo.png in Resources */,
+				CE0FDEAC161448DB81EA08ED /* bgcircleauth.png in Resources */,
+				87CC99F5EAD745ABADA355DE /* bgcirclehome.png in Resources */,
+				F7CCE8AB90BF4462BE9F7585 /* bgshadow.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

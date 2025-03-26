@@ -38,8 +38,20 @@
       "sha1": "6b3bc3fe40c345f43ba5e75f842cc5a5b7e503d1"
     },
     {
+      "path": "src/assets/images/bgcircleauth.png",
+      "sha1": "6938de6781fd5898f72aac159aed8f9107889c47"
+    },
+    {
+      "path": "src/assets/images/bgcirclehome.png",
+      "sha1": "39000ffde23ef15104666c3be320492e89091b9a"
+    },
+    {
       "path": "src/assets/images/bgcirclesplash.png",
       "sha1": "30a2ba6b9dd956bf78b2356928b04c121ab63fb2"
+    },
+    {
+      "path": "src/assets/images/bgshadow.png",
+      "sha1": "edcdb631e1cd933caf47adbb1b81ff353aacca3d"
     },
     {
       "path": "src/assets/images/logo.png",
