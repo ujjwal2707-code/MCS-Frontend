@@ -2,11 +2,13 @@ import type {RootStackParamList} from '../navigation/types';
 
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import {Paths} from '../navigation/paths';
 
 import {
+  SplashScreen,
   Login,
   Register,
   VerifyEmail,
@@ -36,19 +38,23 @@ import {
   DataBreach,
 } from '../screens';
 import {useAuth} from '../context/auth-context';
-import FullScreenLoader from '../components/full-screen-loader';
-const Stack = createStackNavigator<RootStackParamList>();
+
+//const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const ApplicationNavigator = () => {
   const {token, isLoading} = useAuth();
 
-  if (isLoading) {
-    return <FullScreenLoader />;
-  }
+  // if (isLoading) {
+  //   return <FullScreenLoader />;
+  // }
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{headerShown: true}}>
+        <Stack.Navigator
+          initialRouteName={Paths.SplashScreen}
+          screenOptions={{headerShown: true}}>
+          <Stack.Screen component={SplashScreen} name={Paths.SplashScreen} />
           {token ? (
             <>
               <Stack.Screen component={Home} name={Paths.Home} />

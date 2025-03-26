@@ -1,4 +1,5 @@
 export const enum Paths {
+    SplashScreen = 'splashScreen',
     Login = 'login',
     Register = 'register',
     VerifyEmail = 'verifyEmail',
