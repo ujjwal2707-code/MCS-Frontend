@@ -127,7 +127,7 @@ class InstalledAppsThreatAnalysisModule(private val reactContext: ReactApplicati
                     val hasHighRiskPermission = permissions.count { HIGH_RISK_PERMISSIONS.contains(it) }
                    // val isRisky = hasHighRiskPermission || dangerousPermissionCount > 5
                    
-                    val isRisky = hasHighRiskPermission > 3
+                    val isRisky = hasHighRiskPermission > 15
                     appMap.putBoolean("isRisky", isRisky)
                     appMap.putArray("permissions", Arguments.fromList(permissions))
                     // Placeholder for signature hash.

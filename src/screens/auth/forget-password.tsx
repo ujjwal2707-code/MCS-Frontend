@@ -5,11 +5,41 @@ import {
   TextInput,
   ScrollView,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import React, {useState} from 'react';
+import { RootScreenProps } from '@navigation/types';
+import { Paths } from '@navigation/paths';
+import { useMutation } from '@tanstack/react-query';
+import { apiService } from '@services/index';
 
-const ForgetPassword = () => {
+const ForgetPassword = ({navigation}: RootScreenProps<Paths.Login>) => {
   const [email, setEmail] = useState('');
+
+  const {
+    mutateAsync: forgetPasswordMutation,
+    isPending: forgetPasswordMutationPending,
+  } = useMutation({
+    mutationFn: (values: { email: string }) =>
+      apiService.forgetPassword(values),
+    onSuccess: (res) => {
+      Alert.alert("Success", res?.data?.message);
+    },
+    onError: (err: any) => {
+      Alert.alert(
+        "Error",
+        err.response?.data?.message || "Something went wrong!"
+      );
+    },
+  });
+
+  const handleForgetPassword = async () => {
+    try {
+      await forgetPasswordMutation({ email });
+    } catch (error) {
+      console.log("forgetPasswordMutation error", error);
+    }
+  };
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.welcomeText}>Forget Password</Text>
@@ -25,25 +55,20 @@ const ForgetPassword = () => {
 
         <View style={styles.buttonSpacing}>
           <Button
-            title="Sign In"
-            // onPress={onSignInPress}
+            title="Send"
+            onPress={handleForgetPassword}
             disabled={!email}
           />
         </View>
 
         <View style={styles.buttonSpacing}>
-          <Button
-            title="Guest login"
-            // onPress={guestLogin}
-            // disabled={loginMutationPending}
-          />
-        </View>
-
         <Button
           title="Back to Signin"
-          // onPress={}
-          disabled={!email}
+          onPress={() => navigation.navigate(Paths.Login)}
         />
+        </View>
+
+        
       </View>
     </ScrollView>
   );
@@ -52,7 +77,7 @@ const ForgetPassword = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#0061FF',
+    // backgroundColor: '#0061FF',
     paddingHorizontal: 16,
     paddingVertical: 20,
   },
@@ -68,7 +93,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#FFFFFF',
+    // color: '#FFFFFF',
     textAlign: 'center',
     marginTop: 16,
   },
@@ -93,18 +118,18 @@ const styles = StyleSheet.create({
   linkText: {
     fontSize: 18,
     textAlign: 'center',
-    color: '#FFFFFF',
+    // color: '#FFFFFF',
   },
   linkTextBold: {
     fontSize: 18,
     textAlign: 'center',
-    color: '#FFFFFF',
+    // color: '#FFFFFF',
     fontWeight: 'bold',
   },
   forgetPassword: {
     fontSize: 18,
     textAlign: 'center',
-    color: '#FFFFFF',
+    // color: '#FFFFFF',
     marginTop: 8,
   },
 });
