@@ -1,12 +1,13 @@
 import {
   View,
-  Text,
-  ScrollView,
   TextInput,
-  Button,
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Dimensions,
+  SafeAreaView,
+  ImageBackground,
+  Image,
 } from 'react-native';
 import React, {useState} from 'react';
 import {RootScreenProps} from '../../navigation/types';
@@ -14,7 +15,11 @@ import {Paths} from '../../navigation/paths';
 import {useMutation} from '@tanstack/react-query';
 import {apiService} from '../../services';
 import {useAuth} from '../../context/auth-context';
-import {CommonActions} from '@react-navigation/native';
+import CustomText from '@components/ui/custom-text';
+import LinearGradient from 'react-native-linear-gradient';
+import CustomButton from '@components/ui/custom-button';
+
+const {width} = Dimensions.get('window');
 
 const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
   const {setAuthToken} = useAuth();
@@ -78,117 +83,156 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.welcomeText}>Welcome</Text>
+    <SafeAreaView style={styles.container}>
+      <LinearGradient
+        colors={['#0A1D4D', '#08164C']}
+        style={styles.gradientBackground}>
+        <View style={styles.bottomSection}>
+          <ImageBackground
+            source={require('@assets/images/bgcircleauth.png')}
+            style={styles.splashImage}>
+            <Image
+              source={require('@assets/images/logo.png')}
+              style={styles.shieldImage}
+            />
 
-      <View style={styles.formContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter email"
-          keyboardType="email-address"
-          value={form.email}
-          onChangeText={value => setForm({...form, email: value})}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Enter password"
-          secureTextEntry={true}
-          value={form.password}
-          onChangeText={value => setForm({...form, password: value})}
-        />
+            <View style={styles.formContainer}>
+              <CustomText
+                style={{textAlign: 'center'}}
+                variant="h4"
+                fontFamily="Montserrat-Bold"
+                color="#FFFFFF">
+                Login
+              </CustomText>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter email"
+                keyboardType="email-address"
+                value={form.email}
+                onChangeText={value => setForm({...form, email: value})}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Enter password"
+                secureTextEntry={true}
+                value={form.password}
+                onChangeText={value => setForm({...form, password: value})}
+              />
+            </View>
 
-        <View style={styles.buttonSpacing}>
-          <Button
-            title="Sign In"
-            onPress={onSignInPress}
-            disabled={!form.email && !form.password}
-          />
+            <View style={styles.buttonSpacing}>
+              <CustomButton
+                title="Sign In"
+                onPress={onSignInPress}
+                disabled={!form.email && !form.password}
+              />
+            </View>
+
+            <View style={styles.buttonSpacing}>
+              <CustomButton title="Guest Login" onPress={guestLogin} />
+            </View>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate(Paths.Register)}
+              style={styles.linkSpacing}>
+              <CustomText
+                style={styles.linkText}
+                variant="h6"
+                fontFamily="Montserrat-SemiBold">
+                New user?
+                <CustomText
+                  style={styles.linkTextBold}
+                  variant="h6"
+                  fontFamily="Montserrat-SemiBold">
+                  Sign Up
+                </CustomText>
+              </CustomText>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate(Paths.ForgetPassword)}
+              style={styles.linkSpacingForgetPass}>
+              <CustomText
+                style={styles.linkText}
+                variant="h6"
+                fontFamily="Montserrat-SemiBold">
+                Forget Password
+              </CustomText>
+            </TouchableOpacity>
+          </ImageBackground>
         </View>
-
-        <View style={styles.buttonSpacing}>
-          <Button
-            title="Guest login"
-            onPress={guestLogin}
-            disabled={loginMutationPending}
-          />
-        </View>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate(Paths.Register)}
-          style={styles.linkSpacing}>
-          <Text style={styles.linkText}>
-            Don't have an account?{' '}
-            <Text style={styles.linkTextBold}>Sign Up</Text>
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate(Paths.ForgetPassword)}
-          style={styles.linkSpacing}>
-          <Text style={styles.forgetPassword}>Forget Password?</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </LinearGradient>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    // backgroundColor: '#0061FF',
-    paddingHorizontal: 16,
-    paddingVertical: 20,
+    flex: 1,
   },
-  logoContainer: {
+  gradientBackground: {
+    flex: 1,
     alignItems: 'center',
-    marginTop: 40,
   },
-  logo: {
-    width: 256,
-    height: 256,
-    borderRadius: 128,
+  textContainer: {
+    position: 'absolute',
+    bottom: width * 1.1 + 10,
+    alignSelf: 'center',
   },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: '600',
-    // color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 16,
+  bottomSection: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  splashImage: {
+    width: width,
+    height: width * 1.4,
+    resizeMode: 'cover',
+    alignItems: 'center',
+  },
+  shieldImage: {
+    width: width * 0.3,
+    height: width * 0.3,
+    position: 'absolute',
+    top: -(width * 0.15),
+    alignSelf: 'center',
+    resizeMode: 'contain',
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: 'white',
     borderWidth: 1,
     marginBottom: 12,
     paddingHorizontal: 10,
-    backgroundColor:'gray',
-    borderRadius:20
+    borderRadius: 20,
+    color: 'white',
   },
   formContainer: {
-    padding: 12,
+    width: '80%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    marginTop: width * 0.2,
   },
   buttonSpacing: {
-    marginTop: 24,
+    marginTop: 22,
   },
   linkSpacing: {
-    marginTop: 40,
+    marginTop: 20,
+  },
+  linkSpacingForgetPass: {
+    marginTop: 10,
   },
   linkText: {
     fontSize: 18,
     textAlign: 'center',
-    // color: '#FFFFFF',
+    color: '#FFFFFF',
   },
   linkTextBold: {
     fontSize: 18,
     textAlign: 'center',
-    // color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  forgetPassword: {
-    fontSize: 18,
-    textAlign: 'center',
-    // color: '#FFFFFF',
-    marginTop: 8,
+    color: '#FFE05D',
   },
 });
 

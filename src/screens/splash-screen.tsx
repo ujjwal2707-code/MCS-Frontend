@@ -18,13 +18,13 @@ const {width} = Dimensions.get('window');
 const SplashScreen = ({navigation}: RootScreenProps<Paths.SplashScreen>) => {
   const {token} = useAuth();
 
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        navigation.replace(token ? Paths.Home : Paths.Login);
-      }, 5000);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      navigation.replace(token ? Paths.Home : Paths.Login);
+    }, 1500);
 
-      return () => clearTimeout(timer);
-    }, [token]);
+    return () => clearTimeout(timer);
+  }, [token]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -125,3 +125,5 @@ const styles = StyleSheet.create({
     marginTop: width * 0.2,
   },
 });
+
+// #B0B8E2
