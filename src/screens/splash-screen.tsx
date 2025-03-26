@@ -63,6 +63,13 @@ const SplashScreen = ({navigation}: RootScreenProps<Paths.SplashScreen>) => {
           </CustomText>
         </View>
 
+        <View style={styles.shadowImageContainer}>
+          <Image
+            source={require('@assets/images/bgshadow.png')}
+            style={styles.shadowImage}
+          />
+        </View>
+
         <View style={styles.bottomSection}>
           <ImageBackground
             source={require('@assets/images/bgcirclesplash.png')}
@@ -101,6 +108,19 @@ const styles = StyleSheet.create({
     bottom: width * 1.1 + 10,
     alignSelf: 'center',
   },
+  shadowImageContainer: {
+    position: 'absolute',
+    bottom: width * 1 + 5,
+    alignSelf: 'center',
+  },
+  shadowImage: {
+    width: width * 0.8,
+    height: width * 0.8,
+    position: 'absolute',
+    top: -(width * 0.15),
+    alignSelf: 'center',
+    resizeMode: 'contain',
+  },
   bottomSection: {
     position: 'absolute',
     left: 0,
@@ -126,4 +146,3 @@ const styles = StyleSheet.create({
   },
 });
 
-// #B0B8E2

@@ -87,6 +87,12 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
       <LinearGradient
         colors={['#0A1D4D', '#08164C']}
         style={styles.gradientBackground}>
+        <View style={styles.shadowImageContainer}>
+          <Image
+            source={require('@assets/images/bgshadow.png')}
+            style={styles.shadowImage}
+          />
+        </View>
         <View style={styles.bottomSection}>
           <ImageBackground
             source={require('@assets/images/bgcircleauth.png')}
@@ -178,6 +184,19 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: width * 1.1 + 10,
     alignSelf: 'center',
+  },
+  shadowImageContainer: {
+    position: 'absolute',
+    bottom: width * 1.6 + 20,
+    alignSelf: 'center',
+  },
+  shadowImage: {
+    width: width * 0.8,
+    height: width * 0.8,
+    position: 'absolute',
+    top: -(width * 0.15),
+    alignSelf: 'center',
+    resizeMode: 'contain',
   },
   bottomSection: {
     position: 'absolute',
