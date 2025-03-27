@@ -20,7 +20,7 @@ import CustomButton from '@components/ui/custom-button';
 
 const {width} = Dimensions.get('window');
 
-const ForgetPassword = ({navigation}: RootScreenProps<Paths.Login>) => {
+const ForgetPassword = ({navigation}: RootScreenProps<Paths.ForgetPassword>) => {
   const [email, setEmail] = useState('');
 
   const {

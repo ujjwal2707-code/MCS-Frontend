@@ -7,8 +7,8 @@ import {Paths} from '../navigation/paths';
 
 import {
   SplashScreen,
-  Login,
   Register,
+  Login,
   VerifyEmail,
   ForgetPassword,
   Home,
@@ -47,7 +47,7 @@ const ApplicationNavigator = () => {
       <NavigationContainer>
         <Stack.Navigator
           initialRouteName={Paths.SplashScreen}
-          screenOptions={{headerShown: false}}>
+          screenOptions={{headerShown: true}}>
           <Stack.Screen component={SplashScreen} name={Paths.SplashScreen} />
           {token ? (
             <>
