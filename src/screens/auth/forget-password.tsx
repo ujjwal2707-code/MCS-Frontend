@@ -1,17 +1,24 @@
 import {
   View,
-  Text,
-  Button,
-  TextInput,
-  ScrollView,
   StyleSheet,
   Alert,
+  SafeAreaView,
+  ImageBackground,
+  Image,
+  Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 import React, {useState} from 'react';
-import { RootScreenProps } from '@navigation/types';
-import { Paths } from '@navigation/paths';
-import { useMutation } from '@tanstack/react-query';
-import { apiService } from '@services/index';
+import {RootScreenProps} from '@navigation/types';
+import {Paths} from '@navigation/paths';
+import {useMutation} from '@tanstack/react-query';
+import {apiService} from '@services/index';
+import LinearGradient from 'react-native-linear-gradient';
+import CustomText from '@components/ui/custom-text';
+import InputField from '@components/ui/input-field';
+import CustomButton from '@components/ui/custom-button';
+
+const {width} = Dimensions.get('window');
 
 const ForgetPassword = ({navigation}: RootScreenProps<Paths.Login>) => {
   const [email, setEmail] = useState('');
@@ -20,118 +27,157 @@ const ForgetPassword = ({navigation}: RootScreenProps<Paths.Login>) => {
     mutateAsync: forgetPasswordMutation,
     isPending: forgetPasswordMutationPending,
   } = useMutation({
-    mutationFn: (values: { email: string }) =>
-      apiService.forgetPassword(values),
-    onSuccess: (res) => {
-      Alert.alert("Success", res?.data?.message);
+    mutationFn: (values: {email: string}) => apiService.forgetPassword(values),
+    onSuccess: res => {
+      Alert.alert('Success', res?.data?.message);
     },
     onError: (err: any) => {
       Alert.alert(
-        "Error",
-        err.response?.data?.message || "Something went wrong!"
+        'Error',
+        err.response?.data?.message || 'Something went wrong!',
       );
     },
   });
 
   const handleForgetPassword = async () => {
     try {
-      await forgetPasswordMutation({ email });
+      await forgetPasswordMutation({email});
     } catch (error) {
-      console.log("forgetPasswordMutation error", error);
+      console.log('forgetPasswordMutation error', error);
     }
   };
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.welcomeText}>Forget Password</Text>
-
-      <View style={styles.formContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter email"
-          textContentType="emailAddress"
-          value={email}
-          onChangeText={value => setEmail(value)}
-        />
-
-        <View style={styles.buttonSpacing}>
-          <Button
-            title="Send"
-            onPress={handleForgetPassword}
-            disabled={!email}
+    <SafeAreaView style={styles.container}>
+      <LinearGradient
+        colors={['#0A1D4D', '#08164C']}
+        style={styles.gradientBackground}>
+        <View style={styles.shadowImageContainer}>
+          <Image
+            source={require('@assets/images/bgshadow.png')}
+            style={styles.shadowImage}
           />
         </View>
+        <View style={styles.bottomSection}>
+          <ImageBackground
+            source={require('@assets/images/bgcircleauth.png')}
+            style={styles.splashImage}>
+            <Image
+              source={require('@assets/images/logo.png')}
+              style={styles.shieldImage}
+            />
 
-        <View style={styles.buttonSpacing}>
-        <Button
-          title="Back to Signin"
-          onPress={() => navigation.navigate(Paths.Login)}
-        />
+            <View style={styles.formContainer}>
+              <CustomText
+                style={{textAlign: 'center'}}
+                variant="h4"
+                fontFamily="Montserrat-Bold"
+                color="#FFFFFF">
+                Forgot Password
+              </CustomText>
+              <InputField
+                placeholder="Enter email"
+                textContentType="emailAddress"
+                value={email}
+                onChangeText={value => setEmail(value)}
+              />
+            </View>
+
+            <View style={styles.buttonSpacing}>
+              <CustomButton
+                title={
+                  forgetPasswordMutationPending ? 'Sending Email...' : 'Reset password'
+                }
+                textVariant="primary"
+                onPress={handleForgetPassword}
+                isDisabled={!email}
+                isLoading={forgetPasswordMutationPending}
+              />
+            </View>
+            
+             <TouchableOpacity
+              onPress={() => navigation.navigate(Paths.Login)}
+              style={styles.linkSpacingForgetPass}>
+              <CustomText
+                style={styles.linkText}
+                variant="h6"
+                fontFamily="Montserrat-Bold">
+                Back to log in
+              </CustomText>
+            </TouchableOpacity>
+          </ImageBackground>
         </View>
-
-        
-      </View>
-    </ScrollView>
+      </LinearGradient>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    // backgroundColor: '#0061FF',
-    paddingHorizontal: 16,
-    paddingVertical: 20,
+    flex: 1,
   },
-  logoContainer: {
+  gradientBackground: {
+    flex: 1,
     alignItems: 'center',
-    marginTop: 40,
   },
-  logo: {
-    width: 256,
-    height: 256,
-    borderRadius: 128,
+  textContainer: {
+    position: 'absolute',
+    bottom: width * 1.1 + 10,
+    alignSelf: 'center',
   },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: '600',
-    // color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 16,
+  shadowImageContainer: {
+    position: 'absolute',
+    bottom: width * 1.6 + 20,
+    alignSelf: 'center',
   },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 10,
-    backgroundColor:'gray',
-    borderRadius:20
+  shadowImage: {
+    width: width * 0.8,
+    height: width * 0.8,
+    position: 'absolute',
+    top: -(width * 0.15),
+    alignSelf: 'center',
+    resizeMode: 'contain',
+  },
+  bottomSection: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  splashImage: {
+    width: width,
+    height: width * 1.4,
+    resizeMode: 'cover',
+    alignItems: 'center',
+  },
+  shieldImage: {
+    width: width * 0.3,
+    height: width * 0.3,
+    position: 'absolute',
+    top: -(width * 0.15),
+    alignSelf: 'center',
+    resizeMode: 'contain',
   },
   formContainer: {
-    padding: 12,
+    width: '80%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    marginTop: width * 0.2,
   },
   buttonSpacing: {
-    marginTop: 24,
+    marginTop: 22,
   },
   linkSpacing: {
-    marginTop: 40,
+    marginTop: 20,
+  },
+  linkSpacingForgetPass: {
+    marginTop: 20,
   },
   linkText: {
     fontSize: 18,
     textAlign: 'center',
-    // color: '#FFFFFF',
-  },
-  linkTextBold: {
-    fontSize: 18,
-    textAlign: 'center',
-    // color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  forgetPassword: {
-    fontSize: 18,
-    textAlign: 'center',
-    // color: '#FFFFFF',
-    marginTop: 8,
-  },
+    color: '#FFFFFF',
+  }
 });
 
 export default ForgetPassword;

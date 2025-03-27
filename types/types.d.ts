@@ -1,3 +1,5 @@
+import {TextInputProps, TouchableOpacityProps} from 'react-native';
+
 export interface FeatureTileType {
   id: string;
   icon?: React.ReactNode;
@@ -25,8 +27,8 @@ export interface InstalledAppStats {
   dailyUsage: number;
   weeklyUsage: number;
   monthlyUsage: number;
-  transmittedBytes:number;
-  receivedBytes:number;
+  transmittedBytes: number;
+  receivedBytes: number;
 }
 
 export interface WifiNetwork {
@@ -70,4 +72,26 @@ export interface VirusTotalResponse {
       sha256: string;
     };
   };
+}
+
+declare interface InputFieldProps extends TextInputProps {
+  label: string;
+  icon?: any;
+  secureTextEntry?: boolean;
+  labelStyle?: string;
+  containerStyle?: string;
+  inputStyle?: string;
+  iconStyle?: string;
+  className?: string;
+}
+
+declare interface ButtonProps extends TouchableOpacityProps {
+  title: string;
+  bgVariant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'success';
+  textVariant?: 'primary' | 'default' | 'secondary' | 'danger' | 'success';
+  IconLeft?: React.ComponentType<any>;
+  IconRight?: React.ComponentType<any>;
+  className?: string;
+  isLoading?: boolean;
+  isDisabled?: boolean;
 }

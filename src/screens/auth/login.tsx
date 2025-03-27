@@ -10,14 +10,15 @@ import {
   Image,
 } from 'react-native';
 import React, {useState} from 'react';
-import {RootScreenProps} from '../../navigation/types';
-import {Paths} from '../../navigation/paths';
+import {RootScreenProps} from '@navigation/types';
+import {Paths} from '@navigation/paths';
 import {useMutation} from '@tanstack/react-query';
-import {apiService} from '../../services';
-import {useAuth} from '../../context/auth-context';
+import {useAuth} from '@context/auth-context';
+import {apiService} from '@services/index';
 import CustomText from '@components/ui/custom-text';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from '@components/ui/custom-button';
+import InputField from '@components/ui/input-field';
 
 const {width} = Dimensions.get('window');
 
@@ -108,19 +109,18 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
                 variant="h4"
                 fontFamily="Montserrat-Bold"
                 color="#FFFFFF">
-                Login
+                SIGN IN
               </CustomText>
-              <TextInput
-                style={styles.input}
+              <InputField
                 placeholder="Enter email"
-                keyboardType="email-address"
+                textContentType="emailAddress"
                 value={form.email}
                 onChangeText={value => setForm({...form, email: value})}
               />
-              <TextInput
-                style={styles.input}
+              <InputField
                 placeholder="Enter password"
                 secureTextEntry={true}
+                textContentType="password"
                 value={form.password}
                 onChangeText={value => setForm({...form, password: value})}
               />
@@ -128,14 +128,21 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
 
             <View style={styles.buttonSpacing}>
               <CustomButton
-                title="Sign In"
+                title={loginMutationPending ? 'Signing In...' : 'Sign In'}
+                textVariant="primary"
                 onPress={onSignInPress}
-                disabled={!form.email && !form.password}
+                isDisabled={!form.email && !form.password}
+                isLoading={loginMutationPending}
               />
             </View>
 
             <View style={styles.buttonSpacing}>
-              <CustomButton title="Guest Login" onPress={guestLogin} />
+              <CustomButton
+                title={loginMutationPending ? 'Signing In...' : 'Guest Login'}
+                textVariant="primary"
+                onPress={guestLogin}
+                isLoading={loginMutationPending}
+              />
             </View>
 
             <TouchableOpacity
@@ -217,15 +224,6 @@ const styles = StyleSheet.create({
     top: -(width * 0.15),
     alignSelf: 'center',
     resizeMode: 'contain',
-  },
-  input: {
-    height: 40,
-    borderColor: 'white',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    color: 'white',
   },
   formContainer: {
     width: '80%',

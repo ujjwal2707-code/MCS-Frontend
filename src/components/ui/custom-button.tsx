@@ -1,54 +1,120 @@
 import React from 'react';
 import {
   TouchableOpacity,
-  Text,
-  StyleSheet,
+  ActivityIndicator,
   View,
-  GestureResponderEvent,
+  StyleSheet,
+  TouchableOpacityProps,
 } from 'react-native';
+import {ButtonProps} from 'types/types';
 import CustomText from './custom-text';
 
-interface CustomButtonProps {
-  onPress: (event: GestureResponderEvent) => void;
-  disabled?: boolean;
-  title: string;
-}
+const getBgVariantStyle = (variant: ButtonProps['bgVariant']) => {
+  switch (variant) {
+    case 'secondary':
+      return {backgroundColor: '#6b7280'}; // #6b7280
+    case 'danger':
+      return {backgroundColor: '#ef4444'}; // #ef4444
+    // case 'success':
+    //   return {backgroundColor: '#22c55e'}; // #22c55e
+    case 'outline':
+      return {
+        backgroundColor: 'transparent',
+        borderColor: '#d1d5db', // #d1d5db
+        borderWidth: 0.5,
+      };
+    default:
+      return {backgroundColor: '#5DFFAE'}; // #5DFFAE
+  }
+};
 
-const CustomButton: React.FC<CustomButtonProps> = ({
+const getTextVariantStyle = (variant: ButtonProps['textVariant']) => {
+  switch (variant) {
+    case 'primary':
+      return {color: 'black'};
+    case 'secondary':
+      return {color: '#f3f4f6'}; // #f3f4f6
+    case 'danger':
+      return {color: '#fecaca'}; // #fecaca
+    case 'success':
+      return {color: '#bbf7d0'}; // #bbf7d0
+    default:
+      return {color: 'white'};
+  }
+};
+
+const CustomButton = ({
   onPress,
-  disabled,
   title,
-}) => {
+  bgVariant = 'primary',
+  textVariant = 'default',
+  IconLeft,
+  IconRight,
+  isLoading = false,
+  isDisabled = false,
+  style,
+  ...props
+}: ButtonProps) => {
+  const isButtonDisabled = isDisabled || isLoading;
+
   return (
     <TouchableOpacity
-      onPress={onPress}
-      disabled={disabled}
-      style={[styles.button, disabled && styles.disabledButton]}>
-      <CustomText
-        style={{textAlign: 'center'}}
-        variant="h4"
-        fontFamily="Montserrat-Bold"
-        color={disabled ? 'gray' : 'black'}>
-        {title}
-      </CustomText>
+      onPress={isButtonDisabled ? undefined : onPress}
+      disabled={isButtonDisabled}
+      style={[
+        styles.button,
+        getBgVariantStyle(bgVariant),
+        isButtonDisabled && {opacity: 0.5},
+        style,
+      ]}
+      {...props}>
+      {IconLeft && !isLoading && (
+        <View style={styles.iconLeft}>
+          <IconLeft />
+        </View>
+      )}
+      {isLoading ? (
+        <ActivityIndicator color="white" size="small" />
+      ) : (
+        <CustomText fontFamily='Montserrat-SemiBold' style={[styles.buttonText, getTextVariantStyle(textVariant)]}>
+          {title}
+        </CustomText>
+      )}
+      {IconRight && !isLoading && (
+        <View style={styles.iconRight}>
+          <IconRight />
+        </View>
+      )}
     </TouchableOpacity>
   );
 };
 
-export default CustomButton;
-
 const styles = StyleSheet.create({
-  buttonSpacing: {
-    margin: 10,
-  },
   button: {
-    backgroundColor: '#5FFFAE',
-    borderRadius: 25,
-    paddingVertical: 8,
-    paddingHorizontal: 20,
+    // width: '100%',
+    borderRadius: 50, // fully rounded
+    padding: 12,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 2.62,
+    // Elevation for Android
+    elevation: 4,
   },
-  disabledButton: {
-    backgroundColor: '#cccccc',
+  buttonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  iconLeft: {
+    marginRight: 8,
+  },
+  iconRight: {
+    marginLeft: 8,
   },
 });
+
+export default CustomButton;
