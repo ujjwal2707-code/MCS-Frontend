@@ -101,7 +101,6 @@ export default Home;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // paddingVertical:5
   },
   gradientBackground: {
     flex: 1,
