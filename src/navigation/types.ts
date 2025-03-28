@@ -8,7 +8,9 @@ export type RootStackParamList = {
   [Paths.Login]:undefined;
   [Paths.VerifyEmail]:{email:string};
   [Paths.ForgetPassword]:undefined;
+  MainTabs:undefined;
   [Paths.Profile]:undefined;
+  [Paths.Contact]:undefined;
   [Paths.Home]: undefined;
   [Paths.ScanQr]: undefined;
   [Paths.ScanUrl]: undefined;

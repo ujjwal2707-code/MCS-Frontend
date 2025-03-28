@@ -36,11 +36,15 @@ import {
   DataBreach,
 } from '../screens';
 import {useAuth} from '../context/auth-context';
+import BottomTabNavigator from './bottom-tab-navigator';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const ApplicationNavigator = () => {
   const {token} = useAuth();
+
+  console.log(token);
+  
 
   return (
     <SafeAreaProvider>
@@ -51,8 +55,9 @@ const ApplicationNavigator = () => {
           <Stack.Screen component={SplashScreen} name={Paths.SplashScreen} />
           {token ? (
             <>
-              <Stack.Screen component={Home} name={Paths.Home} />
-              <Stack.Screen component={Profile} name={Paths.Profile} />
+              <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
+              {/* <Stack.Screen component={Home} name={Paths.Home} />
+              <Stack.Screen component={Profile} name={Paths.Profile} /> */}
               <Stack.Screen component={ScanQr} name={Paths.ScanQr} />
               <Stack.Screen component={ScanUrl} name={Paths.ScanUrl} />
               <Stack.Screen component={ScanWebUrl} name={Paths.ScanWebUrl} />

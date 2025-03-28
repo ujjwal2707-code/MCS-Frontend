@@ -5,6 +5,7 @@ export const enum Paths {
     VerifyEmail = 'verifyEmail',
     ForgetPassword = 'forgetPassword',
     Profile = 'profile',
+    Contact = 'contact',
     Home = 'home',
     ScanQr = 'scan-qr',
     ScanUrl = 'scan-url',

@@ -20,7 +20,8 @@ const SplashScreen = ({navigation}: RootScreenProps<Paths.SplashScreen>) => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace(token ? Paths.Home : Paths.Login);
+      // navigation.replace(token ? Paths.Home : Paths.Login);
+      navigation.replace(token ? 'MainTabs' : Paths.Login);
     }, 1500);
 
     return () => clearTimeout(timer);

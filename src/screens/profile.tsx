@@ -6,8 +6,12 @@ import {useAuth} from '../context/auth-context';
 import {RootScreenProps} from '../navigation/types';
 import {Paths} from '../navigation/paths';
 import {CommonActions} from '@react-navigation/native';
+import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
+import {BottomTabParamList} from '@navigation/bottom-tab-params';
 
-const Profile = ({navigation}: RootScreenProps<Paths.Profile>) => {
+type ProfileProps = BottomTabScreenProps<BottomTabParamList, Paths.Profile>;
+
+const Profile: React.FC<ProfileProps> = ({navigation, route}) => {
   const {token, logout} = useAuth();
 
   const {
@@ -57,7 +61,7 @@ const Profile = ({navigation}: RootScreenProps<Paths.Profile>) => {
       }}>
       <Text style={{fontSize: 20, fontWeight: 'bold'}}>{user?.name}</Text>
       <Text style={{fontSize: 20, fontWeight: 'bold'}}>{user?.email}</Text>
-      <View style={{marginTop:10}}>
+      <View style={{marginTop: 10}}>
         <Button title="Logout" onPress={handleLogout} />
       </View>
     </View>

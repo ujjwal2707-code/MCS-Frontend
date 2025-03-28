@@ -21,10 +21,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '@components/ui/custom-text';
 import CustomButton from '@components/ui/custom-button';
 import AppBar from '@components/app-bar';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { BottomTabParamList } from '@navigation/bottom-tab-params';
 
 const {width} = Dimensions.get('window');
 
-const Home = ({navigation}: RootScreenProps<Paths.Home>) => {
+type HomeProps = BottomTabScreenProps<BottomTabParamList, Paths.Home>;
+
+const Home: React.FC<HomeProps> = ({navigation,route}) => {
   const {token} = useAuth();
 
   // Get user
