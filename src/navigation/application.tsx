@@ -47,7 +47,7 @@ const ApplicationNavigator = () => {
       <NavigationContainer>
         <Stack.Navigator
           initialRouteName={Paths.SplashScreen}
-          screenOptions={{headerShown: true}}>
+          screenOptions={{headerShown: false}}>
           <Stack.Screen component={SplashScreen} name={Paths.SplashScreen} />
           {token ? (
             <>
