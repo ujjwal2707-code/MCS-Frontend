@@ -27,6 +27,11 @@ import com.facebook.react.bridge.WritableMap
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 import java.util.Locale
+import android.os.SystemClock
+import android.app.usage.NetworkStatsManager
+import android.app.usage.NetworkStats
+import android.net.ConnectivityManager
+import android.telephony.TelephonyManager
 
 class InstalledAppsStatisticsModule(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
@@ -147,6 +152,69 @@ class InstalledAppsStatisticsModule(private val reactContext: ReactApplicationCo
     }
     return lastTimeUsed
     }
+
+    // Helper function to get data usage (in MB) for a UID
+    fun getDataUsageForUid(context: Context, uid: Int): Pair<Double, Double> {
+    var txBytes = 0L
+    var rxBytes = 0L
+    // Use boot time as start time (calculated from elapsed time)
+    val endTime = System.currentTimeMillis()
+    val bootTime = endTime - SystemClock.elapsedRealtime() 
+    // val startTime = bootTime
+    val startTime = System.currentTimeMillis() - 24 * 60 * 60 * 1000L
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        try {
+            val networkStatsManager =
+                context.getSystemService(Context.NETWORK_STATS_SERVICE) as NetworkStatsManager
+            val bucket = NetworkStats.Bucket()
+
+            // Query Wi-Fi data usage
+            val wifiStats = networkStatsManager.queryDetailsForUid(
+                ConnectivityManager.TYPE_WIFI,
+                "", // subscriberId not needed for Wi-Fi
+                startTime,
+                endTime,
+                uid
+            )
+            while (wifiStats.hasNextBucket()) {
+                wifiStats.getNextBucket(bucket)
+                txBytes += bucket.txBytes
+                rxBytes += bucket.rxBytes
+            }
+            wifiStats.close()
+
+            // Query Mobile data usage
+            val telephonyManager =
+                context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            val networkOperator = telephonyManager.networkOperator ?: ""
+            val mobileStats = networkStatsManager.queryDetailsForUid(
+                ConnectivityManager.TYPE_MOBILE,
+                networkOperator,
+                startTime,
+                endTime,
+                uid
+            )
+            while (mobileStats.hasNextBucket()) {
+                mobileStats.getNextBucket(bucket)
+                txBytes += bucket.txBytes
+                rxBytes += bucket.rxBytes
+            }
+            mobileStats.close()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+    } else {
+        // For older devices, fallback to TrafficStats
+        txBytes = TrafficStats.getUidTxBytes(uid)
+        rxBytes = TrafficStats.getUidRxBytes(uid)
+    }
+    // Convert to megabytes
+    val txMB = if (txBytes < 0) 0.0 else txBytes.toDouble() / (1024 * 1024)
+    val rxMB = if (rxBytes < 0) 0.0 else rxBytes.toDouble() / (1024 * 1024)
+    return Pair(txMB, rxMB)
+}
+
 
     @ReactMethod
     fun checkUsageStatsPermission(promise: Promise) {
@@ -307,10 +375,14 @@ fun getAppUpdates(promise: Promise) {
                 appMap.putDouble("monthlyUsage", monthlyUsage.toDouble())
 
                 // Add data usage using TrafficStats API
-                val txBytes = TrafficStats.getUidTxBytes(appInfo.uid)
-                val rxBytes = TrafficStats.getUidRxBytes(appInfo.uid)
-                appMap.putDouble("transmittedBytes", if (txBytes < 0) 0.0 else txBytes.toDouble() / (1024 * 1024))
-                appMap.putDouble("receivedBytes", if (rxBytes < 0) 0.0 else rxBytes.toDouble() / (1024 * 1024))
+                // val txBytes = TrafficStats.getUidTxBytes(appInfo.uid)
+                // val rxBytes = TrafficStats.getUidRxBytes(appInfo.uid)
+                // appMap.putDouble("transmittedBytes", if (txBytes < 0) 0.0 else txBytes.toDouble() / (1024 * 1024))
+                // appMap.putDouble("receivedBytes", if (rxBytes < 0) 0.0 else rxBytes.toDouble() / (1024 * 1024))
+
+                val (transmitted, received) = getDataUsageForUid(reactContext, appInfo.uid)
+                appMap.putDouble("transmittedBytes", transmitted)
+                appMap.putDouble("receivedBytes", received)
 
                 resultArray.pushMap(appMap)
             }
