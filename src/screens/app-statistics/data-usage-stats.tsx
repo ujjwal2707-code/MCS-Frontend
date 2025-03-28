@@ -63,10 +63,10 @@ const DataUsageStats: React.FC<RootScreenProps> = ({route}) => {
           </View>
 
           <View>
-            <Text style={{color: 'green', fontSize: 18}}>
+            <Text style={{color: 'green', fontSize: 18,fontFamily:'monospace'}}>
               {app.transmittedBytes.toFixed(2)} MB
             </Text>
-            <Text style={{color: 'red', fontSize: 18}}>
+            <Text style={{color: 'red', fontSize: 18,fontFamily:'monospace'}}>
               {app.receivedBytes.toFixed(2)} MB
             </Text>
           </View>
