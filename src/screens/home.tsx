@@ -1,12 +1,14 @@
 import {
   Dimensions,
+  FlatList,
   Image,
   ImageBackground,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Paths} from '../navigation/paths';
 import {RootScreenProps} from '../navigation/types';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -21,21 +23,19 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '@components/ui/custom-text';
 import CustomButton from '@components/ui/custom-button';
 import AppBar from '@components/app-bar';
-import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import { BottomTabParamList } from '@navigation/bottom-tab-params';
+import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
+import {BottomTabParamList} from '@navigation/bottom-tab-params';
 
 const {width} = Dimensions.get('window');
 
 type HomeProps = BottomTabScreenProps<BottomTabParamList, Paths.Home>;
 
-const Home: React.FC<HomeProps> = ({navigation,route}) => {
+const Home: React.FC<HomeProps> = ({navigation, route}) => {
   const {token} = useAuth();
 
   // Get user
   const {
-    data: user,
-    isLoading,
-    error,
+    data: user
   } = useQuery({
     queryKey: ['userProfile', token],
     queryFn: async () => {
@@ -59,12 +59,14 @@ const Home: React.FC<HomeProps> = ({navigation,route}) => {
     staleTime: 0,
     retry: false,
   });
-  
+
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient colors={['#0A1D4D', '#08164C']} style={styles.gradientBackground}>
+      <LinearGradient
+        colors={['#0A1D4D', '#08164C']}
+        style={styles.gradientBackground}>
         <ImageBackground
-          source={require('@assets/images/bgcirclehome.png')}
+          source={require('@assets/images/bgcirclehomee.png')}
           style={styles.heroImage}>
           <View style={styles.appBarContainer}>
             <AppBar username={user?.name} />
@@ -95,6 +97,28 @@ const Home: React.FC<HomeProps> = ({navigation,route}) => {
             <CustomButton title="SCAN AGAIN" />
           </View>
         </ImageBackground>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContainer}>
+          <FlatList
+            data={featureTiles}
+            keyExtractor={item => item.id}
+            numColumns={3}
+            contentContainerStyle={{paddingHorizontal: 10}}
+            columnWrapperStyle={{justifyContent: 'space-between'}}
+            renderItem={({item}) => (
+              <FeatureTile
+                icon={item.icon}
+                label={item.label}
+                onPress={() => {
+                  console.log('Navigating to:', item.route);
+                  navigation.navigate(item.route);
+                }}
+              />
+            )}
+            scrollEnabled={false}
+          />
+        </ScrollView>
       </LinearGradient>
     </SafeAreaView>
   );
@@ -112,8 +136,7 @@ const styles = StyleSheet.create({
   heroImage: {
     width,
     height: width,
-    resizeMode: 'cover',
-    position: 'relative'
+    resizeMode: 'contain'
   },
   appBarContainer: {
     position: 'absolute',
@@ -164,4 +187,101 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
   },
+  scrollView: {
+    position: 'absolute',
+    top: width * 0.9,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  scrollContainer: {
+    paddingBottom: 10,
+  },
 });
+
+const featureTiles: FeatureTileType[] = [
+  {
+    id: '1',
+    icon: <MaterialCommunityIcons name="web-check" size={24} color="white" />,
+    label: 'Scan QR Code',
+    route: Paths.ScanQr,
+  },
+  {
+    id: '2',
+    icon: <Ionicons name="globe-outline" size={24} color="white" />,
+    label: 'Scan URL',
+    route: Paths.ScanUrl,
+  },
+  {
+    id: '3',
+    icon: <MaterialCommunityIcons name="wifi" size={24} color="white" />,
+    label: 'Wifi Security',
+    route: Paths.WifiSecurity,
+  },
+  {
+    id: '8',
+    icon: <MaterialCommunityIcons name="wifi" size={24} color="white" />,
+    label: 'Cyber News',
+    route: Paths.CyberNews,
+  },
+  {
+    id: '9',
+    icon: <MaterialCommunityIcons name="wifi" size={24} color="white" />,
+    label: 'OTP Security',
+    route: Paths.OtpSecurity,
+  },
+  {
+    id: '10',
+    icon: <MaterialCommunityIcons name="wifi" size={24} color="white" />,
+    label: 'Data Breach',
+    route: Paths.DataBreach,
+  },
+  {
+    id: '4',
+    icon: (
+      <MaterialCommunityIcons
+        name="application-settings"
+        size={24}
+        color="white"
+      />
+    ),
+    label: 'App Permissions',
+    route: Paths.AppPermission,
+  },
+  {
+    id: '5',
+    icon: (
+      <MaterialCommunityIcons name="shield-check" size={24} color="white" />
+    ),
+    label: 'Security Advisor',
+    route: Paths.SecurityAdvisor,
+  },
+  {
+    id: '6',
+    icon: (
+      <MaterialCommunityIcons name="shield-alert" size={24} color="white" />
+    ),
+    label: 'Threat Analyzer',
+    route: Paths.ThreatAdvisor,
+  },
+  {
+    id: '7',
+    icon: (
+      <MaterialCommunityIcons name="shield-check" size={24} color="white" />
+    ),
+    label: 'Adware Scan',
+    route: Paths.AdwareScan,
+  },
+  {
+    id: '11',
+    icon: <MaterialCommunityIcons name="wifi" size={24} color="white" />,
+    label: 'App Statistics',
+    route: Paths.AppStatistics,
+  },
+  {
+    id: '12',
+    icon: <MaterialCommunityIcons name="wifi" size={24} color="white" />,
+    label: 'Hidden Application',
+    route: Paths.HiddenApps,
+  },
+];
