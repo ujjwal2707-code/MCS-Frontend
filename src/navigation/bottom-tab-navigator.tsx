@@ -32,9 +32,9 @@ const BottomTabNavigator = () => {
         tabBarInactiveTintColor: 'grey',
         tabBarStyle: {
           backgroundColor: '#5A29FD',
-          height: 100,
-          paddingBottom: 20,
-          paddingTop: 20,
+          height: 80,
+          paddingBottom: 10,
+          paddingTop: 10,
         },
       })}>
       <Tab.Screen name={Paths.Home} component={Home} />

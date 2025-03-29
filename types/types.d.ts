@@ -1,8 +1,14 @@
-import {TextInputProps, TouchableOpacityProps} from 'react-native';
+import {
+  TextInputProps,
+  TouchableOpacityProps,
+  ImageSourcePropType,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export interface FeatureTileType {
   id: string;
-  icon?: React.ReactNode;
+  icon?: IconNameReact.ComponentProps<typeof Ionicons>["name"];
+  image?: ImageSourcePropType;
   label: string;
   route: NoParamsRoutes;
 }

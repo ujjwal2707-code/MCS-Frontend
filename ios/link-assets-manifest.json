@@ -46,6 +46,10 @@
       "sha1": "39000ffde23ef15104666c3be320492e89091b9a"
     },
     {
+      "path": "src/assets/images/bgcirclehomee.png",
+      "sha1": "93942067d7974d19c34133a0d339fcd3f7d0987a"
+    },
+    {
       "path": "src/assets/images/bgcirclesplash.png",
       "sha1": "30a2ba6b9dd956bf78b2356928b04c121ab63fb2"
     },
@@ -56,6 +60,10 @@
     {
       "path": "src/assets/images/logo.png",
       "sha1": "875c4bde65bb7b7e9c4685b9664944a5a4162157"
+    },
+    {
+      "path": "src/assets/images/notify.png",
+      "sha1": "9f4a25807353d133d3dff3f943449e50b69452e9"
     },
     {
       "path": "src/assets/images/secureprotection.png",
