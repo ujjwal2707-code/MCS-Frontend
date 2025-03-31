@@ -1,17 +1,25 @@
-import {Image, StyleSheet, View} from 'react-native';
+import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomText from './ui/custom-text';
+import {useNavigation} from '@react-navigation/native';
+import {RootStackParamList} from '@navigation/types';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 interface ScreenHeaderProps {
   name?: string;
 }
 
 const ScreenHeader = ({name}: ScreenHeaderProps) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Ionicons name="arrow-back" size={30} color="white" />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={30} color="white" />
+        </TouchableOpacity>
         <View style={styles.actions}>
           <Image
             source={require('@assets/images/notify.png')}
