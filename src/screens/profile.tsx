@@ -8,6 +8,8 @@ import {Paths} from '../navigation/paths';
 import {CommonActions} from '@react-navigation/native';
 import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import {BottomTabParamList} from '@navigation/bottom-tab-params';
+import ScreenLayout from '@components/screen-layout';
+import ScreenHeader from '@components/screen-header';
 
 type ProfileProps = BottomTabScreenProps<BottomTabParamList, Paths.Profile>;
 
@@ -44,27 +46,11 @@ const Profile: React.FC<ProfileProps> = ({navigation, route}) => {
 
   const handleLogout = async () => {
     await logout();
-    // navigation.dispatch(
-    //   CommonActions.reset({
-    //     index: 0,
-    //     routes: [{name: Paths.Login}],
-    //   }),
-    // );
   };
   return (
-    <View
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        flexDirection: 'column',
-        padding: 20,
-      }}>
-      <Text style={{fontSize: 20, fontWeight: 'bold'}}>{user?.name}</Text>
-      <Text style={{fontSize: 20, fontWeight: 'bold'}}>{user?.email}</Text>
-      <View style={{marginTop: 10}}>
-        <Button title="Logout" onPress={handleLogout} />
-      </View>
-    </View>
+    <ScreenLayout>
+      <ScreenHeader />
+    </ScreenLayout>
   );
 };
 
