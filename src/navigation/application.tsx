@@ -11,8 +11,7 @@ import {
   Login,
   VerifyEmail,
   ForgetPassword,
-  Home,
-  Profile,
+  PrivacyPolicy,
   AppPermission,
   AppPermissionDetails,
   ScanQr,
@@ -58,6 +57,7 @@ const ApplicationNavigator = () => {
               <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
               {/* <Stack.Screen component={Home} name={Paths.Home} />
               <Stack.Screen component={Profile} name={Paths.Profile} /> */}
+              <Stack.Screen component={PrivacyPolicy} name={Paths.PrivacyPolicy} />
               <Stack.Screen component={ScanQr} name={Paths.ScanQr} />
               <Stack.Screen component={ScanUrl} name={Paths.ScanUrl} />
               <Stack.Screen component={ScanWebUrl} name={Paths.ScanWebUrl} />

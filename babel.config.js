@@ -1,7 +1,6 @@
 module.exports = {
   presets: ['module:@react-native/babel-preset'],
   plugins: [
-    'react-native-reanimated/plugin',
     [
       'module-resolver',
       {
@@ -12,10 +11,12 @@ module.exports = {
           '@components': './src/components',
           '@services': './src/services',
           '@utils': './src/utils',
-          '@context':'./src/context',
-          '@constants':'./src/constants'
+          '@context': './src/context',
+          '@constants': './src/constants'
         },
       },
     ],
+    'react-native-paper/babel',
+    'react-native-reanimated/plugin'
   ],
 };
