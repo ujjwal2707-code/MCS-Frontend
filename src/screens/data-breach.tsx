@@ -1,15 +1,18 @@
 import {
   View,
-  Text,
-  SafeAreaView,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
+import ScreenLayout from '@components/screen-layout';
+import ScreenHeader from '@components/screen-header';
+import {useAuth} from '@context/auth-context';
+import {useQuery} from '@tanstack/react-query';
+import {apiService} from '@services/index';
+import InputField from '@components/ui/input-field';
+import CustomButton from '@components/ui/custom-button';
+import CustomText from '@components/ui/custom-text';
+import {Card, Divider} from 'react-native-paper';
 
 let content = [
   'Change your password immediately.',
@@ -28,6 +31,7 @@ interface DataBreachResponse {
 }
 
 const DataBreach = () => {
+  const {token} = useAuth();
   let [email, setEmail] = useState('');
   const [errorData, setErrorData] = useState<ErrorResponse | null>(null);
   const [resultData, setResultData] = useState<DataBreachResponse | null>(null);
@@ -58,175 +62,173 @@ const DataBreach = () => {
       setLoading(false);
     }
   };
+
+  // Fetch user
+  const {data: user, isLoading} = useQuery({
+    queryKey: ['userProfile', token],
+    queryFn: async () => {
+      if (!token) throw new Error('Token is missing');
+
+      const response = await apiService.getUserProfile(token);
+      if (!response) {
+        throw new Error('API call failed: No response received.');
+      }
+      if (response.status !== 200) {
+        throw new Error(
+          `API Error: ${response.status} - ${response.statusText}`,
+        );
+      }
+      if (!response.data || !response.data.success) {
+        throw new Error('Invalid API response format.');
+      }
+
+      return response.data.data;
+    },
+    staleTime: 0,
+    retry: false, // Prevent retrying if token is missing
+  });
+
+  useEffect(() => {
+    if (user.email === 'yepoba5531@oziere.com') {
+      return;
+    } else {
+      setEmail(user.email);
+    }
+  }, [user]);
+
+  const inputDefaultValue =
+    user.email === 'yepoba5531@oziere.com' ? email : user.email;
+
   return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          style={styles.scrollView}>
-          <Text style={styles.navText}>Data Breach</Text>
+    <ScreenLayout>
+      <ScreenHeader name="Data Breach" />
+      <View style={{paddingVertical: 30}}>
+        <CustomText
+          variant="h5"
+          color="#fff"
+          fontFamily="Montserrat-Medium"
+          style={{textAlign: 'center'}}>
+          Enter an Email
+        </CustomText>
+      </View>
+      <View
+        style={{
+          paddingVertical: 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View style={{width: '100%'}}>
+          <InputField
+            placeholder="Enter email"
+            textContentType="emailAddress"
+            defaultValue={inputDefaultValue}
+            onChangeText={value => setEmail(value)}
+          />
+        </View>
+        <View style={{marginTop: 20, width: '50%'}}>
+          <CustomButton
+            bgVariant="secondary"
+            title={errorData || resultData ? 'CHECK AGAIN' : 'CHECK BREACH'}
+            textVariant="secondary"
+            onPress={checkDataBreach}
+            isDisabled={!email}
+            isLoading={loading}
+          />
+        </View>
+      </View>
 
-          <View style={styles.userContainer}>
-            <TextInput
-              style={styles.inputField}
-              placeholder="Enter email"
-              placeholderTextColor="#ccc"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={value => setEmail(value)}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
+      {/* No breach found */}
+      {errorData && (
+        <View style={styles.errorContainer}>
+          <CustomText
+            variant="h5"
+            fontFamily="Montserrat-Bold"
+            style={styles.errorText}>
+            {errorData.Error}
+          </CustomText>
+        </View>
+      )}
 
-            <TouchableOpacity
-              style={[
-                styles.button,
-                (!email || loading) && styles.disabledButton,
-              ]}
-              onPress={() => checkDataBreach()}
-              disabled={!email || loading}>
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.buttonText}>Check Breach</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-
-          {resultData && (
-            <View style={styles.resultContainer}>
-              <Text style={styles.resultTitle}>Data Breach Detected</Text>
+      {/* Breach found */}
+      {resultData && (
+        <>
+          <Card style={styles.card}>
+            <Card.Content>
               {resultData.breaches.map((group, groupIndex) => (
-                <View key={`group-${groupIndex}`} style={styles.groupContainer}>
+                <View style={styles.cardItemContainer}>
                   {group.map((breach, index) => (
-                    <Text key={`breach-${index}`} style={styles.breachText}>
-                      🔹 {breach}
-                    </Text>
+                    <React.Fragment key={index}>
+                      <View
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding:2
+                        }}>
+                        <CustomText
+                          variant="h5"
+                          fontFamily="Montserrat-Medium"
+                          color="#fff"
+                          key={`breach-${index}`}>
+                          {breach}
+                        </CustomText>
+                        <View style={[styles.badge, styles.unsecure]}>
+                          <CustomText style={styles.badgeText}>
+                            Breach Detected
+                          </CustomText>
+                        </View>
+                      </View>
+                      {index < group.length - 1 && (
+                        <Divider style={styles.divider} />
+                      )}
+                    </React.Fragment>
                   ))}
                 </View>
               ))}
+            </Card.Content>
+          </Card>
 
-              <Text style={styles.actionTitle}>Actions to be taken:</Text>
+          <Card
+            style={{
+              borderRadius: 70,
+              backgroundColor: '#FE3A39', // #ef4444
+              marginTop: 30,
+              padding: 0,
+            }}>
+            <Card.Content>
+              <CustomText
+                variant="h6"
+                fontFamily="Montserrat-Bold"
+                color="#fff"
+                style={{textAlign: 'center'}}>
+                Actions to be taken:
+              </CustomText>
               {content?.map((line, index) => (
-                <Text key={index} style={styles.actionText}>
-                  🔹{line}
-                </Text>
+                <CustomText
+                  variant="h6"
+                  fontFamily="Montserrat-Bold"
+                  color="#fff"
+                  key={index}
+                  style={{textAlign: 'center'}}>
+                  • {line}
+                </CustomText>
               ))}
-            </View>
-          )}
-
-          {errorData && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{errorData.Error}</Text>
-            </View>
-          )}
-        </ScrollView>
-      </SafeAreaView>
-    </View>
+            </Card.Content>
+          </Card>
+        </>
+      )}
+    </ScreenLayout>
   );
 };
 
 export default DataBreach;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20
-  },
-  safeArea: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
-  scrollView: {
-    width: '100%',
-    paddingHorizontal: 8, // Equivalent to px-2
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 128, // Equivalent to pb-32
-  },
-  navText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    // color: '#fff',
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  userContainer: {
-    width: '100%',
-    paddingVertical: 20, // Equivalent to py-5
-    paddingHorizontal: 12, // Equivalent to px-3
-  },
-  inputField: {
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#fff',
-    // color: '#000',
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: '#1e90ff',
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  disabledButton: {
-    backgroundColor: '#87cefa',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    // fontFamily:''
-  },
-  resultContainer: {
-    width: '100%',
-    padding: 16,
-    backgroundColor: '#ef4444',
-    borderRadius: 8,
-    marginTop: 20,
-    // Shadow for iOS
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    // Shadow for Android
-    elevation: 5,
-  },
-  resultTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    // color: '#fff',
-  },
-  groupContainer: {
-    marginTop: 20,
-  },
-  breachText: {
-    fontSize: 18,
-    color: '#fff',
-  },
-  actionTitle: {
-    marginTop: 16,
-    fontSize: 20,
-    fontWeight: '600',
-    // color: '#fff',
-  },
-  actionText: {
-    fontSize: 18,
-    // color: '#fff',
-  },
   errorContainer: {
     width: '100%',
-    padding: 16,
-    backgroundColor: '#4ade80', // Tailwind green-400
+    padding: 14,
+    backgroundColor: '#4ade80',
     borderRadius: 8,
     marginTop: 20,
     // Shadow for iOS
@@ -238,9 +240,37 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   errorText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    // color: '#fff',
     textAlign: 'center',
+  },
+  card: {
+    borderRadius: 20,
+    backgroundColor: '#FE3A39', // #ef4444 // #FE3A39
+    marginTop: 10,
+    padding: 0,
+  },
+  cardItemContainer: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#fff',
+    marginVertical: 4,
+    width: '100%',
+  },
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 50,
+  },
+  unsecure: {
+    backgroundColor: '#FE3A38', // #FE3A38
+    borderWidth: 1,
+    borderColor: '#fff'
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 14,
   },
 });

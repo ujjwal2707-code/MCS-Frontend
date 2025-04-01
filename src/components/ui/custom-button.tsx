@@ -12,7 +12,7 @@ import CustomText from './custom-text';
 const getBgVariantStyle = (variant: ButtonProps['bgVariant']) => {
   switch (variant) {
     case 'secondary':
-      return {backgroundColor: '#6b7280'}; // #6b7280
+      return {backgroundColor: '#2337A7'}; // #6b7280
     case 'danger':
       return {backgroundColor: '#ef4444'}; // #ef4444
     // case 'success':
