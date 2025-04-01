@@ -3,15 +3,15 @@ import {Paths} from '../navigation/paths';
 import { FeatureTileType } from 'types/types';
 
 // Icons
-import scanQr from '@assets/icons/scanqr.png';
-import scanWeb from '@assets/icons/scanweb.png'
-import wifiSecurity from '@assets/icons/wifusecurity.png'
-import cyberNews from '@assets/icons/cybernews.png'
-import otpSecurity from '@assets/icons/otpsecurity.png'
-import dataBreach from '@assets/icons/databreach.png'
-import appPermission from '@assets/icons/apppermission.png'
-import securityAdvisor from '@assets/icons/securityadvisor.png'
-import threatAnalyzer from '@assets/icons/threatanalyzer.png'
+import scanQr from '@assets/icons/scanqrr.png';
+import scanWeb from '@assets/icons/scanwebb.png'
+import wifiSecurity from '@assets/icons/wifisec.png'
+import cyberNews from '@assets/icons/cybernewss.png'
+import otpSecurity from '@assets/icons/otpsec.png'
+import dataBreach from '@assets/icons/databreachh.png'
+import appPermission from '@assets/icons/appperm.png'
+import securityAdvisor from '@assets/icons/securityadv.png'
+import threatAnalyzer from '@assets/icons/threat.png'
 
 export const featureTilesData: FeatureTileType[] = [
   {

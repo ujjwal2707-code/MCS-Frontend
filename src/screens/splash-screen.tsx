@@ -76,7 +76,7 @@ const SplashScreen = ({navigation}: RootScreenProps<Paths.SplashScreen>) => {
             source={require('@assets/images/bgcirclesplash.png')}
             style={styles.splashImage}>
             <Image
-              source={require('@assets/images/logo.png')}
+              source={require('@assets/images/logoo.png')}
               style={styles.shieldImage}
             />
             <View style={styles.textBelow}>

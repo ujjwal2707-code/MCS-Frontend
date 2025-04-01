@@ -75,7 +75,7 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
   const guestLogin = async () => {
     try {
       await loginMutation({
-        email: 'yepoba5531@oziere.com',
+        email: 'bigaja9282@flektel.com',
         password: '12345678',
       });
     } catch (error) {
@@ -99,7 +99,7 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
             source={require('@assets/images/bgcircleauth.png')}
             style={styles.splashImage}>
             <Image
-              source={require('@assets/images/logo.png')}
+              source={require('@assets/images/logoo.png')}
               style={styles.shieldImage}
             />
 

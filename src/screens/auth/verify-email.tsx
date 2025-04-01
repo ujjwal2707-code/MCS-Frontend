@@ -104,7 +104,7 @@ const VerifyEmail: React.FC<RootScreenProps<Paths.VerifyEmail>> = ({
             source={require('@assets/images/bgcircleauth.png')}
             style={styles.splashImage}>
             <Image
-              source={require('@assets/images/logo.png')}
+              source={require('@assets/images/logoo.png')}
               style={styles.shieldImage}
             />
 
