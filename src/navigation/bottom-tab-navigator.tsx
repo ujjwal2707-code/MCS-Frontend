@@ -3,7 +3,11 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Home, Profile, Contact} from '../screens';
 import {Paths} from './paths';
 import {BottomTabParamList} from './bottom-tab-params';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {Image} from 'react-native';
+
+import homeIcon from '@assets/icons/home.png';
+import profileIcon from '@assets/icons/profile.png';
+import contactIcon from '@assets/icons/contact.png';
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -14,18 +18,22 @@ const BottomTabNavigator = () => {
       screenOptions={({route}) => ({
         headerShown: false,
         tabBarIcon: ({focused, color, size}) => {
-          let iconName = '';
+          let iconSource;
 
           if (route.name === Paths.Home) {
-            iconName = focused ? 'home' : 'home-outline';
+            iconSource = homeIcon;
           } else if (route.name === Paths.Profile) {
-            iconName = focused ? 'account' : 'account-outline';
+            iconSource = profileIcon;
           } else if (route.name === Paths.Contact) {
-            iconName = focused ? 'phone' : 'phone-outline';
+            iconSource = contactIcon;
           }
 
           return (
-            <MaterialCommunityIcons name={iconName} size={30} color={color} />
+            <Image
+              source={iconSource}
+              style={{width: size, height: size, tintColor: color}}
+              resizeMode="contain"
+            />
           );
         },
         tabBarActiveTintColor: 'white',
