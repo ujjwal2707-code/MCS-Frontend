@@ -11,6 +11,9 @@ import {
 
 import Dropdown, {DropdownItem} from '../components/dropdown';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import ScreenLayout from '@components/screen-layout';
+import ScreenHeader from '@components/screen-header';
+import CustomText from '@components/ui/custom-text';
 
 // Define type for each step
 interface StepData {
@@ -56,15 +59,6 @@ const stepsData: Record<string, Record<string, StepData>> = {
   },
 };
 
-interface NavProps {
-  name: string;
-}
-const Nav: React.FC<NavProps> = ({name}) => (
-  <View style={styles.nav}>
-    <Text style={styles.navText}>{name}</Text>
-  </View>
-);
-
 const OtpSecurity: React.FC = () => {
   const [selectedValue, setSelectedValue] = useState<string>('airtel');
   const [completedSteps, setCompletedSteps] = useState<
@@ -94,107 +88,34 @@ const OtpSecurity: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          style={styles.scrollView}>
-          <Nav name="OTP Security" />
+    <ScreenLayout>
+      <ScreenHeader name="OTP Security" />
+      <View style={{paddingVertical: 30}}>
+        <CustomText
+          variant="h5"
+          color="#fff"
+          fontFamily="Montserrat-Medium"
+          style={{textAlign: 'center'}}>
+          Select your SIM provider
+        </CustomText>
+      </View>
 
-          <View style={styles.dropdownSection}>
-            <Text style={styles.sectionTitle}>Select Your Sim Provider</Text>
-            <Dropdown
-              items={items}
-              selectedValue={selectedValue}
-              onValueChange={(value: string) => setSelectedValue(value)}
-            />
-          </View>
-
-          <Text style={styles.stepsTitle}>Perform these steps</Text>
-          <View style={styles.stepsContainer}>
-            {Object.entries(stepsData[selectedValue]).map(([key, step]) => (
-              <Pressable
-                key={key}
-                onPress={() => handleDialUSSD(step.ussdCode, key)}
-                style={styles.stepButton}>
-                <Text style={styles.stepText}>{step.title}</Text>
-                {completedSteps[selectedValue]?.[key] && (
-                  <Ionicons
-                    name="checkmark-circle-sharp"
-                    size={24}
-                    color="black"
-                  />
-                )}
-              </Pressable>
-            ))}
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </View>
+      <View style={styles.dropdownSection}>
+        {/* <CustomText>Select Your Sim Provider</CustomText> */}
+        <Dropdown
+          items={items}
+          selectedValue={selectedValue}
+          onValueChange={(value: string) => setSelectedValue(value)}
+        />
+      </View>
+    </ScreenLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0061FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  safeArea: {
-    width: '100%',
-    height: '100%',
-  },
-  scrollView: {
-    paddingHorizontal: 8,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 128,
-  },
-  nav: {
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  navText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
   dropdownSection: {
-    paddingVertical: 20,
-  },
-  sectionTitle: {
-    fontFamily: 'Rubik',
-    color: '#ffffff',
-    marginBottom: 8,
-    fontSize: 16,
-  },
-  stepsTitle: {
-    fontFamily: 'Rubik',
-    color: '#ffffff',
-    marginBottom: 8,
-    fontSize: 16,
-  },
-  stepsContainer: {
-    // Additional styling if needed.
-  },
-  stepButton: {
-    backgroundColor: '#1D4ED8', // blue-700 equivalent
-    padding: 16,
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginVertical: 8,
-  },
-  stepText: {
-    color: '#ffffff',
-    fontFamily: 'Rubik',
-    fontWeight: '600',
-    fontSize: 16,
+    paddingVertical: 5,
+    paddingHorizontal:20
   },
 });
 

@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   dropdownButton: {
     borderWidth: 1,
     borderColor: "#D1D5DB", // Tailwind gray-300 equivalent
-    borderRadius: 4,
+    borderRadius: 20,
     padding: 12,
   },
   dropdownButtonText: {
