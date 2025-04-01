@@ -1,17 +1,19 @@
 import {
   View,
-  Text,
-  TouchableOpacity,
   Image,
   StyleSheet,
   FlatList,
   Linking,
+  SafeAreaView
 } from 'react-native';
 import React from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {apiService} from '@services/index';
 import FullScreenLoader from '@components/full-screen-loader';
 import CustomText from '@components/ui/custom-text';
+import LinearGradient from 'react-native-linear-gradient';
+import ScreenHeader from '@components/screen-header';
+import CustomButton from '@components/ui/custom-button';
 
 interface NewsItem {
   source: {id: string; name: string};
@@ -49,11 +51,7 @@ const CyberNews = () => {
     retry: true,
   });
 
-  if (isLoading) {
-    return <FullScreenLoader />;
-  }
-
-  if (!newsList || newsList.length === 0) {
+  if (!newsList || newsList.length === 0 || error) {
     return (
       <CustomText
         variant="h1"
@@ -66,9 +64,7 @@ const CyberNews = () => {
   }
 
   const renderItem = ({item}: {item: NewsItem}) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => Linking.openURL(item.url)}>
+    <View style={styles.itemContainer}>
       {item.urlToImage ? (
         <Image
           source={{uri: item.urlToImage}}
@@ -76,29 +72,54 @@ const CyberNews = () => {
           resizeMode="cover"
         />
       ) : (
-        <View style={[styles.image, styles.noImage]}>
-          <Text style={styles.noImageText}>No Image</Text>
+        <View>
+          No Image Available.
         </View>
       )}
       <View style={styles.content}>
-        <CustomText variant="h2" fontFamily="Montserrat-Bold" color="#000">
+        <CustomText variant="h5" fontFamily="Montserrat-Bold" color="#fff">
           {item.title}
         </CustomText>
-        <CustomText variant="h6" fontFamily="Montserrat-Regular" color="#333">
+        <View style={{marginTop:10}}>
+        <CustomText variant="h6" fontFamily="Montserrat-Regular" color="#fff">
           {item.description}
         </CustomText>
+        </View>
+        
+
+        <View style={{marginTop: 10}}>
+          <CustomButton
+            bgVariant="outline"
+            title="Read More"
+            onPress={() => Linking.openURL(item.url)}
+            style={{borderWidth: 1,borderColor: '#fff'}}
+          />
+        </View>
       </View>
-    </TouchableOpacity>
-  );
-  return (
-    <View style={styles.container}>
-      <FlatList
-        data={newsList}
-        keyExtractor={(item, index) => item.url + index.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContainer}
-      />
     </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <LinearGradient
+        colors={['#0A1D4D', '#08164C']}
+        style={styles.gradientBackground}>
+        <View style={{padding: 20}}>
+          <ScreenHeader name="Cyber News" />
+        </View>
+
+        {isLoading ? (
+          <FullScreenLoader />
+        ) : (
+          <FlatList
+            data={newsList}
+            keyExtractor={(item, index) => item.url + index.toString()}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContainer}
+          />
+        )}
+      </LinearGradient>
+    </SafeAreaView>
   );
 };
 
@@ -107,36 +128,29 @@ export default CyberNews;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 10,
+  },
+  gradientBackground: {
+    flex: 1,
   },
   listContainer: {
     paddingBottom: 20,
   },
-  card: {
-    borderRadius: 8,
-    backgroundColor: '#f9f9f9',
-    marginBottom: 15,
-    overflow: 'hidden',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
+  scrollContainer: {
+    paddingBottom: 10,
   },
   image: {
     width: '100%',
     height: 200,
   },
-  noImage: {
-    backgroundColor: '#ccc',
+  itemContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  noImageText: {
-    color: '#fff',
+    marginTop: 10,
   },
   content: {
-    padding: 10,
+    marginTop: 10,
+    width: '80%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
