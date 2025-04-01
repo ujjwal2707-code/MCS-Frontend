@@ -7,6 +7,8 @@ import {
   SafeAreaView,
   FlatList,
   TouchableOpacity,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 
@@ -15,6 +17,10 @@ import {WifiNetwork} from '../../../types/types';
 import {RootScreenProps} from '../../navigation/types';
 import {Paths} from '../../navigation/paths';
 import FullScreenLoader from '../../components/full-screen-loader';
+import ScreenLayout from '@components/screen-layout';
+import ScreenHeader from '@components/screen-header';
+import CustomText from '@components/ui/custom-text';
+import Loader from '@components/loader';
 
 const {WifiModule} = NativeModules;
 
@@ -52,14 +58,17 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
         await requestLocationPermission();
         const wifiNetworks: WifiNetwork[] = await WifiModule.scanWifiNetworks();
         setNetworks(wifiNetworks);
-      } catch (error) {
-        console.error('Error scanning WiFi networks:', error);
+      } catch (error: any) {
+        // console.error('Error scanning WiFi networks:', error);
+        Alert.alert('Error scanning WiFi networks:', error);
       } finally {
         setLoading(false);
       }
     };
     init();
   }, []);
+
+  console.log(networks);
 
   // const handleDisconnect = async () => {
   //   try {
@@ -71,85 +80,75 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
   // };
 
   const handleNetworkPress = (selectedNetwork: WifiNetwork) => {
-    navigation.navigate(Paths.WifiSecurityDetails, {wifi: selectedNetwork});
+    // navigation.navigate(Paths.WifiSecurityDetails, {wifi: selectedNetwork});
   };
 
-  if (loading) {
-    return <FullScreenLoader />;
-  }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.headerText}>📡 Available WiFi Networks</Text>
+    <ScreenLayout>
+      <ScreenHeader name="Wifi Security" />
+      <View style={{paddingVertical: 20}}>
+        <CustomText
+          variant="h5"
+          color="#fff"
+          fontFamily="Montserrat-Medium"
+          style={{textAlign: 'center'}}>
+          Available Networks
+        </CustomText>
+      </View>
+
+      {loading ? (
+        <Loader />
+      ) : (
         <FlatList
           data={networks}
           keyExtractor={item => item.BSSID}
+          contentContainerStyle={{paddingHorizontal: 15}}
           renderItem={({item}) => (
             <TouchableOpacity onPress={() => handleNetworkPress(item)}>
               <View style={styles.wifiItem}>
                 <View style={styles.wifiItemRow}>
-                  <View>
-                    <Text style={styles.wifiSSID}>{item.SSID}</Text>
-                    <Text style={{color: 'red'}}>
-                      Security Rating: {item.securityRating}
-                    </Text>
-                  </View>
-
+                  {item.SSID ? (
+                    <CustomText variant="h6" color="#fff">
+                      {item.SSID}
+                    </CustomText>
+                  ) : (
+                    <CustomText variant="h6" color="#fff">
+                      {item.BSSID}
+                    </CustomText>
+                  )}
                   <View
                     style={[
                       styles.badge,
                       item.isSecure ? styles.secure : styles.unsecure,
                     ]}>
-                    <Text style={styles.badgeText}>
+                    <CustomText style={styles.badgeText}>
                       {item.isSecure ? 'Secure' : 'Unsecure'}
-                    </Text>
+                    </CustomText>
                   </View>
                 </View>
               </View>
             </TouchableOpacity>
           )}
         />
-      </View>
-    </SafeAreaView>
+      )}
+    </ScreenLayout>
   );
 };
 
 export default WifiSecurity;
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    padding: 20,
-  },
-  container: {
-    paddingHorizontal: 6,
-    paddingVertical: 24,
-  },
-  headerText: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 16,
-  },
   wifiItem: {
-    padding: 16,
+    padding: 10,
     margin: 8,
-    borderRadius: 8,
-    // iOS shadow properties
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    // Android elevation
-    elevation: 5,
+    borderRadius: 20,
+    backgroundColor: '#2337A8',
   },
   wifiItemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  wifiSSID: {
-    fontSize: 18,
   },
   badge: {
     paddingHorizontal: 12,
@@ -164,6 +163,6 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: '#fff',
-    fontSize: 14
+    fontSize: 14,
   },
 });
