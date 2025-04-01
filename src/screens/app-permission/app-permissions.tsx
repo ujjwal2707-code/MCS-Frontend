@@ -6,13 +6,18 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  FlatList,
 } from 'react-native';
 import {NativeModules, Platform} from 'react-native';
 import FullScreenLoader from '../../components/full-screen-loader';
-import { InstalledApp } from '../../../types/types';
-import { RootScreenProps } from '../../navigation/types';
-import { Paths } from '../../navigation/paths';
-
+import {InstalledApp} from '../../../types/types';
+import {RootScreenProps} from '../../navigation/types';
+import {Paths} from '../../navigation/paths';
+import ScreenLayout from '@components/screen-layout';
+import ScreenHeader from '@components/screen-header';
+import CustomText from '@components/ui/custom-text';
+import Loader from '@components/loader';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface InstalledAppsModule {
   getInstalledApps: () => Promise<InstalledApp[]>;
@@ -47,43 +52,64 @@ const AppPermissions = ({navigation}: RootScreenProps<Paths.AppPermission>) => {
     navigation.navigate(Paths.AppPermissionDetails, {app: selectedApp});
   };
 
-  if (loading) {
-    return <FullScreenLoader />;
-  }
-
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {apps.map((app, index) => (
-        <TouchableOpacity
-          key={index.toString()}
-          onPress={() => handleAppPress(app)}>
-          <View style={styles.appContainer}>
-            {app.icon ? (
-              <Image
-                source={{uri: `data:image/png;base64,${app.icon}`}}
-                style={styles.appIcon}
-              />
-            ) : (
-              <Text style={styles.noIcon}>No Icon</Text>
-            )}
-            <Text style={styles.appName}>{app.name}</Text>
-          </View>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+    <ScreenLayout style={{flex: 1}}>
+      <View style={{paddingBottom: 20}}>
+        <ScreenHeader name="App Permissions" />
+      </View>
+
+      {loading ? (
+        <Loader />
+      ) : (
+        <FlatList
+          data={apps}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({item}) => (
+            <TouchableOpacity onPress={() => handleAppPress(item)}>
+              <View style={styles.appContainer}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  {item.icon ? (
+                    <Image
+                      source={{uri: `data:image/png;base64,${item.icon}`}}
+                      style={styles.appIcon}
+                    />
+                  ) : (
+                    <Text style={styles.noIcon}>No Icon</Text>
+                  )}
+                  <CustomText fontFamily="Montserrat-Medium" color="#fff">
+                    {item.name}
+                  </CustomText>
+                </View>
+                <View>
+                  <Ionicons
+                    name="chevron-forward-sharp"
+                    size={30}
+                    color="white"
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+          ItemSeparatorComponent={() => <View style={styles.divider} />}
+          contentContainerStyle={styles.listContentContainer}
+        />
+      )}
+    </ScreenLayout>
   );
 };
 
 export default AppPermissions;
 
 const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 10,
-  },
   appContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    justifyContent: 'space-between',
+  },
+  divider: {
+    backgroundColor: '#FFF',
+    height: 1,
+    marginVertical: 8,
   },
   appIcon: {
     width: 50,
@@ -95,9 +121,11 @@ const styles = StyleSheet.create({
     height: 50,
     marginRight: 10,
     textAlign: 'center',
-    lineHeight: 50, // Center text vertically if no icon
+    lineHeight: 50,
   },
-  appName: {
-    fontSize: 16,
+  listContentContainer: {
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: '#4E4E96',
   },
 });

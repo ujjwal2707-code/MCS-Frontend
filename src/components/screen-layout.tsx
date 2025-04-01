@@ -6,9 +6,9 @@ interface ScreenLayoutProps {
   children: ReactNode;
 }
 
-const ScreenLayout = ({children}: ScreenLayoutProps) => {
+const ScreenLayout = ({children, style}: {children: React.ReactNode; style?: any}) => {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, style]}>
       <LinearGradient
         colors={['#0A1D4D', '#08164C']}
         style={styles.gradientBackground}>
