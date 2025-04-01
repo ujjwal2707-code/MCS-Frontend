@@ -19,7 +19,7 @@ const FeatureTile = ({icon, label, image, onPress}: FeatureTileProps) => {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <View style={styles.iconContainer}>
-        {image ? <Image source={image} style={styles.iconImg} /> : <>{icon}</>}
+        <Image source={image} style={styles.iconImg} />
       </View>
 
       <View>

@@ -90,7 +90,7 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
                 <View style={[styles.progressFill, {width: '83%'}]} />
               </View>
               <Image
-                source={require('@assets/images/secureprotectionn.png')}
+                source={require('@assets/images/secure.png')}
                 style={styles.shieldImage}
               />
             </View>
