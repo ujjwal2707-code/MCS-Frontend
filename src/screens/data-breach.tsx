@@ -89,7 +89,7 @@ const DataBreach = () => {
   });
 
   useEffect(() => {
-    if (user.email === 'yepoba5531@oziere.com') {
+    if (user.email === 'bigaja9282@flektel.com') {
       return;
     } else {
       setEmail(user.email);
@@ -97,7 +97,7 @@ const DataBreach = () => {
   }, [user]);
 
   const inputDefaultValue =
-    user.email === 'yepoba5531@oziere.com' ? email : user.email;
+    user.email === 'bigaja9282@flektel.com' ? email : user.email;
 
   return (
     <ScreenLayout>
