@@ -1,5 +1,16 @@
-import {View, Text, NativeModules, ScrollView, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  NativeModules,
+  ScrollView,
+  StyleSheet,
+  FlatList,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
+import ScreenLayout from '@components/screen-layout';
+import ScreenHeader from '@components/screen-header';
+import Loader from '@components/loader';
+import CustomText from '@components/ui/custom-text';
 
 const {HiddenAppsModule} = NativeModules;
 
@@ -10,6 +21,7 @@ interface AppInfo {
 
 const HiddenApps = () => {
   const [hiddenApps, setHiddenApps] = useState<AppInfo[]>([]);
+  const [loading, setLoading] = useState(false);
 
   console.log('====================================');
   console.log(hiddenApps);
@@ -18,58 +30,94 @@ const HiddenApps = () => {
   useEffect(() => {
     const init = async () => {
       try {
+        setLoading(true);
         const apps = await HiddenAppsModule.getHiddenApps();
         setHiddenApps(apps);
       } catch (error) {
         console.error('Error fetching hidden apps:', error);
+      } finally {
+        setLoading(false);
       }
     };
     init();
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Hidden Apps</Text>
-      {hiddenApps.length === 0 ? (
-        <Text style={styles.message}>No hidden apps found.</Text>
+    <ScreenLayout>
+      <ScreenHeader name="Hidden Apps" />
+
+      {loading ? (
+        <Loader />
       ) : (
-        hiddenApps.map((app, index) => (
-          <View key={index} style={styles.appContainer}>
-            <Text style={styles.appName}>{app.appName}</Text>
-            <Text style={styles.packageName}>{app.packageName}</Text>
-          </View>
-        ))
+        <>
+          {hiddenApps.length === 0 ? (
+            <CustomText
+              variant="h4"
+              fontFamily="Montserrat-ExtraBold"
+              style={{textAlign: 'center'}}>
+              No hidden apps found.
+            </CustomText>
+          ) : (
+            <FlatList
+              data={hiddenApps}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({item}) => (
+                <View style={styles.appContainer}>
+                  <View style={{flexDirection: 'column'}}>
+                    <CustomText
+                      variant="h5"
+                      fontFamily="Montserrat-Medium"
+                      color="#fff">
+                      {item.appName}
+                    </CustomText>
+                    <CustomText
+                      variant="h6"
+                      fontFamily="Montserrat-Medium"
+                      color="gray">
+                      {item.packageName}
+                    </CustomText>
+                  </View>
+                </View>
+              )}
+              ItemSeparatorComponent={() => <View style={styles.divider} />}
+              contentContainerStyle={styles.listContentContainer}
+            />
+          )}
+        </>
       )}
-    </ScrollView>
+    </ScreenLayout>
   );
 };
 
 export default HiddenApps;
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
-  title: {
-    fontSize: 22,
-    marginBottom: 16,
-    fontWeight: 'bold',
-  },
-  message: {
-    fontSize: 16,
-    color: 'gray',
-  },
   appContainer: {
-    marginBottom: 12,
-    padding: 8,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  appName: {
-    fontSize: 18,
+  divider: {
+    backgroundColor: '#707070',
+    height: 1,
+    marginVertical: 8,
   },
-  packageName: {
-    fontSize: 14,
-    color: 'gray',
+  appIcon: {
+    width: 50,
+    height: 50,
+    marginRight: 10,
+  },
+  noIcon: {
+    width: 50,
+    height: 50,
+    marginRight: 10,
+    textAlign: 'center',
+    lineHeight: 50,
+  },
+  listContentContainer: {
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: '#2337A8',
+    marginTop: 20,
   },
 });
