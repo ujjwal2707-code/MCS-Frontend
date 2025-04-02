@@ -1,9 +1,6 @@
 import React, {useState} from 'react';
 import {
   View,
-  Text,
-  SafeAreaView,
-  ScrollView,
   Pressable,
   StyleSheet,
   Linking,
@@ -101,12 +98,38 @@ const OtpSecurity: React.FC = () => {
       </View>
 
       <View style={styles.dropdownSection}>
-        {/* <CustomText>Select Your Sim Provider</CustomText> */}
         <Dropdown
           items={items}
           selectedValue={selectedValue}
           onValueChange={(value: string) => setSelectedValue(value)}
         />
+      </View>
+
+      <View style={styles.stepsContainer}>
+        {Object.entries(stepsData[selectedValue]).map(([key, step]) => (
+          <Pressable
+            key={key}
+            onPress={() => handleDialUSSD(step.ussdCode, key)}
+            style={styles.stepButton}>
+            <View style={{width: '80%'}}>
+              <CustomText
+                variant="h6"
+                color="#fff"
+                fontFamily="Montserrat-Bold">
+                {step.title}
+              </CustomText>
+            </View>
+            <View>
+              {completedSteps[selectedValue]?.[key] && (
+                <Ionicons
+                  name="checkmark-circle-sharp"
+                  size={30}
+                  color="#fff"
+                />
+              )}
+            </View>
+          </Pressable>
+        ))}
       </View>
     </ScreenLayout>
   );
@@ -115,7 +138,20 @@ const OtpSecurity: React.FC = () => {
 const styles = StyleSheet.create({
   dropdownSection: {
     paddingVertical: 5,
-    paddingHorizontal:20
+    paddingHorizontal: 20,
+  },
+  stepsContainer: {
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+  },
+  stepButton: {
+    backgroundColor: '#1D4ED8',
+    padding: 16,
+    borderRadius: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginVertical: 8,
   },
 });
 

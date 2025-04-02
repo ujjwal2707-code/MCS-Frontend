@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,9 @@ import {
   FlatList,
   Modal,
   StyleSheet,
-} from "react-native";
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import CustomText from './ui/custom-text';
 
 export interface DropdownItem {
   label: string;
@@ -25,40 +27,45 @@ const Dropdown: React.FC<DropdownProps> = ({
   onValueChange,
 }) => {
   const [visible, setVisible] = useState<boolean>(false);
-  const selectedItem = items.find((item) => item.value === selectedValue);
+  const selectedItem = items.find(item => item.value === selectedValue);
 
   return (
     <View style={styles.container}>
       <TouchableOpacity
         onPress={() => setVisible(true)}
-        style={styles.dropdownButton}
-      >
-        <Text style={styles.dropdownButtonText}>
-          {selectedItem ? selectedItem.label : "Select an option"}
-        </Text>
+        style={styles.dropdownButton}>
+        <CustomText variant="h5" color="#fff" fontFamily="Montserrat-Medium">
+          {selectedItem ? selectedItem.label : 'Select an option'}
+        </CustomText>
+
+        <Ionicons name="chevron-down-sharp" size={30} color="white" />
       </TouchableOpacity>
 
       <Modal visible={visible} transparent animationType="fade">
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
-          onPressOut={() => setVisible(false)}
-        >
+          onPressOut={() => setVisible(false)}>
           <View style={styles.modalContainer}>
             <FlatList
               data={items}
-              keyExtractor={(item) => item.value}
-              renderItem={({ item }) => (
+              keyExtractor={item => item.value}
+              renderItem={({item}) => (
                 <TouchableOpacity
                   style={styles.itemButton}
                   onPress={() => {
                     onValueChange(item.value);
                     setVisible(false);
-                  }}
-                >
-                  <Text style={styles.itemText}>{item.label}</Text>
+                  }}>
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontFamily="Montserrat-Medium">
+                    {item.label}
+                  </CustomText>
                 </TouchableOpacity>
               )}
+              ItemSeparatorComponent={() => <View style={styles.divider} />}
             />
           </View>
         </TouchableOpacity>
@@ -69,36 +76,40 @@ const Dropdown: React.FC<DropdownProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    width: '100%',
   },
   dropdownButton: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: "#D1D5DB", // Tailwind gray-300 equivalent
+    borderColor: '#D1D5DB', // Tailwind gray-300 equivalent
     borderRadius: 20,
     padding: 12,
   },
-  dropdownButtonText: {
-    fontFamily: "Rubik",
-    color: "#ffffff",
-  },
+  // dropdownButtonText: {
+  //   fontFamily: 'Rubik',
+  //   color: '#ffffff',
+  // },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContainer: {
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    width: 320, // roughly equivalent to Tailwind's w-80
+    backgroundColor: '#2337A8',
+    borderRadius: 12,
+    width: 320,
   },
   itemButton: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB", // Tailwind gray-200 equivalent
+    padding: 12,
   },
-  itemText: {
-    // Additional styling if needed.
+  divider: {
+    backgroundColor: '#707070',
+    height: 1,
+    marginVertical: 4,
   },
 });
 
