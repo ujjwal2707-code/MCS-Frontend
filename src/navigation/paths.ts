@@ -23,6 +23,7 @@ export const enum Paths {
     SecurityAdvisor = 'security-advisor',
     ThreatAdvisor = 'threat-advisor',
     AdwareScan = 'adware-scan',
+    AdsList = 'ads-list',
     AppStatistics = 'app-statistics',
     AppUsageStats = 'app-usage-stats',
     DataUsageStats = 'data-usage-stats',

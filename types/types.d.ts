@@ -37,6 +37,11 @@ export interface InstalledAppStats {
   receivedBytes: number;
 }
 
+export interface InstalledAppAdsInfo {
+  packageName: string;
+  serviceName: string;
+}
+
 export interface WifiNetwork {
   SSID: string;
   BSSID: string;

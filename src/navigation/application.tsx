@@ -24,6 +24,7 @@ import {
   WifiSecurityDetails,
   ThreatAdvisor,
   AdwareScan,
+  AdsList,
   AppStatistics,
   AppUsageStats,
   ActiveTimeDetails,
@@ -43,7 +44,6 @@ const ApplicationNavigator = () => {
   const {token} = useAuth();
 
   console.log(token);
-  
 
   return (
     <SafeAreaProvider>
@@ -57,7 +57,10 @@ const ApplicationNavigator = () => {
               <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
               {/* <Stack.Screen component={Home} name={Paths.Home} />
               <Stack.Screen component={Profile} name={Paths.Profile} /> */}
-              <Stack.Screen component={PrivacyPolicy} name={Paths.PrivacyPolicy} />
+              <Stack.Screen
+                component={PrivacyPolicy}
+                name={Paths.PrivacyPolicy}
+              />
               <Stack.Screen component={ScanQr} name={Paths.ScanQr} />
               <Stack.Screen component={ScanUrl} name={Paths.ScanUrl} />
               <Stack.Screen component={ScanWebUrl} name={Paths.ScanWebUrl} />
@@ -94,6 +97,7 @@ const ApplicationNavigator = () => {
                 name={Paths.ThreatAdvisor}
               />
               <Stack.Screen component={AdwareScan} name={Paths.AdwareScan} />
+              <Stack.Screen component={AdsList} name={Paths.AdsList} />
               <Stack.Screen
                 component={AppStatistics}
                 name={Paths.AppStatistics}
