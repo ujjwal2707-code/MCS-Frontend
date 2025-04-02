@@ -31,6 +31,7 @@ export type RootStackParamList = {
   [Paths.AppPermission]: undefined;
   [Paths.AppPermissionDetails]: {app: InstalledApp};
   [Paths.SecurityAdvisor]: undefined;
+  [Paths.SecurityDetails]:{id:string};
   [Paths.ThreatAdvisor]: undefined;
   [Paths.AdwareScan]: undefined;
   [Paths.AdsList]: {app: InstalledApp; ads: string[]};

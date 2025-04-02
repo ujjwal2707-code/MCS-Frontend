@@ -21,6 +21,7 @@ export const enum Paths {
     AppPermission = 'app-permission',
     AppPermissionDetails = 'app-permission-details',
     SecurityAdvisor = 'security-advisor',
+    SecurityDetails = 'security-details',
     ThreatAdvisor = 'threat-advisor',
     AdwareScan = 'adware-scan',
     AdsList = 'ads-list',

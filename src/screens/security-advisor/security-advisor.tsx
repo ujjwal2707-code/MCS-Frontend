@@ -1,16 +1,19 @@
 import {
   View,
-  Text,
   ListRenderItem,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   FlatList,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {NativeModules} from 'react-native';
-import FullScreenLoader from '../../components/full-screen-loader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import ScreenLayout from '@components/screen-layout';
+import ScreenHeader from '@components/screen-header';
+import Loader from '@components/loader';
+import CustomText from '@components/ui/custom-text';
+import {RootScreenProps} from '@navigation/types';
+import {Paths} from '@navigation/paths';
 
 interface SecurityData {
   rootStatus: boolean;
@@ -48,13 +51,11 @@ const {SecurityCheckModule} = NativeModules as {
   SecurityCheckModule: SecurityCheckModuleType;
 };
 
-const SecurityAdvisor = () => {
+const SecurityAdvisor = ({
+  navigation,
+}: RootScreenProps<Paths.SecurityAdvisor>) => {
   const [securityData, setSecurityData] = useState<SecurityData | null>(null);
   const [loading, setLoading] = useState(false);
-
-  console.log('====================================');
-  console.log(securityData);
-  console.log('====================================');
 
   const checkSecurity = async () => {
     try {
@@ -139,7 +140,7 @@ const SecurityAdvisor = () => {
         },
         {
           key: 'lockScreenNotifications',
-          label: 'Lock Screen Notifications',
+          label: 'Lock Screen Notify',
           enabled: securityData.lockScreenNotifications,
         },
       ]
@@ -147,9 +148,7 @@ const SecurityAdvisor = () => {
 
   const renderItem: ListRenderItem<SecurityItem> = ({item}) => (
     <TouchableOpacity
-      // onPress={() =>
-      //   router.push({ pathname: "/security/[id]", params: { id: item.key } })
-      // }
+      onPress={() => navigation.navigate(Paths.SecurityDetails, {id: item.key})}
       style={styles.touchable}>
       <View style={styles.itemContainer}>
         <Ionicons
@@ -157,79 +156,71 @@ const SecurityAdvisor = () => {
           size={24}
           color={item.enabled ? 'green' : 'red'}
         />
-        <Text style={styles.itemLabel}>{item.label}</Text>
+        <CustomText variant="h5" color="#fff">
+          {item.label}
+        </CustomText>
       </View>
-      <Text
+      <CustomText
+        fontFamily="Montserrat-Bold"
         style={[
           styles.statusText,
           item.enabled ? styles.greenStatus : styles.redStatus,
         ]}>
         {item.enabled ? 'Enabled' : 'Disabled'}
-      </Text>
+      </CustomText>
     </TouchableOpacity>
   );
 
-  if (loading) {
-    return <FullScreenLoader />;
-  }
-
   return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.contentContainer}>
-          <FlatList
-            data={listData}
-            keyExtractor={item => item.key}
-            renderItem={renderItem}
-            contentContainerStyle={{paddingBottom: 20}}
-          />
-        </View>
-      </SafeAreaView>
-    </View>
+    <ScreenLayout>
+      <ScreenHeader name="Security Advisor" />
+
+      {loading ? (
+        <Loader />
+      ) : (
+        <FlatList
+          data={listData}
+          keyExtractor={item => item.key}
+          renderItem={renderItem}
+          contentContainerStyle={{
+            padding: 10,
+            backgroundColor: '#2337A8',
+            borderRadius: 20,
+            marginTop: 20,
+          }}
+          ItemSeparatorComponent={() => <View style={styles.divider} />}
+        />
+      )}
+    </ScreenLayout>
   );
 };
 
 export default SecurityAdvisor;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // padding: 20,
-  },
-  safeArea: {
-    height: '100%',
-    width: '100%',
-  },
-  contentContainer: {
-    paddingVertical: 20,
-  },
   touchable: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: '#e5e7eb',
+    padding: 12,
   },
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  itemLabel: {
-    marginLeft: 16,
-    fontSize: 18,
-    fontFamily: 'Rubik'
+    gap: 8,
   },
   statusText: {
     fontSize: 16,
-    fontFamily: 'Rubik-Bold',
   },
   greenStatus: {
     color: '#16a34a',
   },
   redStatus: {
     color: '#dc2626',
+  },
+  divider: {
+    backgroundColor: '#707070',
+    height: 1,
+    marginVertical: 8,
   },
 });

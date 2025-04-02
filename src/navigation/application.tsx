@@ -20,6 +20,7 @@ import {
   ScanPaymentURl,
   ScanAppUrl,
   SecurityAdvisor,
+  SecurityDetails,
   WifiSecurity,
   WifiSecurityDetails,
   ThreatAdvisor,
@@ -91,6 +92,10 @@ const ApplicationNavigator = () => {
               <Stack.Screen
                 component={SecurityAdvisor}
                 name={Paths.SecurityAdvisor}
+              />
+              <Stack.Screen
+                component={SecurityDetails}
+                name={Paths.SecurityDetails}
               />
               <Stack.Screen
                 component={ThreatAdvisor}
