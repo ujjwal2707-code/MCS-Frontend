@@ -150,7 +150,7 @@ export default PrivacyPolicy;
 const styles = StyleSheet.create({
   card: {
     borderRadius: 10,
-    backgroundColor: '#4E4E96', // #2337A8 // #4E4E96
+    backgroundColor: '#1B14A1', // #2337A8 // #4E4E96
     marginTop: 20,
     alignItems: 'center',
     justifyContent: 'center',

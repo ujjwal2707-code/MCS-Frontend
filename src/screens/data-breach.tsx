@@ -1,7 +1,4 @@
-import {
-  View,
-  StyleSheet,
-} from 'react-native';
+import {View, StyleSheet, ScrollView} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import ScreenLayout from '@components/screen-layout';
@@ -151,7 +148,8 @@ const DataBreach = () => {
 
       {/* Breach found */}
       {resultData && (
-        <>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}>
           <Card style={styles.card}>
             <Card.Content>
               {resultData.breaches.map((group, groupIndex) => (
@@ -164,7 +162,7 @@ const DataBreach = () => {
                           flexDirection: 'row',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding:2
+                          padding: 2,
                         }}>
                         <CustomText
                           variant="h5"
@@ -216,7 +214,7 @@ const DataBreach = () => {
               ))}
             </Card.Content>
           </Card>
-        </>
+        </ScrollView>
       )}
     </ScreenLayout>
   );
@@ -267,10 +265,13 @@ const styles = StyleSheet.create({
   unsecure: {
     backgroundColor: '#FE3A38', // #FE3A38
     borderWidth: 1,
-    borderColor: '#fff'
+    borderColor: '#fff',
   },
   badgeText: {
     color: '#fff',
     fontSize: 14,
+  },
+  scrollContainer: {
+    paddingBottom: 10,
   },
 });

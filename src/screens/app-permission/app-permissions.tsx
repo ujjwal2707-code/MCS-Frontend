@@ -84,7 +84,7 @@ const AppPermissions = ({navigation}: RootScreenProps<Paths.AppPermission>) => {
                   <Ionicons
                     name="chevron-forward-sharp"
                     size={30}
-                    color="white"
+                    color="#707070"
                   />
                 </View>
               </View>
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   divider: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#707070',
     height: 1,
     marginVertical: 8,
   },
@@ -126,6 +126,6 @@ const styles = StyleSheet.create({
   listContentContainer: {
     padding: 20,
     borderRadius: 20,
-    backgroundColor: '#4E4E96',
+    backgroundColor: '#2337A8',
   },
 });

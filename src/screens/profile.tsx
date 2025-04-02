@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 20,
-    backgroundColor: '#4E4E96', // #2337A8 // #4E4E96
+    backgroundColor: '#2337A8', // #2337A8 // #4E4E96 // #2337A8
     marginTop:10,
     padding:0
 
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   divider: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#707070',
     height: 1,
     marginVertical: 8,
     marginHorizontal: 0,
