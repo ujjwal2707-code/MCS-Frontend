@@ -9,11 +9,11 @@ import {
 import React from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {apiService} from '@services/index';
-import FullScreenLoader from '@components/full-screen-loader';
 import CustomText from '@components/ui/custom-text';
 import LinearGradient from 'react-native-linear-gradient';
 import ScreenHeader from '@components/screen-header';
 import CustomButton from '@components/ui/custom-button';
+import Loader from '@components/loader';
 
 interface NewsItem {
   source: {id: string; name: string};
@@ -50,18 +50,6 @@ const CyberNews = () => {
     staleTime: 0,
     retry: true,
   });
-
-  if (!newsList || newsList.length === 0 || error) {
-    return (
-      <CustomText
-        variant="h1"
-        fontFamily="Montserrat-Bold"
-        color="white"
-        style={{textAlign: 'center'}}>
-        No news available
-      </CustomText>
-    );
-  }
 
   const renderItem = ({item}: {item: NewsItem}) => (
     <View style={styles.itemContainer}>
@@ -109,7 +97,7 @@ const CyberNews = () => {
         </View>
 
         {isLoading ? (
-          <FullScreenLoader />
+          <Loader />
         ) : (
           <FlatList
             data={newsList}

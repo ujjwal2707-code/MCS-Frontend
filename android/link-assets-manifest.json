@@ -62,12 +62,24 @@
       "sha1": "875c4bde65bb7b7e9c4685b9664944a5a4162157"
     },
     {
+      "path": "src/assets/images/logoo.png",
+      "sha1": "812c74bdc455dfcae7cd330978fa105c6b626af6"
+    },
+    {
       "path": "src/assets/images/notify.png",
       "sha1": "9f4a25807353d133d3dff3f943449e50b69452e9"
     },
     {
+      "path": "src/assets/images/secure.png",
+      "sha1": "bebaad4583ffb4cb30e4dcb05c37e1a8330bba0b"
+    },
+    {
       "path": "src/assets/images/secureprotection.png",
       "sha1": "854735fad872d76323ff6589f5f9f5dfff6d8b93"
+    },
+    {
+      "path": "src/assets/images/secureprotectionn.png",
+      "sha1": "9bd38333991792680a53640131bda7030ce36dd7"
     }
   ]
 }
