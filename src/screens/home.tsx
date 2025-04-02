@@ -68,7 +68,7 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
         colors={['#0A1D4D', '#08164C']}
         style={styles.gradientBackground}>
         <ImageBackground
-          source={require('@assets/images/bgcirclehomee.png')}
+          source={require('@assets/images/homehero.png')}
           style={styles.heroImage}>
           <View style={styles.appBarContainer}>
             <AppBar username={user?.name} />
