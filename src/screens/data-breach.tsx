@@ -153,7 +153,7 @@ const DataBreach = () => {
           <Card style={styles.card}>
             <Card.Content>
               {resultData.breaches.map((group, groupIndex) => (
-                <View style={styles.cardItemContainer}>
+                <View style={styles.cardItemContainer} key={groupIndex}>
                   {group.map((breach, index) => (
                     <React.Fragment key={index}>
                       <View
