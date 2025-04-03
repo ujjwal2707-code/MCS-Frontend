@@ -5,11 +5,16 @@ import {
   Image,
   StyleSheet,
   NativeModules,
+  FlatList,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {RootScreenProps} from '../../navigation/types';
 import {InstalledAppStats} from '../../../types/types';
-import FullScreenLoader from '../../components/full-screen-loader';
+import ScreenLayout from '@components/screen-layout';
+import ScreenHeader from '@components/screen-header';
+import CustomText from '@components/ui/custom-text';
+import Loader from '@components/loader';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const {InstalledAppsStatistics} = NativeModules;
 
@@ -23,7 +28,10 @@ const DataUsageStats: React.FC<RootScreenProps> = ({route}) => {
         setLoading(true);
         const appsData: InstalledAppStats[] =
           await InstalledAppsStatistics.getInstalledApps();
-        setApps(appsData);
+        const filteredApps = appsData.filter(item => item.receivedBytes > 0);
+        filteredApps.sort((a, b) => b.receivedBytes - a.receivedBytes);
+        setApps(filteredApps);
+        // setApps(appsData);
       } catch (error) {
         console.error('Error scanning WiFi networks:', error);
       } finally {
@@ -33,65 +41,92 @@ const DataUsageStats: React.FC<RootScreenProps> = ({route}) => {
     init();
   }, []);
 
-  if (loading) {
-    return <FullScreenLoader />;
-  }
-
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={{display: 'flex', alignItems: 'center'}}>
-        <Text style={{color: 'green', fontSize: 18}}>Transmitted Bytes</Text>
-        <Text style={{color: 'red', fontSize: 18}}>Recieved Bytes</Text>
-      </View>
-      {apps.map((app, index) => (
-        <View key={index} style={styles.appContainer}>
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            {app.icon ? (
-              <Image
-                source={{uri: `data:image/png;base64,${app.icon}`}}
-                style={styles.appIcon}
-              />
-            ) : (
-              <Text style={styles.noIcon}>No Icon</Text>
-            )}
-            <Text style={styles.appName}>{app.name}</Text>
-          </View>
+    <>
+      <ScreenLayout>
+        <ScreenHeader name="Data Usage Stats" />
 
-          <View>
-            <Text style={{color: 'green', fontSize: 18,fontFamily:'monospace'}}>
-              {app.transmittedBytes.toFixed(2)} MB
-            </Text>
-            <Text style={{color: 'red', fontSize: 18,fontFamily:'monospace'}}>
-              {app.receivedBytes.toFixed(2)} MB
-            </Text>
-          </View>
-        </View>
-      ))}
-    </ScrollView>
+        {loading ? (
+          <Loader />
+        ) : (
+          <FlatList
+            data={apps}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({item}) => (
+              <View style={styles.appContainer}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  {item.icon ? (
+                    <Image
+                      source={{uri: `data:image/png;base64,${item.icon}`}}
+                      style={styles.appIcon}
+                    />
+                  ) : (
+                    <Text style={styles.noIcon}>No Icon</Text>
+                  )}
+                  <CustomText
+                    variant="h6"
+                    fontFamily="Montserrat-Medium"
+                    color="#fff">
+                    {item.name}
+                  </CustomText>
+                </View>
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}>
+                  {/* <View
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                    <Ionicons name="arrow-up" size={30} color="green" />
+                    <CustomText color="#fff">
+                      {item.transmittedBytes.toFixed(2)} mb
+                    </CustomText>
+                  </View> */}
+                  <View
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}>
+                    <Ionicons name="arrow-down" size={20} color="red" />
+                    <CustomText color="#fff">
+                      {item.receivedBytes.toFixed(2)} mb
+                    </CustomText>
+                  </View>
+                </View>
+              </View>
+            )}
+            ItemSeparatorComponent={() => <View style={styles.divider} />}
+            contentContainerStyle={styles.listContentContainer}
+          />
+        )}
+      </ScreenLayout>
+    </>
   );
 };
 
 export default DataUsageStats;
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 6,
-    paddingVertical: 10,
-  },
   appContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
+    justifyContent: 'space-between',
+  },
+  divider: {
+    backgroundColor: '#707070',
+    height: 1,
+    marginVertical: 8,
   },
   appIcon: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     marginRight: 10,
   },
   noIcon: {
@@ -101,7 +136,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 50,
   },
-  appName: {
-    fontSize: 16,
+  listContentContainer: {
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: '#2337A8',
+    marginTop: 10,
   },
 });
