@@ -31,6 +31,7 @@ import {
   ActiveTimeDetails,
   DataUsageStats,
   AppUpdates,
+  AppUpdatesDetails,
   HiddenApps,
   CyberNews,
   OtpSecurity,
@@ -120,6 +121,7 @@ const ApplicationNavigator = () => {
                 name={Paths.ActiveTimeDetails}
               />
               <Stack.Screen component={AppUpdates} name={Paths.AppUpdates} />
+              <Stack.Screen component={AppUpdatesDetails} name={Paths.AppUpdatesDetails} />
               <Stack.Screen component={HiddenApps} name={Paths.HiddenApps} />
             </>
           ) : (

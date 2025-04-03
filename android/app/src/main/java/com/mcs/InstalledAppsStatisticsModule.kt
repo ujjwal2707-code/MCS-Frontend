@@ -359,7 +359,15 @@ fun getAppUpdates(promise: Promise) {
                 val installedOn = pkgInfo.firstInstallTime
                 appMap.putString("installedOn", formatTime(installedOn))
 
+                appMap.putString("lastUpdateDate", formatTime(pkgInfo.lastUpdateTime))
+                appMap.putString("version", pkgInfo.versionName)
+
                 val now = System.currentTimeMillis()
+                val oneMonthMillis = 30L * 24 * 60 * 60 * 1000  // Approximation for one month in milliseconds
+                val isUpToDate = (now - pkgInfo.lastUpdateTime) < oneMonthMillis
+                appMap.putBoolean("isUpToDate", isUpToDate)
+
+                // val now = System.currentTimeMillis()
                 val oneDayAgo = now - 24 * 60 * 60 * 1000L
                 val sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000L
                 val thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000L

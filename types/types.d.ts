@@ -22,19 +22,22 @@ export interface InstalledApp {
 }
 
 export interface InstalledAppStats {
-  packageName: string;
-  name: string;
-  icon: string;
-  permissions: string[];
-  sha256: string;
-  installerSource: string;
-  installedOn: string;
-  lastUsageDate: string;
-  dailyUsage: number;
-  weeklyUsage: number;
-  monthlyUsage: number;
-  transmittedBytes: number;
   receivedBytes: number;
+  transmittedBytes: number;
+  monthlyUsage: number;
+  weeklyUsage: number;
+  dailyUsage: number;
+  lastUpdateDate: string;
+  installerSource: string;
+  lastUsageDate: string;
+  version: string;
+  installedOn: string;
+  permissions: string[];
+  packageName: string;
+  sha256: string;
+  isUpToDate: boolean;
+  icon: string;
+  name: string;
 }
 
 export interface InstalledAppAdsInfo {

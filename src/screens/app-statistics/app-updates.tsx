@@ -1,191 +1,123 @@
+import Loader from '@components/loader';
+import ScreenHeader from '@components/screen-header';
+import ScreenLayout from '@components/screen-layout';
+import CustomText from '@components/ui/custom-text';
 import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
   Image,
   StyleSheet,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
-  LayoutAnimation,
-  Platform,
-  UIManager,
 } from 'react-native';
 import {NativeModules} from 'react-native';
-import FullScreenLoader from '../../components/full-screen-loader';
-
-interface AppInfo {
-  packageName: string;
-  name: string;
-  icon: string; // Base64 encoded PNG image string
-  lastUpdateTime?: number;
-}
-
-interface AppsByUpdate {
-  past1Month: AppInfo[];
-  past3Month: AppInfo[];
-  past6Month: AppInfo[];
-}
+import {InstalledAppStats} from 'types/types';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {RootScreenProps} from '@navigation/types';
+import {Paths} from '@navigation/paths';
 
 const {InstalledAppsStatistics} = NativeModules;
 
-// A custom AccordionItem component
-const AccordionItem: React.FC<{title: string; children: React.ReactNode}> = ({
-  title,
-  children,
-}) => {
-  const [expanded, setExpanded] = useState(false);
-
-  // Enable layout animation on Android
-  if (
-    Platform.OS === 'android' &&
-    UIManager.setLayoutAnimationEnabledExperimental
-  ) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
-
-  const toggleExpand = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setExpanded(!expanded);
-  };
-
-  return (
-    <View style={styles.accordionItem}>
-      <TouchableOpacity onPress={toggleExpand} style={styles.accordionHeader}>
-        <Text style={styles.accordionHeaderText}>{title}</Text>
-      </TouchableOpacity>
-      {expanded && <View style={styles.accordionContent}>{children}</View>}
-    </View>
-  );
-};
-
-const AppUpdates: React.FC = () => {
-  const [appsByUpdate, setAppsByUpdate] = useState<AppsByUpdate>({
-    past1Month: [],
-    past3Month: [],
-    past6Month: [],
-  });
-
-   const [loading, setLoading] = useState(false);
+const AppUpdates = ({navigation}: RootScreenProps<Paths.AppUpdates>) => {
+  const [apps, setApps] = useState<InstalledAppStats[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const init = async () => {
       try {
         setLoading(true);
-        // Fetch both update information and installed apps concurrently.
-        const [updates, installedApps]: [AppsByUpdate, AppInfo[]] =
-          await Promise.all([
-            InstalledAppsStatistics.getAppUpdates(),
-            InstalledAppsStatistics.getInstalledApps(),
-          ]);
-
-        // Build a map from packageName to installed app data (icon, etc.)
-        const installedMap: Record<string, AppInfo> = {};
-        installedApps.forEach((app: AppInfo) => {
-          installedMap[app.packageName] = app;
-        });
-
-        // Merge icon info into update data if missing.
-        const mergeApps = (updateApps: AppInfo[]): AppInfo[] =>
-          updateApps.map(app => {
-            if (
-              (!app.icon || app.icon === '') &&
-              installedMap[app.packageName]
-            ) {
-              return {...app, icon: installedMap[app.packageName].icon};
-            }
-            return app;
-          });
-
-        const mergedUpdates: AppsByUpdate = {
-          past1Month: mergeApps(updates.past1Month),
-          past3Month: mergeApps(updates.past3Month),
-          past6Month: mergeApps(updates.past6Month),
-        };
-
-        setAppsByUpdate(mergedUpdates);
+        const appsData: InstalledAppStats[] =
+          await InstalledAppsStatistics.getInstalledApps();
+        setApps(appsData);
       } catch (error) {
-        console.error('Error fetching data:', error);
-      }finally {
+        console.error('Error scanning WiFi networks:', error);
+      } finally {
         setLoading(false);
       }
     };
-
-    fetchData();
+    init();
   }, []);
 
-  // Render a single app item with its icon and name.
-  const renderAppItem = (app: AppInfo) => {
-    const imageUri = `data:image/png;base64,${app.icon}`;
-    return (
-      <View key={app.packageName} style={styles.appItem}>
-        {app.icon ? (
-          <Image source={{uri: imageUri}} style={styles.icon} />
-        ) : null}
-        <Text style={styles.appName}>{app.name}</Text>
-      </View>
-    );
+  const handleAppPress = (selectedApp: InstalledAppStats) => {
+    navigation.navigate(Paths.AppUpdatesDetails, {app: selectedApp});
   };
 
-  if (loading) {
-    return <FullScreenLoader />;
-  }
-
   return (
-    <ScrollView style={styles.container}>
-      <AccordionItem title={`Past 1 Month (${appsByUpdate.past1Month.length})`}>
-        {appsByUpdate.past1Month.map(renderAppItem)}
-      </AccordionItem>
-      <AccordionItem
-        title={`Past 3 Months (${appsByUpdate.past3Month.length})`}>
-        {appsByUpdate.past3Month.map(renderAppItem)}
-      </AccordionItem>
-      <AccordionItem
-        title={`Past 6 Months (${appsByUpdate.past6Month.length})`}>
-        {appsByUpdate.past6Month.map(renderAppItem)}
-      </AccordionItem>
-    </ScrollView>
+    <ScreenLayout>
+      <ScreenHeader name="App Updates" />
+
+      {loading ? (
+        <Loader />
+      ) : (
+        <FlatList
+          data={apps}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({item}) => (
+            <TouchableOpacity onPress={() => handleAppPress(item)}>
+              <View style={styles.appContainer}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  {item.icon ? (
+                    <Image
+                      source={{uri: `data:image/png;base64,${item.icon}`}}
+                      style={styles.appIcon}
+                    />
+                  ) : (
+                    <Text style={styles.noIcon}>No Icon</Text>
+                  )}
+                  <CustomText
+                    variant="h6"
+                    fontFamily="Montserrat-Medium"
+                    color="#fff">
+                    {item.name}
+                  </CustomText>
+                </View>
+                <View>
+                  <Ionicons
+                    name="chevron-forward-sharp"
+                    size={30}
+                    color="#707070"
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+          ItemSeparatorComponent={() => <View style={styles.divider} />}
+          contentContainerStyle={styles.listContentContainer}
+        />
+      )}
+    </ScreenLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 10,
-  },
-  accordionItem: {
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    overflow: 'hidden',
-  },
-  accordionHeader: {
-    backgroundColor: '#f2f2f2',
-    padding: 15,
-  },
-  accordionHeaderText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  accordionContent: {
-    padding: 10,
-    backgroundColor: '#fff',
-  },
-  appItem: {
+  appContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    justifyContent: 'space-between',
   },
-  icon: {
+  divider: {
+    backgroundColor: '#707070',
+    height: 1,
+    marginVertical: 8,
+  },
+  appIcon: {
     width: 40,
     height: 40,
-    marginRight: 12,
+    marginRight: 10,
   },
-  appName: {
-    fontSize: 16,
+  noIcon: {
+    width: 50,
+    height: 50,
+    marginRight: 10,
+    textAlign: 'center',
+    lineHeight: 50,
+  },
+  listContentContainer: {
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: '#2337A8',
+    marginTop: 10,
   },
 });
 
