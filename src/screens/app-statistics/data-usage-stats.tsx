@@ -95,7 +95,7 @@ const DataUsageStats: React.FC<RootScreenProps> = ({route}) => {
                       gap: 4,
                     }}>
                     <Ionicons name="arrow-down" size={20} color="red" />
-                    <CustomText color="#fff">
+                    <CustomText color="#fff" fontFamily="Montserrat-SemiBold">
                       {item.receivedBytes.toFixed(2)} mb
                     </CustomText>
                   </View>
