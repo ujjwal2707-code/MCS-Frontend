@@ -1,20 +1,21 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
-  Text,
   FlatList,
-  TouchableOpacity,
   StyleSheet,
-  Button,
   Modal,
-  AppState
+  AppState,
 } from 'react-native';
 import {NativeModules} from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Paths} from '../../navigation/paths';
 import {RootScreenProps} from '../../navigation/types';
 import {FeatureTileType} from '../../../types/types';
+import ScreenLayout from '@components/screen-layout';
+import ScreenHeader from '@components/screen-header';
+import {featureTilesData} from '@constants/app-stats';
+import FeatureTile from '@components/feauture-tile';
+import CustomText from '@components/ui/custom-text';
+import CustomButton from '@components/ui/custom-button';
 
 const {InstalledAppsStatistics} = NativeModules;
 
@@ -79,72 +80,61 @@ const AppStatistics = ({navigation}: RootScreenProps<Paths.AppStatistics>) => {
 
   const renderItem = useCallback(
     ({item}: {item: FeatureTileType & {route: AllowedRoutes}}) => (
-      <TouchableOpacity
-        style={styles.container}
-        disabled={!permissionGranted}
-        onPress={() => handlePress(item.route)}>
-        {item.icon}
-        <Text style={styles.text} numberOfLines={2} ellipsizeMode="tail">
-          {item.label}
-        </Text>
-      </TouchableOpacity>
+      <FeatureTile
+        icon={item.icon}
+        image={item.image!}
+        label={item.label}
+        onPress={() => {
+          handlePress(item.route);
+        }}
+      />
     ),
     [permissionGranted, handlePress],
   );
 
   return (
     <>
-      <FlatList
-        data={featureTiles}
-        keyExtractor={item => item.id}
-        numColumns={3}
-        contentContainerStyle={styles.flatListContentContainer}
-        columnWrapperStyle={{justifyContent: 'space-between'}}
-        renderItem={renderItem}
-      />
+      <ScreenLayout>
+        <ScreenHeader name="App Statistics" />
 
-      <Modal
-        animationType="slide"
-        transparent
-        visible={openAlertModel}
-        onRequestClose={() => setOpenAlertModel(false)}>
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalText}>
-              Usage stats permission not granted. Please enable it in settings.
-            </Text>
-            <View style={styles.modalButtonContainer}>
-              <Button title="Go to setting" onPress={handleOpenSetting} />
+        <FlatList
+          data={featureTilesData}
+          keyExtractor={item => item.id}
+          numColumns={3}
+          contentContainerStyle={styles.flatListContentContainer}
+          columnWrapperStyle={{justifyContent: 'space-between'}}
+          renderItem={renderItem}
+        />
+
+        <Modal
+          animationType="slide"
+          transparent
+          visible={openAlertModel}
+          onRequestClose={() => setOpenAlertModel(false)}>
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              <CustomText
+                style={styles.modalText}
+                fontFamily="Montserrat-SemiBold"
+                color="#fff">
+                Usage stats permission not granted. Please enable it in
+                settings.
+              </CustomText>
+              <View style={styles.modalButtonContainer}>
+                <CustomButton
+                  title="Go to settings"
+                  onPress={handleOpenSetting}
+                />
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      </ScreenLayout>
     </>
   );
 };
 
 export default AppStatistics;
-
-const featureTiles: (FeatureTileType & {route: AllowedRoutes})[] = [
-  {
-    id: '1',
-    icon: <MaterialCommunityIcons name="web-check" size={24} color="black" />,
-    label: 'Active Time Stats',
-    route: Paths.AppUsageStats,
-  },
-  {
-    id: '2',
-    icon: <Ionicons name="globe-outline" size={24} color="black" />,
-    label: 'Data Usage Stats',
-    route: Paths.DataUsageStats,
-  },
-  {
-    id: '3',
-    icon: <Ionicons name="globe-outline" size={24} color="black" />,
-    label: 'App Updates',
-    route: Paths.AppUpdates,
-  },
-];
 
 const styles = StyleSheet.create({
   flatListContentContainer: {
@@ -153,39 +143,14 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
     flexGrow: 1,
   },
-  container: {
-    width: '30%',
-    height: 112,
-    margin: 8,
-    padding: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  text: {
-    color: '#374151',
-    fontSize: 14,
-    marginTop: 8,
-    textAlign: 'center',
-    fontFamily: 'Rubik',
-  },
   modalBackground: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
     width: '80%',
-    backgroundColor: '#fff',
+    backgroundColor: '#2337A8',
     borderRadius: 10,
     padding: 20,
     alignItems: 'center',

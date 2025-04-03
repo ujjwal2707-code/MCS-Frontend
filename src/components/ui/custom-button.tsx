@@ -39,7 +39,7 @@ const getTextVariantStyle = (variant: ButtonProps['textVariant']) => {
     case 'success':
       return {color: '#bbf7d0'}; // #bbf7d0
     default:
-      return {color: 'white'};
+      return {color: 'black'};
   }
 };
 
