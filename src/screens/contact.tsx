@@ -16,7 +16,7 @@ const Contact: React.FC<ContactProps> = () => {
       <View style={styles.container}>
         <CustomText style={[styles.bodyText, styles.mb4]}>
           <CustomText fontFamily="Montserrat-Bold" style={styles.bold}>
-            Office of Spl. IGP-Cyber (Govt. Of Maharashtra)
+            Office of Additional Director General of Police(Cyber)
           </CustomText>
           {'\n'}
           Maharashtra State Cyber Headquarters, Building No 102 & 103, MIDC,
@@ -39,7 +39,7 @@ const Contact: React.FC<ContactProps> = () => {
             Phone No:
           </CustomText>
           {'\n'}
-          1945/14407
+          1945
         </CustomText>
 
         <CustomText style={[styles.bodyText, styles.mt2]}>

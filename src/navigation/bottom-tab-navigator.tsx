@@ -40,14 +40,26 @@ const BottomTabNavigator = () => {
         tabBarInactiveTintColor: 'grey',
         tabBarStyle: {
           backgroundColor: '#5A29FD',
-          height: 80,
-          paddingBottom: 10,
-          paddingTop: 10,
+          height: 60,
+          paddingBottom: 5,
+          paddingTop: 5,
         },
       })}>
-      <Tab.Screen name={Paths.Home} component={Home} />
-      <Tab.Screen name={Paths.Profile} component={Profile} />
-      <Tab.Screen name={Paths.Contact} component={Contact} />
+      <Tab.Screen
+        name={Paths.Home}
+        component={Home}
+        options={{tabBarLabel: 'Home'}}
+      />
+      <Tab.Screen
+        name={Paths.Profile}
+        component={Profile}
+        options={{tabBarLabel: 'Profile'}}
+      />
+      <Tab.Screen
+        name={Paths.Contact}
+        component={Contact}
+        options={{tabBarLabel: 'Contact'}}
+      />
     </Tab.Navigator>
   );
 };
