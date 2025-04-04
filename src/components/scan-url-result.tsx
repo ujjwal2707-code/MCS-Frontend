@@ -1,0 +1,152 @@
+import {Linking, StyleSheet, View} from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
+import {ScanURLResult} from 'types/types';
+import CustomText from './ui/custom-text';
+import {Card} from 'react-native-paper';
+import HorizontalBarsChart from './bar-chart';
+import CustomButton from './ui/custom-button';
+
+interface ScanUrlResultProps {
+  isOpen: boolean;
+  onClose: () => void;
+  scanResult: ScanURLResult;
+}
+
+const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  console.log('ScanUrlResult component', scanResult);
+
+  useEffect(() => {
+    if (isOpen) {
+      bottomSheetRef.current?.snapToIndex(0);
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <BottomSheet
+      ref={bottomSheetRef}
+      snapPoints={['45%', '90%']}
+      index={1}
+      enablePanDownToClose={true} // Allows swipe down to close
+      onClose={onClose}
+      backgroundStyle={{backgroundColor: '#4E4E96'}}>
+      <BottomSheetScrollView style={{flex: 1, paddingHorizontal: 20}}>
+        {/* <View style={{paddingVertical: 20}}>
+          <CustomText
+            variant="h5"
+            color="#fff"
+            fontFamily="Montserrat-Medium"
+            style={{textAlign: 'center'}}>
+            Available Networks
+          </CustomText>
+        </View> */}
+
+        <View style={{paddingVertical: 10}}>
+          <CustomText
+            variant="h5"
+            color="#fff"
+            fontFamily="Montserrat-SemiBold"
+            fontSize={18}
+            style={{textAlign: 'center'}}>
+            {scanResult.meta.url_info.url}
+          </CustomText>
+        </View>
+
+        {scanResult &&
+          (scanResult.stats.harmless + scanResult.stats.undetected >=
+          10 * (scanResult.stats.malicious + scanResult.stats.suspicious) ? (
+            <Card style={styles.harmlessCard}>
+              <Card.Content>
+                <View>
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontFamily="Montserrat-Bold"
+                    fontSize={18}
+                    style={{textAlign: 'center'}}>
+                    Safe & Harmless Link
+                  </CustomText>
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontFamily="Montserrat-Bold"
+                    style={{textAlign: 'center'}}>
+                    {scanResult.stats.malicious} malicious threats were detected
+                    on this website. It is considered safe by most security
+                    checks.
+                  </CustomText>
+                </View>
+              </Card.Content>
+            </Card>
+          ) : (
+            <Card style={styles.maliciousCard}>
+              <Card.Content>
+                <View>
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontFamily="Montserrat-Bold"
+                    fontSize={18}
+                    style={{textAlign: 'center'}}>
+                    Suspected Fraud or Malicious Link
+                  </CustomText>
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontFamily="Montserrat-Bold"
+                    style={{textAlign: 'center'}}>
+                    {scanResult.stats.malicious} malicious threats were detected
+                    on this website. This website has been flagged as malicious
+                    or suspicious by multiple sources. Please proceed with
+                    caution.
+                  </CustomText>
+                </View>
+              </Card.Content>
+            </Card>
+          ))}
+
+        <Card style={styles.chartContainer}>
+          <Card.Content>
+            <HorizontalBarsChart stats={scanResult.stats} />
+          </Card.Content>
+        </Card>
+
+        <CustomButton
+          title="Open Link"
+          onPress={() => {
+            if (scanResult) {
+              Linking.openURL(scanResult.meta.url_info.url);
+            }
+          }}
+          style={{marginTop: 20}}
+        />
+      </BottomSheetScrollView>
+    </BottomSheet>
+  );
+};
+
+export default ScanUrlResult;
+
+const styles = StyleSheet.create({
+  harmlessCard: {
+    borderRadius: 20,
+    backgroundColor: '#5DFFAE',
+    marginTop: 20,
+    padding: 10,
+  },
+  maliciousCard: {
+    borderRadius: 20,
+    backgroundColor: '#FE3A39',
+    marginTop: 20,
+    padding: 10,
+  },
+  chartContainer: {
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    marginTop: 20,
+  },
+});

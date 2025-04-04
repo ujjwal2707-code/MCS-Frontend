@@ -56,6 +56,22 @@ export interface WifiNetwork {
   isSecure: boolean;
 }
 
+export interface ScanURLResult {
+  stats: {
+    malicious: number;
+    suspicious: number;
+    undetected: number;
+    harmless: number;
+    timeout: number;
+  };
+  meta: {
+    url_info: {
+      id: string;
+      url: string;
+    };
+  };
+}
+
 export interface VirusTotalResponse {
   data: {
     id: string;
