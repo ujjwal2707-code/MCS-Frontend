@@ -1,32 +1,31 @@
 import {
   View,
-  Text,
   Platform,
   PermissionsAndroid,
   StyleSheet,
-  SafeAreaView,
   FlatList,
   TouchableOpacity,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 import {NativeModules} from 'react-native';
 import {WifiNetwork} from '../../../types/types';
 import {RootScreenProps} from '../../navigation/types';
 import {Paths} from '../../navigation/paths';
-import FullScreenLoader from '../../components/full-screen-loader';
 import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
 import CustomText from '@components/ui/custom-text';
 import Loader from '@components/loader';
+import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
 
 const {WifiModule} = NativeModules;
 
 const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
   const [networks, setNetworks] = useState<WifiNetwork[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedNetwork, setSelectedNetwork] = useState<WifiNetwork>();
+  const [openWifiDetails, setOpenWifiDetails] = useState(false);
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
@@ -59,7 +58,6 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
         const wifiNetworks: WifiNetwork[] = await WifiModule.scanWifiNetworks();
         setNetworks(wifiNetworks);
       } catch (error: any) {
-        // console.error('Error scanning WiFi networks:', error);
         Alert.alert('Error scanning WiFi networks:', error);
       } finally {
         setLoading(false);
@@ -68,24 +66,13 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
     init();
   }, []);
 
-  console.log(networks);
-
-  // const handleDisconnect = async () => {
-  //   try {
-  //     const result: boolean = await WifiModule.disconnect();
-  //     console.log('Disconnected:', result);
-  //   } catch (error) {
-  //     console.error('Error disconnecting:', error);
-  //   }
-  // };
-
   const handleNetworkPress = (selectedNetwork: WifiNetwork) => {
-    // navigation.navigate(Paths.WifiSecurityDetails, {wifi: selectedNetwork});
+    setSelectedNetwork(selectedNetwork);
+    setOpenWifiDetails(true);
   };
 
-
   return (
-    <ScreenLayout>
+    <ScreenLayout style={{flex: 1}}>
       <ScreenHeader name="Wifi Security" />
       <View style={{paddingVertical: 20}}>
         <CustomText
@@ -114,7 +101,7 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
                     </CustomText>
                   ) : (
                     <CustomText variant="h6" color="#fff">
-                      {item.BSSID}
+                      N/A
                     </CustomText>
                   )}
                   <View
@@ -132,6 +119,12 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
           )}
         />
       )}
+
+      <WifiDetails
+        isOpen={openWifiDetails}
+        onClose={() => setOpenWifiDetails(false)}
+        network={selectedNetwork!}
+      />
     </ScreenLayout>
   );
 };
@@ -166,3 +159,73 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
+
+interface WifiDetailsProps {
+  isOpen: boolean;
+  onClose: () => void;
+  network: WifiNetwork;
+}
+const WifiDetails = ({isOpen, onClose, network}: WifiDetailsProps) => {
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      bottomSheetRef.current?.snapToIndex(0);
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+  return (
+    <BottomSheet
+      ref={bottomSheetRef}
+      snapPoints={['45%', '90%']}
+      index={1}
+      enablePanDownToClose={true} // Allows swipe down to close
+      onClose={onClose}
+      backgroundStyle={{backgroundColor: '#4E4E96'}}>
+      <BottomSheetScrollView style={{flex: 1}}>
+        <CustomText
+          variant="h5"
+          color="#fff"
+          fontFamily="Montserrat-Bold"
+          style={{textAlign: 'center', marginTop: 10}}>
+          Wifi Security Details
+        </CustomText>
+
+        <CustomText
+          variant="h5"
+          color="#fff"
+          fontFamily="Montserrat-Bold"
+          style={{textAlign: 'center', marginTop: 10}}>
+          {network.SSID ? network.SSID : 'N/A'}
+        </CustomText>
+
+        <View
+          style={{
+            paddingVertical: 10,
+            padding: 20,
+            display: 'flex',
+            flexDirection: 'column',
+            alignSelf: 'center',
+            gap: 5,
+          }}>
+          <CustomText variant="h5" color="#fff" fontFamily="Montserrat-Medium">
+            BSSID: {network.BSSID}
+          </CustomText>
+          <CustomText variant="h5" color="#fff" fontFamily="Montserrat-Medium">
+            Security Rating: {network.securityRating}
+          </CustomText>
+          <CustomText variant="h5" color="#fff" fontFamily="Montserrat-Medium">
+            Signal Level: {network.level} dBm
+          </CustomText>
+          <CustomText variant="h5" color="#fff" fontFamily="Montserrat-Medium">
+            Frequency: {network.frequency}
+          </CustomText>
+          <CustomText variant="h5" color="#fff" fontFamily="Montserrat-Medium">
+            Capabilities: {network.capabilities}
+          </CustomText>
+        </View>
+      </BottomSheetScrollView>
+    </BottomSheet>
+  );
+};
