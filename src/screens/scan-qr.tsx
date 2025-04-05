@@ -6,6 +6,7 @@ import {
   Button,
   Alert,
   Linking,
+  TouchableOpacity,
 } from 'react-native';
 import {
   Camera,
@@ -28,6 +29,7 @@ import {useMutation} from '@tanstack/react-query';
 import {apiService} from '@services/index';
 import {Card} from 'react-native-paper';
 import HorizontalBarsChart from '@components/bar-chart';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 enum QRTypeState {
   PaymentLink = 'Payment Link',
@@ -202,6 +204,10 @@ const ScanQRResult = ({
     null,
   );
 
+  useEffect(() => {
+    setScanUrlDetails(null);
+  }, [scannedData]);
+
   const {mutateAsync: scanUriMutation, isPending: scanUriMutationPending} =
     useMutation({
       mutationFn: (values: {inputUrl: string}) => apiService.scanUri(values),
@@ -259,7 +265,14 @@ const ScanQRResult = ({
           )}
         </View>
 
-        <View style={{paddingVertical: 5}}>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 5,
+          }}>
           <CustomText
             variant="h5"
             color="#fff"
@@ -268,6 +281,13 @@ const ScanQRResult = ({
             style={{textAlign: 'center'}}>
             {scannedData}
           </CustomText>
+          <TouchableOpacity>
+            <MaterialCommunityIcons
+              name="content-copy"
+              size={24}
+              color="#fff"
+            />
+          </TouchableOpacity>
         </View>
 
         {qrType === 'Link' && (
