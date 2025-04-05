@@ -25,8 +25,8 @@ import CustomButton from '@components/ui/custom-button';
 import AppBar from '@components/app-bar';
 import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import {BottomTabParamList} from '@navigation/bottom-tab-params';
-import { featureTilesData } from '@constants/feature-tiles';
-
+import {featureTilesData} from '@constants/feature-tiles';
+import PhoneSecurityScan from '@components/phone-security-scan';
 
 const {width} = Dimensions.get('window');
 
@@ -36,9 +36,7 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
   const {token} = useAuth();
 
   // Get user
-  const {
-    data: user
-  } = useQuery({
+  const {data: user} = useQuery({
     queryKey: ['userProfile', token],
     queryFn: async () => {
       if (!token) throw new Error('Token is missing');
@@ -73,31 +71,7 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
           <View style={styles.appBarContainer}>
             <AppBar username={user?.name} />
           </View>
-          <View style={styles.contentContainer}>
-            <View style={styles.textContainer}>
-              <CustomText variant="h7" color="white">
-                You are
-              </CustomText>
-              <CustomText
-                variant="h5"
-                fontFamily="Montserrat-SemiBold"
-                color="white">
-                83% Secure
-              </CustomText>
-            </View>
-            <View style={styles.progressBarContainer}>
-              <View style={styles.progressBar}>
-                <View style={[styles.progressFill, {width: '83%'}]} />
-              </View>
-              <Image
-                source={require('@assets/images/secure.png')}
-                style={styles.shieldImage}
-              />
-            </View>
-          </View>
-          <View style={styles.scanButton}>
-            <CustomButton title="SCAN AGAIN" />
-          </View>
+          <PhoneSecurityScan />
         </ImageBackground>
         <ScrollView
           style={styles.scrollView}
@@ -139,7 +113,7 @@ const styles = StyleSheet.create({
   heroImage: {
     width,
     height: width,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
   },
   appBarContainer: {
     position: 'absolute',

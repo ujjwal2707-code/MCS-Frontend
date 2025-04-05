@@ -1,14 +1,17 @@
-import React, {useState, useEffect, useCallback, useMemo} from 'react';
 import {
-  View,
-  Text,
-  Button,
+  Dimensions,
+  Image,
   Modal,
   StyleSheet,
-  TouchableOpacity,
+  View,
 } from 'react-native';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import CustomText from './ui/custom-text';
 import {NativeModules} from 'react-native';
-import {InstalledApp} from '../../types/types';
+import {InstalledApp} from 'types/types';
+import CustomButton from './ui/custom-button';
+
+const {width} = Dimensions.get('window');
 
 interface AppInfo {
   appName: string;
@@ -64,7 +67,7 @@ const {AdsServices, SecurityCheckModule, HiddenAppsModule} = NativeModules as {
   };
 };
 
-const PhoneScan = () => {
+const PhoneSecurityScan = () => {
   const [apps, setApps] = useState<InstalledApp[]>([]);
   const [adsServices, setAdsServices] = useState<AdsServiceInfo[]>([]);
   const [appsWithAds, setAppsWithAds] = useState<AppWithAds[]>([]);
@@ -189,7 +192,7 @@ const PhoneScan = () => {
   // Compute the normalized scores and average rating in percentage
   const averageRatingPercentage = useMemo(() => {
     const maxAppsWithAds = 10;
-    const maxSecurityIssues = 10; 
+    const maxSecurityIssues = 10;
     const maxHiddenApps = 10;
 
     const scoreAppsWithAds = Math.max(
@@ -222,55 +225,193 @@ const PhoneScan = () => {
     setModalVisible(false);
   };
 
+  const securityRating = averageRatingPercentage.toFixed(2);
   return (
-    <View style={styles.container}>
-      <View style={styles.buttonContainer}>
-        <Button title="Secure your phone" onPress={handleSecurePhonePress} />
-        {securityDataCount > 0 &&
-          appsWithAds.length > 0 &&
-          hiddenApps.length > 0 && (
-            <Text style={styles.summaryText}>
-              Average Security Rating: {averageRatingPercentage.toFixed(2)}%
-            </Text>
-          )}
+    <>
+      <View style={styles.contentContainer}>
+        <View style={styles.textContainer}>
+          <CustomText variant="h7" color="white">
+            You are
+          </CustomText>
+          <CustomText
+            variant="h5"
+            fontFamily="Montserrat-SemiBold"
+            color="white">
+            {securityRating}% Secure
+          </CustomText>
+        </View>
+        <View style={styles.progressBarContainer}>
+          <ProgressBar securityRating={securityRating} />
+          <Image
+            source={require('@assets/images/secure.png')}
+            style={styles.shieldImage}
+          />
+        </View>
       </View>
+      <View style={styles.scanButton}>
+        <CustomButton title="SCAN AGAIN" onPress={handleSecurePhonePress} />
+      </View>
+
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Security Summary</Text>
-            <Text style={styles.summaryText}>
-              Apps with Ads: {appsWithAds.length}
-            </Text>
-            <Text style={styles.summaryText}>
-              Misconfigured Settings: {securityDataCount}
-            </Text>
-            <Text style={styles.summaryText}>
-              Hidden Apps: {hiddenApps.length}
-            </Text>
-            <TouchableOpacity
+            <View
+              style={{
+                paddingVertical: 20,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+              }}>
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: 8,
+                  alignItems: 'center',
+                }}>
+                <Image
+                  source={require('@assets/icons/adwarescan.png')}
+                  style={styles.icon}
+                />
+                <CustomText
+                  variant="h5"
+                  color="#fff"
+                  fontSize={16}
+                  fontFamily="Montserrat-Bold">
+                  Apps with Ads: {appsWithAds.length}
+                </CustomText>
+              </View>
+
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: 4,
+                  alignItems: 'center',
+                }}>
+                <Image
+                  source={require('@assets/icons/securityadv.png')}
+                  style={styles.icon}
+                />
+                <CustomText
+                  variant="h5"
+                  color="#fff"
+                  fontSize={16}
+                  fontFamily="Montserrat-Bold">
+                  Misconfigured Setting: {securityDataCount}
+                </CustomText>
+              </View>
+
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: 8,
+                  alignItems: 'center',
+                }}>
+                <Image
+                  source={require('@assets/icons/hiddenapps.png')}
+                  style={styles.icon}
+                />
+                <CustomText
+                  variant="h5"
+                  color="#fff"
+                  fontSize={18}
+                  fontFamily="Montserrat-Bold">
+                  Hidden Apps: {hiddenApps.length}
+                </CustomText>
+              </View>
+            </View>
+
+            <CustomButton
+              title="Close"
+              bgVariant="danger"
+              textVariant="danger"
               onPress={handleCloseModal}
-              style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
+            />
           </View>
         </View>
       </Modal>
+    </>
+  );
+};
+
+export default PhoneSecurityScan;
+
+interface ProgressBarProps {
+  securityRating: number | string;
+}
+
+const ProgressBar: React.FC<ProgressBarProps> = ({securityRating}) => {
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  // Parse the securityRating if it is a string (remove '%' if present)
+  const ratingValue =
+    typeof securityRating === 'string'
+      ? parseFloat(securityRating.replace('%', ''))
+      : securityRating;
+
+  return (
+    <View
+      style={styles.progressBar}
+      onLayout={event => setContainerWidth(event.nativeEvent.layout.width)}>
+      <View
+        style={[
+          styles.progressFill,
+          {width: containerWidth * (ratingValue / 100)},
+        ]}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
+  contentContainer: {
+    position: 'absolute',
+    top: 20,
+    bottom: 80,
+    left: 0,
+    right: 0,
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  buttonContainer: {
-    padding: 12,
-    backgroundColor: '#f9f9f9',
+  textContainer: {
+    marginBottom: 8,
+    marginLeft: 25,
+  },
+  progressBarContainer: {
+    width: '80%',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  progressBar: {
+    width: '100%',
+    height: 8,
+    backgroundColor: '#FF0000',
+    borderRadius: 8,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#21e6c1', // #21e6c1
     borderRadius: 4,
-    width: '70%',
   },
+  shieldImage: {
+    position: 'absolute',
+    left: -15,
+    top: -70,
+    width: width * 0.3,
+    height: width * 0.3,
+    resizeMode: 'contain',
+  },
+  scanButton: {
+    position: 'absolute',
+    bottom: 70,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+
+  // Modal style
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -278,24 +419,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: '#2337A8',
     padding: 20,
     borderRadius: 8,
     width: '80%',
     alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#000',
-    fontFamily: 'monospace',
-  },
-  summaryText: {
-    fontSize: 18,
-    color: '#333',
-    marginVertical: 5,
-    fontFamily: 'monospace',
   },
   closeButton: {
     marginTop: 20,
@@ -304,11 +432,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#007bff',
     borderRadius: 4,
   },
-  closeButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: 'monospace',
+  icon: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
   },
 });
-
-export default PhoneScan;
