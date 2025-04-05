@@ -72,16 +72,16 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
     }
   };
 
-  const guestLogin = async () => {
-    try {
-      await loginMutation({
-        email: 'bigaja9282@flektel.com',
-        password: '12345678',
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const guestLogin = async () => {
+  //   try {
+  //     await loginMutation({
+  //       email: 'bigaja9282@flektel.com',
+  //       password: '12345678',
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -136,14 +136,14 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
               />
             </View>
 
-            <View style={styles.buttonSpacing}>
+            {/* <View style={styles.buttonSpacing}>
               <CustomButton
                 title={loginMutationPending ? 'Signing In...' : 'Guest Login'}
                 textVariant="primary"
                 onPress={guestLogin}
                 isLoading={loginMutationPending}
               />
-            </View>
+            </View> */}
 
             <TouchableOpacity
               onPress={() => navigation.navigate(Paths.Register)}
