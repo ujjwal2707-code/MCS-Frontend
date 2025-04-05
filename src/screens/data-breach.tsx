@@ -10,6 +10,7 @@ import InputField from '@components/ui/input-field';
 import CustomButton from '@components/ui/custom-button';
 import CustomText from '@components/ui/custom-text';
 import {Card, Divider} from 'react-native-paper';
+import AlertBox from '@components/alert-box';
 
 let content = [
   'Change your password immediately.',
@@ -33,6 +34,12 @@ const DataBreach = () => {
   const [errorData, setErrorData] = useState<ErrorResponse | null>(null);
   const [resultData, setResultData] = useState<DataBreachResponse | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(true);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
   const checkDataBreach = async () => {
     if (!email || !email.trim()) return;
@@ -148,8 +155,7 @@ const DataBreach = () => {
 
       {/* Breach found */}
       {resultData && (
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Card style={styles.card}>
             <Card.Content>
               {resultData.breaches.map((group, groupIndex) => (
@@ -216,6 +222,24 @@ const DataBreach = () => {
           </Card>
         </ScrollView>
       )}
+
+      <View>
+        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+          <CustomText
+            fontFamily="Montserrat-Medium"
+            style={{
+              color: '#FFFFFF',
+              fontSize: 16,
+              textAlign: 'center',
+              marginBottom: 20,
+            }}>
+            Personal data leaks put sensitive information at risk. Checking if
+            an email, phone number, or password has been exposed in data
+            breaches allows users to take immediate action and secure their
+            accounts.
+          </CustomText>
+        </AlertBox>
+      </View>
     </ScreenLayout>
   );
 };

@@ -18,6 +18,7 @@ import ScreenHeader from '@components/screen-header';
 import CustomText from '@components/ui/custom-text';
 import Loader from '@components/loader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AlertBox from '@components/alert-box';
 
 interface InstalledAppsModule {
   getInstalledApps: () => Promise<InstalledApp[]>;
@@ -29,6 +30,13 @@ const AppPermissions = ({navigation}: RootScreenProps<Paths.AppPermission>) => {
   const [apps, setApps] = useState<InstalledApp[]>([]);
   const [loading, setLoading] = useState(false);
   // console.log(apps);
+
+  const [modalVisible, setModalVisible] = useState(true);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
   useEffect(() => {
     const init = async () => {
       if (Platform.OS === 'android') {
@@ -94,6 +102,23 @@ const AppPermissions = ({navigation}: RootScreenProps<Paths.AppPermission>) => {
           contentContainerStyle={styles.listContentContainer}
         />
       )}
+
+      <View>
+        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+          <CustomText
+            fontFamily="Montserrat-Medium"
+            style={{
+              color: '#FFFFFF',
+              fontSize: 16,
+              textAlign: 'center',
+              marginBottom: 20,
+            }}>
+            Many apps request unnecessary access to personal data, creating
+            security risks. Reviewing and highlighting risky permissions makes
+            it easier to revoke access and safeguard privacy.
+          </CustomText>
+        </AlertBox>
+      </View>
     </ScreenLayout>
   );
 };

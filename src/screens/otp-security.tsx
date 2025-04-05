@@ -1,16 +1,12 @@
 import React, {useState} from 'react';
-import {
-  View,
-  Pressable,
-  StyleSheet,
-  Linking,
-} from 'react-native';
+import {View, Pressable, StyleSheet, Linking} from 'react-native';
 
 import Dropdown, {DropdownItem} from '../components/dropdown';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
 import CustomText from '@components/ui/custom-text';
+import AlertBox from '@components/alert-box';
 
 // Define type for each step
 interface StepData {
@@ -61,6 +57,12 @@ const OtpSecurity: React.FC = () => {
   const [completedSteps, setCompletedSteps] = useState<
     Record<string, Record<string, boolean>>
   >({});
+
+  const [modalVisible, setModalVisible] = useState(true);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
   const items: DropdownItem[] = [
     {label: 'Airtel', value: 'airtel'},
@@ -130,6 +132,22 @@ const OtpSecurity: React.FC = () => {
             </View>
           </Pressable>
         ))}
+      </View>
+      <View>
+        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+          <CustomText
+            fontFamily="Montserrat-Medium"
+            style={{
+              color: '#FFFFFF',
+              fontSize: 16,
+              textAlign: 'center',
+              marginBottom: 20,
+            }}>
+            Cyber criminals use malware to intercept OTPs and bypass security
+            layers. Monitoring suspicious activities related to OTP theft
+            ensures that authentication codes remain private and protected.
+          </CustomText>
+        </AlertBox>
       </View>
     </ScreenLayout>
   );

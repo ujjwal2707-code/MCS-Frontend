@@ -4,9 +4,9 @@ import {
   StyleSheet,
   FlatList,
   Linking,
-  SafeAreaView
+  SafeAreaView,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {apiService} from '@services/index';
 import CustomText from '@components/ui/custom-text';
@@ -14,6 +14,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import ScreenHeader from '@components/screen-header';
 import CustomButton from '@components/ui/custom-button';
 import Loader from '@components/loader';
+import AlertBox from '@components/alert-box';
 
 interface NewsItem {
   source: {id: string; name: string};
@@ -51,6 +52,12 @@ const CyberNews = () => {
     retry: true,
   });
 
+  const [modalVisible, setModalVisible] = useState(true);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
   const renderItem = ({item}: {item: NewsItem}) => (
     <View style={styles.itemContainer}>
       {item.urlToImage ? (
@@ -60,27 +67,25 @@ const CyberNews = () => {
           resizeMode="cover"
         />
       ) : (
-        <View>
-          No Image Available.
-        </View>
+        <View>No Image Available.</View>
       )}
       <View style={styles.content}>
         <CustomText variant="h5" fontFamily="Montserrat-Bold" color="#fff">
           {item.title}
         </CustomText>
-        <View style={{marginTop:10}}>
-        <CustomText variant="h6" fontFamily="Montserrat-Regular" color="#fff">
-          {item.description}
-        </CustomText>
+        <View style={{marginTop: 10}}>
+          <CustomText variant="h6" fontFamily="Montserrat-Regular" color="#fff">
+            {item.description}
+          </CustomText>
         </View>
-        
 
         <View style={{marginTop: 10}}>
           <CustomButton
             bgVariant="outline"
+            textVariant="secondary"
             title="Read More"
             onPress={() => Linking.openURL(item.url)}
-            style={{borderWidth: 1,borderColor: '#fff'}}
+            style={{borderWidth: 1, borderColor: '#fff'}}
           />
         </View>
       </View>
@@ -106,6 +111,23 @@ const CyberNews = () => {
             contentContainerStyle={styles.listContainer}
           />
         )}
+
+        <View>
+          <AlertBox isOpen={modalVisible} onClose={closeModal}>
+            <CustomText
+              fontFamily="Montserrat-Medium"
+              style={{
+                color: '#FFFFFF',
+                fontSize: 16,
+                textAlign: 'center',
+                marginBottom: 20,
+              }}>
+              Cyber threats evolve rapidly, and staying informed is key to
+              protection. Real-time updates on major breaches, security alerts,
+              and expert advice help users stay ahead of potential risks.
+            </CustomText>
+          </AlertBox>
+        </View>
       </LinearGradient>
     </SafeAreaView>
   );

@@ -15,6 +15,7 @@ import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
 import Loader from '@components/loader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AlertBox from '@components/alert-box';
 
 interface InstalledApp {
   packageName: string;
@@ -38,6 +39,12 @@ const ThreatAdvisor = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [selectedTab, setSelectedTab] = useState<'risky' | 'nonRisky'>('risky');
+
+  const [modalVisible, setModalVisible] = useState(true);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -140,6 +147,23 @@ const ThreatAdvisor = () => {
           </View>
         )}
       </ScrollView>
+
+      <View>
+        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+          <CustomText
+            fontFamily="Montserrat-Medium"
+            style={{
+              color: '#FFFFFF',
+              fontSize: 16,
+              textAlign: 'center',
+              marginBottom: 20,
+            }}>
+            Keyloggers, spyware, and trojans often operate undetected in the
+            background. Analyzing device behavior helps uncover hidden threats,
+            allowing users to take preventive measures before damage occurs.
+          </CustomText>
+        </AlertBox>
+      </View>
     </ScreenLayout>
   );
 };

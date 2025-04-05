@@ -11,6 +11,7 @@ import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
 import Loader from '@components/loader';
 import CustomText from '@components/ui/custom-text';
+import AlertBox from '@components/alert-box';
 
 const {HiddenAppsModule} = NativeModules;
 
@@ -22,6 +23,12 @@ interface AppInfo {
 const HiddenApps = () => {
   const [hiddenApps, setHiddenApps] = useState<AppInfo[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(true);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
   console.log('====================================');
   console.log(hiddenApps);
@@ -85,6 +92,23 @@ const HiddenApps = () => {
           )}
         </>
       )}
+
+      <View>
+        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+          <CustomText
+            fontFamily="Montserrat-Medium"
+            style={{
+              color: '#FFFFFF',
+              fontSize: 16,
+              textAlign: 'center',
+              marginBottom: 20,
+            }}>
+            Hackers and spyware programs use concealed apps to track users or
+            steal data. A deep scan reveals hidden applications, enabling users
+            to remove unauthorized or suspicious software.
+          </CustomText>
+        </AlertBox>
+      </View>
     </ScreenLayout>
   );
 };

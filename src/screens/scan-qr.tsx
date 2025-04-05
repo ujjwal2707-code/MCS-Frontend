@@ -31,6 +31,7 @@ import {Card} from 'react-native-paper';
 import HorizontalBarsChart from '@components/bar-chart';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Clipboard from '@react-native-clipboard/clipboard';
+import AlertBox from '@components/alert-box';
 
 enum QRTypeState {
   PaymentLink = 'Payment Link',
@@ -54,6 +55,12 @@ const ScanQR = ({navigation}: RootScreenProps<Paths.ScanQr>) => {
   const cameraRef = useRef<Camera>(null);
 
   const [openScanResult, setOpenScanResult] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(true);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
   // const scanningLineAnim = useRef(new Animated.Value(0)).current;
 
@@ -182,6 +189,23 @@ const ScanQR = ({navigation}: RootScreenProps<Paths.ScanQr>) => {
           qrType={qrType}
         />
       )}
+
+      <View>
+        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+          <CustomText
+            fontFamily="Montserrat-Medium"
+            style={{
+              color: '#FFFFFF',
+              fontSize: 16,
+              textAlign: 'center',
+              marginBottom: 20,
+            }}>
+            Malicious QR codes can redirect you to phishing websites or install
+            malware on your device. Scanning QR codes before opening them
+            ensures they are safe and free from cyber threats.
+          </CustomText>
+        </AlertBox>
+      </View>
     </ScreenLayout>
   );
 };

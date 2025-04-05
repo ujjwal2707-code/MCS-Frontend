@@ -14,6 +14,7 @@ import Loader from '@components/loader';
 import CustomText from '@components/ui/custom-text';
 import {RootScreenProps} from '@navigation/types';
 import {Paths} from '@navigation/paths';
+import AlertBox from '@components/alert-box';
 
 interface SecurityData {
   rootStatus: boolean;
@@ -56,6 +57,12 @@ const SecurityAdvisor = ({
 }: RootScreenProps<Paths.SecurityAdvisor>) => {
   const [securityData, setSecurityData] = useState<SecurityData | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(true);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
   const checkSecurity = async () => {
     try {
@@ -191,6 +198,23 @@ const SecurityAdvisor = ({
           ItemSeparatorComponent={() => <View style={styles.divider} />}
         />
       )}
+
+      <View>
+        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+          <CustomText
+            fontFamily="Montserrat-Medium"
+            style={{
+              color: '#FFFFFF',
+              fontSize: 16,
+              textAlign: 'center',
+              marginBottom: 20,
+            }}>
+            Not all security threats are obvious, and users may overlook
+            critical vulnerabilities. Personalized recommendations guide users
+            on improving device security, app safety, and online protection.
+          </CustomText>
+        </AlertBox>
+      </View>
     </ScreenLayout>
   );
 };

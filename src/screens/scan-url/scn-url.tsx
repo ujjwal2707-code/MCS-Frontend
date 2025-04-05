@@ -12,6 +12,7 @@ import {useMutation} from '@tanstack/react-query';
 import {apiService} from '@services/index';
 import {ScanURLResult} from 'types/types';
 import ScanUrlResult from '@components/scan-url-result';
+import AlertBox from '@components/alert-box';
 
 type ScanType = 'app' | 'website' | 'payment';
 
@@ -29,6 +30,12 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
     null,
   );
   const [openScanResult, setOpenScanResult] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(true);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
   const handleInputChange = (type: ScanType, text: string) => {
     const valid = isValidUrl(text);
@@ -55,7 +62,7 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
       setOpenScanResult(true);
     },
     onError: (err: any) => {
-      Alert.alert("Error",err)
+      Alert.alert('Error', err);
     },
   });
 
@@ -175,6 +182,23 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
           scanResult={scanUrlDetails}
         />
       )}
+
+      <View>
+        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+          <CustomText
+            fontFamily="Montserrat-Medium"
+            style={{
+              color: '#FFFFFF',
+              fontSize: 16,
+              textAlign: 'center',
+              marginBottom: 20,
+            }}>
+            Hackers inject harmful scripts into websites to steal information. A
+            thorough scan of web pages in real time blocks malicious scripts &
+            warns against unsafe sites, protecting your device.
+          </CustomText>
+        </AlertBox>
+      </View>
     </ScreenLayout>
   );
 };

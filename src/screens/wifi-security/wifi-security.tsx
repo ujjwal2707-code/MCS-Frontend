@@ -18,6 +18,7 @@ import ScreenHeader from '@components/screen-header';
 import CustomText from '@components/ui/custom-text';
 import Loader from '@components/loader';
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
+import AlertBox from '@components/alert-box';
 
 const {WifiModule} = NativeModules;
 
@@ -26,6 +27,12 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
   const [loading, setLoading] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState<WifiNetwork>();
   const [openWifiDetails, setOpenWifiDetails] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(true);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
@@ -125,6 +132,23 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
         onClose={() => setOpenWifiDetails(false)}
         network={selectedNetwork!}
       />
+
+      <View>
+        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+          <CustomText
+            fontFamily="Montserrat-Medium"
+            style={{
+              color: '#FFFFFF',
+              fontSize: 16,
+              textAlign: 'center',
+              marginBottom: 20,
+            }}>
+            Unsecured WiFi networks expose your data to cybercriminals. Checking
+            for vulnerabilities in networks helps detect fake hotspots and
+            insecure connections, keeping your online activity private.
+          </CustomText>
+        </AlertBox>
+      </View>
     </ScreenLayout>
   );
 };

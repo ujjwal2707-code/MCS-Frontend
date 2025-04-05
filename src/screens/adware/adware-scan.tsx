@@ -1,10 +1,11 @@
+import AlertBox from '@components/alert-box';
 import Loader from '@components/loader';
 import ScreenHeader from '@components/screen-header';
 import ScreenLayout from '@components/screen-layout';
 import CustomText from '@components/ui/custom-text';
-import { Paths } from '@navigation/paths';
-import { RootScreenProps } from '@navigation/types';
-import React, {useEffect, useState} from 'react';
+import {Paths} from '@navigation/paths';
+import {RootScreenProps} from '@navigation/types';
+import React, {useEffect, useState, useMemo} from 'react';
 import {
   View,
   Text,
@@ -15,16 +16,20 @@ import {
 } from 'react-native';
 import {NativeModules} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { InstalledApp, InstalledAppAdsInfo } from 'types/types';
-
+import {InstalledApp, InstalledAppAdsInfo} from 'types/types';
 
 const {AdsServices} = NativeModules;
-
 
 const AdwareScan = ({navigation}: RootScreenProps<Paths.AdwareScan>) => {
   const [apps, setApps] = useState<InstalledApp[]>([]);
   const [adsServices, setAdsServices] = useState<InstalledAppAdsInfo[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  const [modalVisible, setModalVisible] = useState(true);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -32,8 +37,8 @@ const AdwareScan = ({navigation}: RootScreenProps<Paths.AdwareScan>) => {
         setLoading(true);
         const installedApps = await AdsServices.getInstalledApps();
         setApps(installedApps);
-        const adsServives = await AdsServices.getAdsServices()
-        setAdsServices(adsServives)
+        const adsServives = await AdsServices.getAdsServices();
+        setAdsServices(adsServives);
       } catch (error) {
         console.error('Error fetching apps:', error);
       } finally {
@@ -43,8 +48,9 @@ const AdwareScan = ({navigation}: RootScreenProps<Paths.AdwareScan>) => {
     init();
   }, []);
 
-  const handleAppPress = (selectedApp: InstalledApp) => {
-    const groupedAds = adsServices.reduce(
+  // Compute grouped ads services for easier lookup
+  const groupedAds = useMemo(() => {
+    return adsServices.reduce(
       (acc: { [key: string]: string[] }, service) => {
         if (!acc[service.packageName]) {
           acc[service.packageName] = [];
@@ -54,13 +60,22 @@ const AdwareScan = ({navigation}: RootScreenProps<Paths.AdwareScan>) => {
       },
       {} as { [key: string]: string[] },
     );
-  
+  }, [adsServices]);
+
+  // Filter apps that have at least one ads service
+  const filteredApps = useMemo(() => {
+    return apps.filter(
+      (app) => groupedAds[app.packageName] && groupedAds[app.packageName].length > 0,
+    );
+  }, [apps, groupedAds]);
+
+  const handleAppPress = (selectedApp: InstalledApp) => {
     const appAds = groupedAds[selectedApp.packageName] || [];
-      navigation.navigate(Paths.AdsList, {
-        app: selectedApp,
-        ads: appAds,
-      });
-    };
+    navigation.navigate(Paths.AdsList, {
+      app: selectedApp,
+      ads: appAds,
+    });
+  };
 
   return (
     <ScreenLayout>
@@ -70,7 +85,7 @@ const AdwareScan = ({navigation}: RootScreenProps<Paths.AdwareScan>) => {
         <Loader />
       ) : (
         <FlatList
-          data={apps}
+          data={filteredApps}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item}) => (
             <TouchableOpacity onPress={() => handleAppPress(item)}>
@@ -102,6 +117,23 @@ const AdwareScan = ({navigation}: RootScreenProps<Paths.AdwareScan>) => {
           contentContainerStyle={styles.listContentContainer}
         />
       )}
+
+      <View>
+        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+          <CustomText
+            fontFamily="Montserrat-Medium"
+            style={{
+              color: '#FFFFFF',
+              fontSize: 16,
+              textAlign: 'center',
+              marginBottom: 20,
+            }}>
+            Intrusive ads and pop-ups often signal malware infections. Detecting
+            and eliminating adware-infected applications reduces unwanted
+            advertisements and prevents potential data theft.
+          </CustomText>
+        </AlertBox>
+      </View>
     </ScreenLayout>
   );
 };
@@ -135,7 +167,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 20,
     backgroundColor: '#2337A8',
-    marginTop:20,
-    marginBottom:10
+    marginTop: 20,
+    marginBottom: 10,
   },
 });
