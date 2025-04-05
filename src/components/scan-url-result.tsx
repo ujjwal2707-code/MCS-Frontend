@@ -1,4 +1,4 @@
-import {Linking, StyleSheet, View} from 'react-native';
+import {Alert, Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useRef} from 'react';
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import {ScanURLResult} from 'types/types';
@@ -6,6 +6,8 @@ import CustomText from './ui/custom-text';
 import {Card} from 'react-native-paper';
 import HorizontalBarsChart from './bar-chart';
 import CustomButton from './ui/custom-button';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 interface ScanUrlResultProps {
   isOpen: boolean;
@@ -17,6 +19,11 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   console.log('ScanUrlResult component', scanResult);
+
+  const copyToClipboard = (text: string) => {
+    Clipboard.setString(text);
+    Alert.alert('Copied', 'The data has been copied to your clipboard!');
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -35,17 +42,16 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
       onClose={onClose}
       backgroundStyle={{backgroundColor: '#4E4E96'}}>
       <BottomSheetScrollView style={{flex: 1, paddingHorizontal: 20}}>
-        {/* <View style={{paddingVertical: 20}}>
-          <CustomText
-            variant="h5"
-            color="#fff"
-            fontFamily="Montserrat-Medium"
-            style={{textAlign: 'center'}}>
-            Available Networks
-          </CustomText>
-        </View> */}
-
-        <View style={{paddingVertical: 10}}>
+        
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 5,
+            paddingVertical: 10,
+          }}>
           <CustomText
             variant="h5"
             color="#fff"
@@ -54,6 +60,14 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
             style={{textAlign: 'center'}}>
             {scanResult.meta.url_info.url}
           </CustomText>
+          <TouchableOpacity
+            onPress={() => copyToClipboard(scanResult.meta.url_info.url)}>
+            <MaterialCommunityIcons
+              name="content-copy"
+              size={24}
+              color="#fff"
+            />
+          </TouchableOpacity>
         </View>
 
         {scanResult &&

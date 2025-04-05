@@ -30,6 +30,7 @@ import {apiService} from '@services/index';
 import {Card} from 'react-native-paper';
 import HorizontalBarsChart from '@components/bar-chart';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 enum QRTypeState {
   PaymentLink = 'Payment Link',
@@ -135,10 +136,14 @@ const ScanQR = ({navigation}: RootScreenProps<Paths.ScanQr>) => {
   if (!hasPermission) {
     return (
       <View style={styles.permissionContainer}>
-        <CustomText color="#fff" style={styles.permissionText}>
-          We need your permission to use the camera
+        <CustomText
+          variant="h5"
+          color="#fff"
+          style={styles.permissionText}
+          fontFamily="Montserrat-Bold">
+          We need your permission to use the camera.
         </CustomText>
-        <Button
+        <CustomButton
           onPress={async () => {
             const status = await requestPermission();
             if (status === true) {
@@ -225,6 +230,11 @@ const ScanQRResult = ({
     } catch (error) {}
   };
 
+  const copyToClipboard = (text: string) => {
+    Clipboard.setString(text);
+    Alert.alert('Copied', 'The data has been copied to your clipboard!');
+  };
+
   useEffect(() => {
     if (isOpen) {
       bottomSheetRef.current?.snapToIndex(0);
@@ -272,6 +282,7 @@ const ScanQRResult = ({
             alignItems: 'center',
             justifyContent: 'center',
             gap: 5,
+            paddingVertical: 5,
           }}>
           <CustomText
             variant="h5"
@@ -281,7 +292,7 @@ const ScanQRResult = ({
             style={{textAlign: 'center'}}>
             {scannedData}
           </CustomText>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => copyToClipboard(scannedData)}>
             <MaterialCommunityIcons
               name="content-copy"
               size={24}
@@ -394,6 +405,7 @@ const ScanQRResult = ({
 
 const styles = StyleSheet.create({
   permissionContainer: {
+    backgroundColor: '#080460',
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
