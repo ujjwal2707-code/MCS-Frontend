@@ -14,7 +14,7 @@ const AppBar = ({username}: AppBarProps) => {
           <View style={styles.textContainer}>
             <CustomText style={styles.textSmall}>Welcome Back</CustomText>
             <CustomText fontFamily="Montserrat-Bold" style={styles.textLarge}>
-              {username}
+              {username?.split(' ')[0]}
             </CustomText>
           </View>
         </View>

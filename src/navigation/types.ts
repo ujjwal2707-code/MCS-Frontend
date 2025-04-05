@@ -17,6 +17,7 @@ export type RootStackParamList = {
   [Paths.Profile]: undefined;
   [Paths.Contact]: undefined;
   [Paths.PrivacyPolicy]: undefined;
+  [Paths.ManageAccounts]:undefined;
   [Paths.Home]: undefined;
   [Paths.ScanQr]: undefined;
   [Paths.ScanUrl]: undefined;

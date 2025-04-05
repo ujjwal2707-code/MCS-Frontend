@@ -49,7 +49,7 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
         // );
       },
       onError: (err: any) => {
-        console.log(err, 'errrrrrrrr');
+        // console.log(err, 'errrrrrrrr');
         const errorMessage =
           err?.response?.data?.message ||
           err.message ||
@@ -68,7 +68,7 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
       console.log('Submitting Form:', form);
       await loginMutation(form);
     } catch (error) {
-      console.log('Signin Failed:', error);
+      // console.log('Signin Failed:', error);
     }
   };
 

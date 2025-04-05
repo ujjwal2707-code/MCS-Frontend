@@ -42,7 +42,7 @@ const VerifyEmail: React.FC<RootScreenProps<Paths.VerifyEmail>> = ({
       navigation.navigate(Paths.Login);
     },
     onError: (err: any) => {
-      console.error('Email Verification Error:', err.response?.data?.message);
+      // console.error('Email Verification Error:', err.response?.data?.message);
       Alert.alert(
         'Error',
         err.response?.data?.message || 'Something went wrong!',
@@ -55,7 +55,7 @@ const VerifyEmail: React.FC<RootScreenProps<Paths.VerifyEmail>> = ({
       try {
         await verifyEmailMutation({email, tempOtp: otp});
       } catch (error) {
-        console.error('Verification failed:', error);
+        // console.error('Verification failed:', error);
       }
     } else {
       Alert.alert('Invalid OTP', 'Please enter the full 6-digit OTP.');

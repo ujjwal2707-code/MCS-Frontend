@@ -12,6 +12,7 @@ import {
   VerifyEmail,
   ForgetPassword,
   PrivacyPolicy,
+  ManageAccounts,
   AppPermission,
   AppPermissionDetails,
   ScanQr,
@@ -62,6 +63,10 @@ const ApplicationNavigator = () => {
               <Stack.Screen
                 component={PrivacyPolicy}
                 name={Paths.PrivacyPolicy}
+              />
+              <Stack.Screen
+                component={ManageAccounts}
+                name={Paths.ManageAccounts}
               />
               <Stack.Screen component={ScanQr} name={Paths.ScanQr} />
               <Stack.Screen component={ScanUrl} name={Paths.ScanUrl} />
