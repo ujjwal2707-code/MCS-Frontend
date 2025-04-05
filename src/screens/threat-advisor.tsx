@@ -6,9 +6,15 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  FlatList,
 } from 'react-native';
 import {NativeModules} from 'react-native';
 import FullScreenLoader from '../components/full-screen-loader';
+import CustomText from '@components/ui/custom-text';
+import ScreenLayout from '@components/screen-layout';
+import ScreenHeader from '@components/screen-header';
+import Loader from '@components/loader';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface InstalledApp {
   packageName: string;
@@ -31,8 +37,7 @@ const ThreatAdvisor = () => {
   const [apps, setApps] = useState<InstalledApp[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
-  const [showRisky, setShowRisky] = useState(false);
-  const [showNonRisky, setShowNonRisky] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<'risky' | 'nonRisky'>('risky');
 
   useEffect(() => {
     const init = async () => {
@@ -64,83 +69,111 @@ const ThreatAdvisor = () => {
       ) : (
         <View style={[styles.appIcon, styles.noIcon]} />
       )}
-      <Text style={styles.appName}>{app.name}</Text>
+      <CustomText color="#fff">{app.name}</CustomText>
     </View>
   );
-
-  if (loading) {
-    return (
-      <FullScreenLoader />
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <Text>{error}</Text>
-      </View>
-    );
-  }
-
   return (
-    <ScrollView style={styles.container}>
-      <TouchableOpacity
-        style={styles.accordionHeader}
-        onPress={() => setShowRisky(!showRisky)}>
-        <Text style={styles.accordionHeaderText}>
-          Risky Apps ({riskyApps.length})
-        </Text>
-      </TouchableOpacity>
-      {showRisky && (
-        <View style={styles.accordionContent}>
-          {riskyApps.length > 0 ? (
-            riskyApps.map(renderAppItem)
-          ) : (
-            <Text style={styles.noAppsText}>No Risky Apps found.</Text>
-          )}
-        </View>
-      )}
+    <ScreenLayout>
+      <ScreenHeader name="Threat Analyzer" />
 
-      <TouchableOpacity
-        style={styles.accordionHeader}
-        onPress={() => setShowNonRisky(!showNonRisky)}>
-        <Text style={styles.accordionHeaderText}>
-          Non-Risky Apps ({nonRiskyApps.length})
-        </Text>
-      </TouchableOpacity>
-      {showNonRisky && (
-        <View style={styles.accordionContent}>
-          {nonRiskyApps.length > 0 ? (
-            nonRiskyApps.map(renderAppItem)
-          ) : (
-            <Text style={styles.noAppsText}>No Non-Risky Apps found.</Text>
-          )}
-        </View>
-      )}
-    </ScrollView>
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            selectedTab === 'risky' && styles.activeTabButton,
+          ]}
+          onPress={() => setSelectedTab('risky')}>
+          <Text
+            style={[
+              styles.tabButtonText,
+              selectedTab === 'risky' && styles.activeTabText,
+            ]}>
+            Risky Apps ({riskyApps.length})
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            selectedTab === 'nonRisky' && styles.activeTabButton,
+          ]}
+          onPress={() => setSelectedTab('nonRisky')}>
+          <Text
+            style={[
+              styles.tabButtonText,
+              selectedTab === 'nonRisky' && styles.activeTabText,
+            ]}>
+            Non-Risky Apps ({nonRiskyApps.length})
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {selectedTab === 'risky' && (
+          <View style={styles.tabContent}>
+            {riskyApps.length > 0 ? (
+              riskyApps.map(renderAppItem)
+            ) : (
+              <CustomText
+                color="#fff"
+                variant="h5"
+                fontFamily="Montserrat-SemiBold">
+                No Risky Apps found.
+              </CustomText>
+            )}
+          </View>
+        )}
+      </ScrollView>
+
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {selectedTab === 'nonRisky' && (
+          <View style={styles.tabContent}>
+            {nonRiskyApps.length > 0 ? (
+              nonRiskyApps.map(renderAppItem)
+            ) : (
+              <CustomText
+                color="#fff"
+                variant="h5"
+                fontFamily="Montserrat-SemiBold">
+                No Non-Risky Apps found.
+              </CustomText>
+            )}
+          </View>
+        )}
+      </ScrollView>
+    </ScreenLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  tabsContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    marginTop: 20,
+  },
+  tabButton: {
     flex: 1,
-    padding: 16,
-    paddingBottom:40
-  },
-  accordionHeader: {
-    backgroundColor: '#ddd',
     padding: 12,
-    borderRadius: 4,
-    marginVertical: 8,
+    backgroundColor: '#4E4E96',
+    alignItems: 'center',
+    borderRadius: 10,
+    marginHorizontal: 4,
   },
-  accordionHeaderText: {
-    fontSize: 18,
+  activeTabButton: {
+    backgroundColor: '#2337A8',
+  },
+  tabButtonText: {
+    fontSize: 16,
     fontWeight: 'bold',
+    color: '#000',
+    fontFamily: 'Monospace',
   },
-  accordionContent: {
+  activeTabText: {
+    color: '#fff',
+  },
+  tabContent: {
+    backgroundColor: '#2337A8',
+    borderRadius: 10,
     padding: 12,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 4,
   },
   appItem: {
     flexDirection: 'row',
@@ -155,12 +188,8 @@ const styles = StyleSheet.create({
   noIcon: {
     backgroundColor: '#ccc',
   },
-  appName: {
-    fontSize: 16,
-  },
-  noAppsText: {
-    fontStyle: 'italic',
-    color: '#555',
+  scrollContainer: {
+    paddingBottom: 10,
   },
 });
 
