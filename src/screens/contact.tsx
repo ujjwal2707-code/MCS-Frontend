@@ -42,13 +42,13 @@ const Contact: React.FC<ContactProps> = () => {
           1945
         </CustomText>
 
-        <CustomText style={[styles.bodyText, styles.mt2]}>
+        {/* <CustomText style={[styles.bodyText, styles.mt2]}>
           <CustomText fontFamily="Montserrat-Bold" style={styles.bold}>
             Helpline No (Brush of Hope)
           </CustomText>
           {'\n'}
           022-65366666
-        </CustomText>
+        </CustomText> */}
       </View>
     </ScreenLayout>
   );

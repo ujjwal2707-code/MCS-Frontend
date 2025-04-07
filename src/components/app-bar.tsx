@@ -12,7 +12,7 @@ const AppBar = ({username}: AppBarProps) => {
       <View style={styles.header}>
         <View style={styles.profileContainer}>
           <View style={styles.textContainer}>
-            <CustomText style={styles.textSmall}>Welcome Back</CustomText>
+            <CustomText style={styles.textSmall}>Welcome</CustomText>
             <CustomText fontFamily="Montserrat-Bold" style={styles.textLarge}>
               {username?.split(' ')[0]}
             </CustomText>
