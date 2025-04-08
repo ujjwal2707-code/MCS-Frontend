@@ -12,6 +12,7 @@ import {Avatar, Card, Divider} from 'react-native-paper';
 import CustomText from '@components/ui/custom-text';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import BackBtn from '@components/back-btn';
 
 type ProfileProps = BottomTabScreenProps<BottomTabParamList, Paths.Profile>;
 
@@ -139,6 +140,8 @@ const Profile: React.FC<ProfileProps> = ({navigation, route}) => {
           ))}
         </Card.Content>
       </Card>
+
+      <BackBtn />
     </ScreenLayout>
   );
 };

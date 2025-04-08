@@ -4,6 +4,7 @@ import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
 import {Card} from 'react-native-paper';
 import CustomText from '@components/ui/custom-text';
+import BackBtn from '@components/back-btn';
 
 const PrivacyPolicy = () => {
   return (
@@ -141,6 +142,7 @@ const PrivacyPolicy = () => {
           </Card.Content>
         </Card>
       </ScrollView>
+      <BackBtn />
     </ScreenLayout>
   );
 };

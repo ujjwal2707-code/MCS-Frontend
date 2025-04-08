@@ -19,6 +19,7 @@ import CustomText from '@components/ui/custom-text';
 import Loader from '@components/loader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AlertBox from '@components/alert-box';
+import BackBtn from '@components/back-btn';
 
 interface InstalledAppsModule {
   getInstalledApps: () => Promise<InstalledApp[]>;
@@ -119,6 +120,7 @@ const AppPermissions = ({navigation}: RootScreenProps<Paths.AppPermission>) => {
           </CustomText>
         </AlertBox>
       </View>
+      <BackBtn />
     </ScreenLayout>
   );
 };

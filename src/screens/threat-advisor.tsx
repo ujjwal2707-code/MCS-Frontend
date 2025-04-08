@@ -16,6 +16,7 @@ import ScreenHeader from '@components/screen-header';
 import Loader from '@components/loader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AlertBox from '@components/alert-box';
+import BackBtn from '@components/back-btn';
 
 interface InstalledApp {
   packageName: string;
@@ -164,6 +165,7 @@ const ThreatAdvisor = () => {
           </CustomText>
         </AlertBox>
       </View>
+      <BackBtn />
     </ScreenLayout>
   );
 };

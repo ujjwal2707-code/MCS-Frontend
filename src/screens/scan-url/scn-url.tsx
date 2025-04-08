@@ -13,6 +13,7 @@ import {apiService} from '@services/index';
 import {ScanURLResult} from 'types/types';
 import ScanUrlResult from '@components/scan-url-result';
 import AlertBox from '@components/alert-box';
+import BackBtn from '@components/back-btn';
 
 type ScanType = 'app' | 'website' | 'payment';
 
@@ -199,6 +200,7 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
           </CustomText>
         </AlertBox>
       </View>
+      <BackBtn />
     </ScreenLayout>
   );
 };

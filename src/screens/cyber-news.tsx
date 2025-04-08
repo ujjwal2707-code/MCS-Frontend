@@ -15,6 +15,7 @@ import ScreenHeader from '@components/screen-header';
 import CustomButton from '@components/ui/custom-button';
 import Loader from '@components/loader';
 import AlertBox from '@components/alert-box';
+import BackBtn from '@components/back-btn';
 
 interface NewsItem {
   source: {id: string; name: string};
@@ -128,6 +129,8 @@ const CyberNews = () => {
             </CustomText>
           </AlertBox>
         </View>
+
+        <BackBtn />
       </LinearGradient>
     </SafeAreaView>
   );

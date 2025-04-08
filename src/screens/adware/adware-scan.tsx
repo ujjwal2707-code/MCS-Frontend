@@ -1,4 +1,5 @@
 import AlertBox from '@components/alert-box';
+import BackBtn from '@components/back-btn';
 import Loader from '@components/loader';
 import ScreenHeader from '@components/screen-header';
 import ScreenLayout from '@components/screen-layout';
@@ -134,6 +135,7 @@ const AdwareScan = ({navigation}: RootScreenProps<Paths.AdwareScan>) => {
           </CustomText>
         </AlertBox>
       </View>
+      <BackBtn />
     </ScreenLayout>
   );
 };

@@ -11,6 +11,7 @@ import CustomButton from '@components/ui/custom-button';
 import CustomText from '@components/ui/custom-text';
 import {Card, Divider} from 'react-native-paper';
 import AlertBox from '@components/alert-box';
+import BackBtn from '@components/back-btn';
 
 let content = [
   'Change your password immediately.',
@@ -240,6 +241,7 @@ const DataBreach = () => {
           </CustomText>
         </AlertBox>
       </View>
+      <BackBtn />
     </ScreenLayout>
   );
 };

@@ -6,6 +6,7 @@ import {Paths} from '@navigation/paths';
 import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
 import CustomText from '@components/ui/custom-text';
+import BackBtn from '@components/back-btn';
 
 type ContactProps = BottomTabScreenProps<BottomTabParamList, Paths.Contact>;
 
@@ -50,6 +51,7 @@ const Contact: React.FC<ContactProps> = () => {
           022-65366666
         </CustomText> */}
       </View>
+      <BackBtn />
     </ScreenLayout>
   );
 };

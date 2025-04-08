@@ -1,6 +1,7 @@
 import {SafeAreaView, StyleSheet} from 'react-native';
 import React, {ReactNode} from 'react';
 import LinearGradient from 'react-native-linear-gradient';
+import BackBtn from './back-btn';
 
 interface ScreenLayoutProps {
   children: ReactNode;
@@ -13,6 +14,8 @@ const ScreenLayout = ({children, style}: {children: React.ReactNode; style?: any
         colors={['#0A1D4D', '#08164C']}
         style={styles.gradientBackground}>
         {children}
+
+        {/* <BackBtn /> */}
       </LinearGradient>
     </SafeAreaView>
   );

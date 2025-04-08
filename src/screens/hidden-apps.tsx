@@ -12,6 +12,7 @@ import ScreenHeader from '@components/screen-header';
 import Loader from '@components/loader';
 import CustomText from '@components/ui/custom-text';
 import AlertBox from '@components/alert-box';
+import BackBtn from '@components/back-btn';
 
 const {HiddenAppsModule} = NativeModules;
 
@@ -109,6 +110,7 @@ const HiddenApps = () => {
           </CustomText>
         </AlertBox>
       </View>
+      <BackBtn />
     </ScreenLayout>
   );
 };

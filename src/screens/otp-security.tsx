@@ -7,6 +7,7 @@ import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
 import CustomText from '@components/ui/custom-text';
 import AlertBox from '@components/alert-box';
+import BackBtn from '@components/back-btn';
 
 // Define type for each step
 interface StepData {
@@ -149,6 +150,7 @@ const OtpSecurity: React.FC = () => {
           </CustomText>
         </AlertBox>
       </View>
+      <BackBtn />
     </ScreenLayout>
   );
 };

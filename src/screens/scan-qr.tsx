@@ -32,6 +32,7 @@ import HorizontalBarsChart from '@components/bar-chart';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Clipboard from '@react-native-clipboard/clipboard';
 import AlertBox from '@components/alert-box';
+import BackBtn from '@components/back-btn';
 
 enum QRTypeState {
   PaymentLink = 'Payment Link',
@@ -206,6 +207,7 @@ const ScanQR = ({navigation}: RootScreenProps<Paths.ScanQr>) => {
           </CustomText>
         </AlertBox>
       </View>
+      <BackBtn />
     </ScreenLayout>
   );
 };

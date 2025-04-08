@@ -6,6 +6,7 @@ import {Card} from 'react-native-paper';
 import CustomText from '@components/ui/custom-text';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Clipboard from '@react-native-clipboard/clipboard';
+import BackBtn from '@components/back-btn';
 
 const Share = () => {
   const sharableLink = 'www.google.com';
@@ -40,6 +41,7 @@ const Share = () => {
           </View>
         </Card.Content>
       </Card>
+      <BackBtn />
     </ScreenLayout>
   );
 };

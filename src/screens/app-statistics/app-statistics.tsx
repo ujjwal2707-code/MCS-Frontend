@@ -16,6 +16,7 @@ import {featureTilesData} from '@constants/app-stats';
 import FeatureTile from '@components/feauture-tile';
 import CustomText from '@components/ui/custom-text';
 import CustomButton from '@components/ui/custom-button';
+import BackBtn from '@components/back-btn';
 
 const {InstalledAppsStatistics} = NativeModules;
 
@@ -129,6 +130,8 @@ const AppStatistics = ({navigation}: RootScreenProps<Paths.AppStatistics>) => {
             </View>
           </View>
         </Modal>
+
+        <BackBtn />
       </ScreenLayout>
     </>
   );

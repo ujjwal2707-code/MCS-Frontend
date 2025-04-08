@@ -15,6 +15,7 @@ import CustomText from '@components/ui/custom-text';
 import {RootScreenProps} from '@navigation/types';
 import {Paths} from '@navigation/paths';
 import AlertBox from '@components/alert-box';
+import BackBtn from '@components/back-btn';
 
 interface SecurityData {
   rootStatus: boolean;
@@ -215,6 +216,7 @@ const SecurityAdvisor = ({
           </CustomText>
         </AlertBox>
       </View>
+      <BackBtn />
     </ScreenLayout>
   );
 };

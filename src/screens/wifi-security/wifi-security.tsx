@@ -19,6 +19,7 @@ import CustomText from '@components/ui/custom-text';
 import Loader from '@components/loader';
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import AlertBox from '@components/alert-box';
+import BackBtn from '@components/back-btn';
 
 const {WifiModule} = NativeModules;
 
@@ -149,6 +150,7 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
           </CustomText>
         </AlertBox>
       </View>
+      <BackBtn />
     </ScreenLayout>
   );
 };

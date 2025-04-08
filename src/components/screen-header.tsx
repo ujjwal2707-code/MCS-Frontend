@@ -11,11 +11,32 @@ interface ScreenHeaderProps {
 }
 
 const ScreenHeader = ({name}: ScreenHeaderProps) => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  // const navigation =
+  //   useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
-    <View style={styles.container}>
+    <>
+      <View style={styles.container}>
+        <View style={styles.headerContainer}>
+          <Image
+            source={require('@assets/images/notify.png')}
+            style={styles.notifyImage}
+          />
+          <View style={styles.sosContainer}>
+            <CustomText style={styles.sosText}>SOS</CustomText>
+          </View>
+        </View>
+        {name && (
+          <CustomText
+            variant="h5"
+            fontFamily="Montserrat-SemiBold"
+            color="white"
+            style={{textAlign: 'center'}}>
+            {name}
+          </CustomText>
+        )}
+      </View>
+      {/* <View style={styles.container}>
       <View style={styles.headerContainer}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={30} color="white" />
@@ -39,7 +60,8 @@ const ScreenHeader = ({name}: ScreenHeaderProps) => {
           {name}
         </CustomText>
       )}
-    </View>
+    </View> */}
+    </>
   );
 };
 
@@ -51,6 +73,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   headerContainer: {
+    width:'100%',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',

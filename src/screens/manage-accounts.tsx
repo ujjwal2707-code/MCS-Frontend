@@ -9,6 +9,7 @@ import {useMutation, useQuery} from '@tanstack/react-query';
 import {apiService} from '@services/index';
 import {useAuth} from '@context/auth-context';
 import InputField from '@components/ui/input-field';
+import BackBtn from '@components/back-btn';
 
 const MangeAccounts = () => {
   const [openUpdatePass, setOpenUpdatePass] = useState(false);
@@ -55,6 +56,8 @@ const MangeAccounts = () => {
         onClose={() => setOpenUpdatePass(false)}
         userEmail={user?.email}
       />
+
+      <BackBtn />
     </ScreenLayout>
   );
 };
@@ -90,7 +93,7 @@ const UpdatePassword = ({isOpen, onClose, userEmail}: WifiDetailsProps) => {
     }) => apiService.changePassword(values),
     onSuccess: res => {
       Alert.alert('Success', res?.data?.message);
-      handleLogout()
+      handleLogout();
     },
     onError: (err: any) => {
       Alert.alert(
