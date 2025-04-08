@@ -8,6 +8,7 @@ export const enum Paths {
     Contact = 'contact',
     PrivacyPolicy = 'privacyPolicy',
     ManageAccounts = 'manageAccounts',
+    Share = 'share',
     Home = 'home',
     ScanQr = 'scan-qr',
     ScanUrl = 'scan-url',

@@ -31,6 +31,7 @@
 		8112D2E5A7524667AB1F69FD /* logoo.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B918B15E69B44A2A553B499 /* logoo.png */; };
 		F9BA03EBB5A84D9A96BD0FAD /* secure.png in Resources */ = {isa = PBXBuildFile; fileRef = 3C2DCF2610314DDA9C2A3F63 /* secure.png */; };
 		9E7B88082C3A4AACA0422AD6 /* secureprotectionn.png in Resources */ = {isa = PBXBuildFile; fileRef = EA584B7645B444BA9D7688FA /* secureprotectionn.png */; };
+		FB5AEBDB36E745129889E8E9 /* homehero.png in Resources */ = {isa = PBXBuildFile; fileRef = 720211A709C84431A885F586 /* homehero.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +76,7 @@
 		2B918B15E69B44A2A553B499 /* logoo.png */ = {isa = PBXFileReference; name = "logoo.png"; path = "../src/assets/images/logoo.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		3C2DCF2610314DDA9C2A3F63 /* secure.png */ = {isa = PBXFileReference; name = "secure.png"; path = "../src/assets/images/secure.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		EA584B7645B444BA9D7688FA /* secureprotectionn.png */ = {isa = PBXFileReference; name = "secureprotectionn.png"; path = "../src/assets/images/secureprotectionn.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		720211A709C84431A885F586 /* homehero.png */ = {isa = PBXFileReference; name = "homehero.png"; path = "../src/assets/images/homehero.png"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +182,7 @@
 				2B918B15E69B44A2A553B499 /* logoo.png */,
 				3C2DCF2610314DDA9C2A3F63 /* secure.png */,
 				EA584B7645B444BA9D7688FA /* secureprotectionn.png */,
+				720211A709C84431A885F586 /* homehero.png */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -274,6 +277,7 @@
 				8112D2E5A7524667AB1F69FD /* logoo.png in Resources */,
 				F9BA03EBB5A84D9A96BD0FAD /* secure.png in Resources */,
 				9E7B88082C3A4AACA0422AD6 /* secureprotectionn.png in Resources */,
+				FB5AEBDB36E745129889E8E9 /* homehero.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

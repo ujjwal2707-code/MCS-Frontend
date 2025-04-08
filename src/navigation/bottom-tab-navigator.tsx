@@ -1,6 +1,6 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Home, Profile, Contact} from '../screens';
+import {Home, Profile, Contact, Share} from '../screens';
 import {Paths} from './paths';
 import {BottomTabParamList} from './bottom-tab-params';
 import {Image} from 'react-native';
@@ -8,6 +8,7 @@ import {Image} from 'react-native';
 import homeIcon from '@assets/icons/home.png';
 import profileIcon from '@assets/icons/profile.png';
 import contactIcon from '@assets/icons/contact.png';
+import shareIcon from '@assets/icons/share.png';
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -26,8 +27,9 @@ const BottomTabNavigator = () => {
             iconSource = profileIcon;
           } else if (route.name === Paths.Contact) {
             iconSource = contactIcon;
+          } else if (route.name === Paths.Share) {
+            iconSource = shareIcon;
           }
-
           return (
             <Image
               source={iconSource}
@@ -59,6 +61,11 @@ const BottomTabNavigator = () => {
         name={Paths.Contact}
         component={Contact}
         options={{tabBarLabel: 'Contact'}}
+      />
+      <Tab.Screen
+        name={Paths.Share}
+        component={Share}
+        options={{tabBarLabel: 'Share'}}
       />
     </Tab.Navigator>
   );
