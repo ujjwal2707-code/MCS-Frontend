@@ -1,34 +1,41 @@
-import {SafeAreaView, StyleSheet} from 'react-native';
-import React, {ReactNode} from 'react';
+import React, { ReactNode } from 'react';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import BackBtn from './back-btn';
 
 interface ScreenLayoutProps {
   children: ReactNode;
+  style?: any;
 }
 
-const ScreenLayout = ({children, style}: {children: React.ReactNode; style?: any}) => {
+const ScreenLayout = ({ children, style }: ScreenLayoutProps) => {
   return (
-    <SafeAreaView style={[styles.container, style]}>
+    <View style={styles.fullScreen}>
       <LinearGradient
         colors={['#0A1D4D', '#08164C']}
-        style={styles.gradientBackground}>
-        {children}
-
-        {/* <BackBtn /> */}
+        style={StyleSheet.absoluteFill}>
+        {/* The gradient now covers the entire screen */}
       </LinearGradient>
-    </SafeAreaView>
+      <SafeAreaView style={[styles.container, style]}>
+        <View style={styles.innerContent}>
+          {children}
+        </View>
+      </SafeAreaView>
+    </View>
   );
 };
 
 export default ScreenLayout;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
-  gradientBackground: {
+  fullScreen: {
     flex: 1,
-    padding:20
+  },
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  innerContent: {
+    flex: 1,
+    padding: 20, // Apply padding here instead of on the gradient
   },
 });
