@@ -13,12 +13,14 @@ import CustomText from '@components/ui/custom-text';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import BackBtn from '@components/back-btn';
+import Loader from '@components/loader';
 
 type ProfileProps = BottomTabScreenProps<BottomTabParamList, Paths.Profile>;
 
 function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/);
+  if (!name) return '';
 
+  const parts = name.trim().split(/\s+/);
   if (parts.length === 0) return '';
 
   const firstInitial = parts[0].charAt(0).toUpperCase();
@@ -27,6 +29,7 @@ function getInitials(name: string): string {
 
   return firstInitial + lastInitial;
 }
+
 
 const Profile: React.FC<ProfileProps> = ({navigation, route}) => {
   const {token, logout} = useAuth();
@@ -62,7 +65,6 @@ const Profile: React.FC<ProfileProps> = ({navigation, route}) => {
   const handleLogout = async () => {
     await logout();
   };
-
 
   const settings = [
     {
@@ -101,25 +103,36 @@ const Profile: React.FC<ProfileProps> = ({navigation, route}) => {
   return (
     <ScreenLayout>
       <ScreenHeader />
-      <View style={styles.bioContainer}>
-        <Avatar.Text size={64} label={profileLabel} />
-        <View>
-          <CustomText color="#FFF" variant="h4" fontFamily="Montserrat-Bold">
-            {user?.name}
-          </CustomText>
-          <CustomText color="#FFF" variant="h6" fontFamily="Montserrat-Medium">
-            Member Since{' '}
-            {user?.createdAt
-              ? (() => {
-                  const date = new Date(user.createdAt);
-                  const month = date.toLocaleString('en-US', {month: 'short'});
-                  const year = date.toLocaleString('en-US', {year: 'numeric'});
-                  return `${month}, ${year}`;
-                })()
-              : ''}
-          </CustomText>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <View style={styles.bioContainer}>
+          <Avatar.Text size={64} label={profileLabel} />
+          <View>
+            <CustomText color="#FFF" variant="h4" fontFamily="Montserrat-Bold">
+              {user?.name}
+            </CustomText>
+            <CustomText
+              color="#FFF"
+              variant="h6"
+              fontFamily="Montserrat-Medium">
+              Member Since{' '}
+              {user?.createdAt
+                ? (() => {
+                    const date = new Date(user.createdAt);
+                    const month = date.toLocaleString('en-US', {
+                      month: 'short',
+                    });
+                    const year = date.toLocaleString('en-US', {
+                      year: 'numeric',
+                    });
+                    return `${month}, ${year}`;
+                  })()
+                : ''}
+            </CustomText>
+          </View>
         </View>
-      </View>
+      )}
       <Card style={styles.card}>
         <Card.Content>
           {settings.map((item, index) => (
@@ -135,7 +148,9 @@ const Profile: React.FC<ProfileProps> = ({navigation, route}) => {
                   {item.icon}
                 </View>
               </TouchableOpacity>
-              {index < settings.length - 1 && <Divider style={styles.divider} />}
+              {index < settings.length - 1 && (
+                <Divider style={styles.divider} />
+              )}
             </React.Fragment>
           ))}
         </Card.Content>
@@ -159,9 +174,8 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 20,
     backgroundColor: '#2337A8', // #2337A8 // #4E4E96 // #2337A8
-    marginTop:10,
-    padding:0
-
+    marginTop: 10,
+    padding: 0,
   },
   cardItemContainer: {
     flexDirection: 'row',
