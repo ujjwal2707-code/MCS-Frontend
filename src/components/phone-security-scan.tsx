@@ -1,5 +1,6 @@
 import {
   Dimensions,
+  DimensionValue,
   Image,
   Modal,
   StyleSheet,
@@ -190,32 +191,6 @@ const PhoneSecurityScan = () => {
   }, []);
 
   // Compute the normalized scores and average rating in percentage
-  // const averageRatingPercentage = useMemo(() => {
-  //   const maxAppsWithAds = 10;
-  //   const maxSecurityIssues = 10;
-  //   const maxHiddenApps = 10;
-  
-  //   const scoreAppsWithAds = Math.max(
-  //     0,
-  //     5 - (appsWithAds.length / maxAppsWithAds) * 5,
-  //   );
-  
-  //   const scoreSecurity = Math.max(
-  //     0,
-  //     5 * ((maxSecurityIssues - securityDataCount) / maxSecurityIssues),
-  //   );
-  
-  //   const scoreHiddenApps = Math.max(
-  //     0,
-  //     5 - (hiddenApps.length / maxHiddenApps) * 5,
-  //   );
-  
-  //   const weightedScore = (scoreAppsWithAds * 1 + scoreSecurity * 3 + scoreHiddenApps * 3) / 7;
-  
-  //   // Convert the weighted score (range 0 to 5) into a percentage (0 to 100)
-  //   return (weightedScore / 5) * 100;
-  // }, [appsWithAds.length, securityDataCount, hiddenApps.length]);
-
   const averageRatingPercentage = useMemo(() => {
     const maxAppsWithAds = 10;
     const maxSecurityIssues = 10;
@@ -236,15 +211,40 @@ const PhoneSecurityScan = () => {
       5 - (hiddenApps.length / maxHiddenApps) * 5,
     );
 
-    const avgScore = (scoreAppsWithAds + scoreSecurity + scoreHiddenApps) / 3;
+    const weightedScore = (scoreAppsWithAds * 1 + scoreSecurity * 3 + scoreHiddenApps * 3) / 7;
 
-    // Convert the average score (0 to 5) into a percentage (0 to 100)
-    return (avgScore / 5) * 100;
+    // Convert the weighted score (range 0 to 5) into a percentage (0 to 100)
+    return (weightedScore / 5) * 100;
   }, [appsWithAds.length, securityDataCount, hiddenApps.length]);
-  
+
+  // const averageRatingPercentage = useMemo(() => {
+  //   const maxAppsWithAds = 10;
+  //   const maxSecurityIssues = 10;
+  //   const maxHiddenApps = 10;
+
+  //   const scoreAppsWithAds = Math.max(
+  //     0,
+  //     5 - (appsWithAds.length / maxAppsWithAds) * 5,
+  //   );
+
+  //   const scoreSecurity = Math.max(
+  //     0,
+  //     5 * ((maxSecurityIssues - securityDataCount) / maxSecurityIssues),
+  //   );
+
+  //   const scoreHiddenApps = Math.max(
+  //     0,
+  //     5 - (hiddenApps.length / maxHiddenApps) * 5,
+  //   );
+
+  //   const avgScore = (scoreAppsWithAds + scoreSecurity + scoreHiddenApps) / 3;
+
+  //   // Convert the average score (0 to 5) into a percentage (0 to 100)
+  //   return (avgScore / 5) * 100;
+  // }, [appsWithAds.length, securityDataCount, hiddenApps.length]);
 
   // Handle modal visibility on button press
-  
+
   const handleSecurePhonePress = () => {
     setModalVisible(true);
   };
@@ -254,8 +254,8 @@ const PhoneSecurityScan = () => {
   };
 
   const securityRating = averageRatingPercentage.toFixed(2);
-  // const securityRating = '10'
-  
+  // const securityRating = '10';
+
   return (
     <>
       <View style={styles.contentContainer}>
@@ -381,39 +381,17 @@ const ProgressBar: React.FC<ProgressBarProps> = ({securityRating}) => {
       ? parseFloat(securityRating.replace('%', ''))
       : securityRating;
 
+  const fillWidth: DimensionValue = `${(ratingValue / 100) * 85 + 10}%`;
+
   return (
-    <>
-    {/* <View
-      style={styles.progressBar}
-      onLayout={event => setContainerWidth(event.nativeEvent.layout.width)}>
-      <View
-        style={[
-          styles.progressFill,
-          {width: containerWidth * (ratingValue / 100)},
-        ]}
-      />
-    </View> */}
     <View style={styles.progressBar}>
       <View style={styles.progressBackground} />
-      <View style={[
-        styles.progressFill,
-        { width: `${ratingValue}%`, left: '25%' }
-      ]} />
+      <View style={[styles.progressFill, {width: fillWidth}]} />
     </View>
-    </>
   );
 };
 
 const styles = StyleSheet.create({
-  // contentContainer: {
-  //   position: 'absolute',
-  //   top: 20,
-  //   bottom: 80,
-  //   left: 0,
-  //   right: 0,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  // },
   contentContainer: {
     position: 'absolute',
     top: 20,
@@ -425,32 +403,8 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     marginBottom: 8,
-    marginLeft: 40
+    marginLeft: 50,
   },
-  // progressBarContainer: {
-  //   width: '80%',
-  //   alignItems: 'center',
-  //   marginBottom: 20,
-  // },
-  // progressBar: {
-  //   width: '100%',
-  //   height: 8,
-  //   backgroundColor: '#FF0000', // #FF0000
-  //   borderRadius: 8,
-  // },
-  // progressFill: {
-  //   height: '100%',
-  //   backgroundColor: '#21e6c1', // #21e6c1
-  //   borderRadius: 4,
-  // },
-  // shieldImage: {
-  //   position: 'absolute',
-  //   left: -15,
-  //   top: -70,
-  //   width: width * 0.3,
-  //   height: width * 0.3,
-  //   resizeMode: 'contain',
-  // },
   progressBarContainer: {
     width: '80%',
     alignItems: 'center',
@@ -473,8 +427,9 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     position: 'absolute',
+    left: '15%',
     height: '100%',
-    backgroundColor: '#21e6c1',
+    backgroundColor: '#21e6c1', // #21e6c1
     borderRadius: 4,
     zIndex: 1,
   },
