@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  ScrollView,
   Image,
   StyleSheet,
   NativeModules,
@@ -76,17 +75,18 @@ const DataUsageStats: React.FC<RootScreenProps> = ({route}) => {
                     flexDirection: 'column',
                     alignItems: 'center',
                   }}>
-                  {/* <View
+                  <View
                     style={{
                       display: 'flex',
                       flexDirection: 'row',
                       alignItems: 'center',
+                      gap: 4,
                     }}>
-                    <Ionicons name="arrow-up" size={30} color="green" />
-                    <CustomText color="#fff">
+                    <Ionicons name="arrow-up" size={20} color="green" />
+                    <CustomText color="#fff" fontFamily="Montserrat-SemiBold">
                       {item.transmittedBytes.toFixed(2)} mb
                     </CustomText>
-                  </View> */}
+                  </View>
                   <View
                     style={{
                       display: 'flex',
