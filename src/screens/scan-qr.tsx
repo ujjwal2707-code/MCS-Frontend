@@ -364,7 +364,6 @@ const ScanQRResult = ({
                         variant="h5"
                         color="#fff"
                         fontFamily="Montserrat-Bold"
-                        fontSize={18}
                         style={{textAlign: 'center'}}>
                         Safe & Harmless Link
                       </CustomText>
@@ -388,7 +387,6 @@ const ScanQRResult = ({
                         variant="h5"
                         color="#fff"
                         fontFamily="Montserrat-Bold"
-                        fontSize={18}
                         style={{textAlign: 'center'}}>
                         Suspected Fraud or Malicious Link
                       </CustomText>
@@ -413,15 +411,34 @@ const ScanQRResult = ({
               </Card.Content>
             </Card>
 
-            <CustomButton
-              title="Open Link"
-              onPress={() => {
-                if (scanUrlDetails) {
-                  Linking.openURL(scanUrlDetails.meta.url_info.url);
-                }
-              }}
-              style={{marginTop: 10, marginBottom: 10}}
-            />
+            {scanUrlDetails &&
+              (scanUrlDetails.stats.harmless +
+                scanUrlDetails.stats.undetected >=
+              10 *
+                (scanUrlDetails.stats.malicious +
+                  scanUrlDetails.stats.suspicious) ? (
+                <CustomButton
+                  title="Open Link"
+                  onPress={() => {
+                    if (scanUrlDetails) {
+                      Linking.openURL(scanUrlDetails.meta.url_info.url);
+                    }
+                  }}
+                  style={{marginTop: 10, marginBottom: 10}}
+                />
+              ) : (
+                <CustomButton
+                  bgVariant='danger'
+                  textVariant='danger'
+                  title="Open Link"
+                  onPress={() => {
+                    if (scanUrlDetails) {
+                      Linking.openURL(scanUrlDetails.meta.url_info.url);
+                    }
+                  }}
+                  style={{marginTop: 10, marginBottom: 10}}
+                />
+              ))}
           </>
         )}
       </BottomSheetScrollView>
