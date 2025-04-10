@@ -1,5 +1,5 @@
 import {View, StyleSheet, ScrollView, Alert} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
 import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
@@ -13,6 +13,7 @@ import {Card, Divider} from 'react-native-paper';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
 import Loader from '@components/loader';
+import {AlertContext} from '@context/alert-context';
 
 let content = [
   'Change your password immediately.',
@@ -37,12 +38,22 @@ const DataBreach = () => {
   const [resultData, setResultData] = useState<DataBreachResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Alert Box
+  const {alertSettings, setAlertSetting} = useContext(AlertContext);
+  const alertKey = 'dataBreach';
   const [modalVisible, setModalVisible] = useState(true);
-
   const closeModal = () => {
     setModalVisible(false);
   };
+  const handleDontShowAgain = () => {
+    setAlertSetting(alertKey, true);
+    closeModal();
+  };
+  useEffect(() => {
+    setModalVisible(!alertSettings[alertKey]);
+  }, [alertSettings[alertKey]]);
 
+  // Check data breach
   const checkDataBreach = async () => {
     if (!email || !email.trim()) return;
     setErrorData(null);
@@ -52,17 +63,17 @@ const DataBreach = () => {
     try {
       const trimmedEmail = email.trim();
       const encodedEmail = encodeURIComponent(trimmedEmail);
-      console.log(encodedEmail,"encodedEmail");
-      
+      console.log(encodedEmail, 'encodedEmail');
+
       const {data} = await axios.get(
         `https://api.xposedornot.com/v1/check-email/${encodedEmail}`,
       );
 
       // setResultData(data);
-      if(data.Error === 'Not found'){
-        setErrorData(data)
+      if (data.Error === 'Not found') {
+        setErrorData(data);
       } else {
-        setResultData(data)
+        setResultData(data);
       }
     } catch (error: any) {
       // if (axios.isAxiosError(error) && error.response) {
@@ -71,7 +82,7 @@ const DataBreach = () => {
       // } else {
       //   setErrorData({Error: error.message, email});
       // }
-      Alert.alert("Error",error)
+      Alert.alert('Error', error);
     } finally {
       setLoading(false);
     }
@@ -243,8 +254,11 @@ const DataBreach = () => {
         </ScrollView>
       )}
 
-      <View>
-        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+      {modalVisible && (
+        <AlertBox
+          isOpen={modalVisible}
+          onClose={closeModal}
+          onDontShowAgain={handleDontShowAgain}>
           <CustomText
             fontFamily="Montserrat-Medium"
             style={{
@@ -259,7 +273,8 @@ const DataBreach = () => {
             accounts.
           </CustomText>
         </AlertBox>
-      </View>
+      )}
+
       <BackBtn />
     </ScreenLayout>
   );

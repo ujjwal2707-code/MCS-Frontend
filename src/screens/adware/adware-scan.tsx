@@ -4,9 +4,10 @@ import Loader from '@components/loader';
 import ScreenHeader from '@components/screen-header';
 import ScreenLayout from '@components/screen-layout';
 import CustomText from '@components/ui/custom-text';
+import {AlertContext} from '@context/alert-context';
 import {Paths} from '@navigation/paths';
 import {RootScreenProps} from '@navigation/types';
-import React, {useEffect, useState, useMemo} from 'react';
+import React, {useEffect, useState, useMemo, useContext} from 'react';
 import {
   View,
   Text,
@@ -25,12 +26,21 @@ const AdwareScan = ({navigation}: RootScreenProps<Paths.AdwareScan>) => {
   const [apps, setApps] = useState<InstalledApp[]>([]);
   const [adsServices, setAdsServices] = useState<InstalledAppAdsInfo[]>([]);
   const [loading, setLoading] = useState(false);
-  
-  const [modalVisible, setModalVisible] = useState(true);
 
+  // Alert Box
+  const {alertSettings, setAlertSetting} = useContext(AlertContext);
+  const alertKey = 'adwareScan';
+  const [modalVisible, setModalVisible] = useState(true);
   const closeModal = () => {
     setModalVisible(false);
   };
+  const handleDontShowAgain = () => {
+    setAlertSetting(alertKey, true);
+    closeModal();
+  };
+  useEffect(() => {
+    setModalVisible(!alertSettings[alertKey]);
+  }, [alertSettings[alertKey]]);
 
   useEffect(() => {
     const init = async () => {
@@ -51,22 +61,20 @@ const AdwareScan = ({navigation}: RootScreenProps<Paths.AdwareScan>) => {
 
   // Compute grouped ads services for easier lookup
   const groupedAds = useMemo(() => {
-    return adsServices.reduce(
-      (acc: { [key: string]: string[] }, service) => {
-        if (!acc[service.packageName]) {
-          acc[service.packageName] = [];
-        }
-        acc[service.packageName].push(service.serviceName);
-        return acc;
-      },
-      {} as { [key: string]: string[] },
-    );
+    return adsServices.reduce((acc: {[key: string]: string[]}, service) => {
+      if (!acc[service.packageName]) {
+        acc[service.packageName] = [];
+      }
+      acc[service.packageName].push(service.serviceName);
+      return acc;
+    }, {} as {[key: string]: string[]});
   }, [adsServices]);
 
   // Filter apps that have at least one ads service
   const filteredApps = useMemo(() => {
     return apps.filter(
-      (app) => groupedAds[app.packageName] && groupedAds[app.packageName].length > 0,
+      app =>
+        groupedAds[app.packageName] && groupedAds[app.packageName].length > 0,
     );
   }, [apps, groupedAds]);
 
@@ -119,8 +127,11 @@ const AdwareScan = ({navigation}: RootScreenProps<Paths.AdwareScan>) => {
         />
       )}
 
-      <View>
-        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+      {modalVisible && (
+        <AlertBox
+          isOpen={modalVisible}
+          onClose={closeModal}
+          onDontShowAgain={handleDontShowAgain}>
           <CustomText
             fontFamily="Montserrat-Medium"
             style={{
@@ -134,7 +145,8 @@ const AdwareScan = ({navigation}: RootScreenProps<Paths.AdwareScan>) => {
             advertisements and prevents potential data theft.
           </CustomText>
         </AlertBox>
-      </View>
+      )}
+
       <BackBtn />
     </ScreenLayout>
   );

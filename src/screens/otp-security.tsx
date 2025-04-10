@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {View, Pressable, StyleSheet, Linking} from 'react-native';
 
 import Dropdown, {DropdownItem} from '../components/dropdown';
@@ -8,6 +8,7 @@ import ScreenHeader from '@components/screen-header';
 import CustomText from '@components/ui/custom-text';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
+import {AlertContext} from '@context/alert-context';
 
 // Define type for each step
 interface StepData {
@@ -59,11 +60,20 @@ const OtpSecurity: React.FC = () => {
     Record<string, Record<string, boolean>>
   >({});
 
+  // Alert Box
+  const {alertSettings, setAlertSetting} = useContext(AlertContext);
+  const alertKey = 'otpSecurity';
   const [modalVisible, setModalVisible] = useState(true);
-
   const closeModal = () => {
     setModalVisible(false);
   };
+  const handleDontShowAgain = () => {
+    setAlertSetting(alertKey, true);
+    closeModal();
+  };
+  useEffect(() => {
+    setModalVisible(!alertSettings[alertKey]);
+  }, [alertSettings[alertKey]]);
 
   const items: DropdownItem[] = [
     {label: 'Airtel', value: 'airtel'},
@@ -134,8 +144,12 @@ const OtpSecurity: React.FC = () => {
           </Pressable>
         ))}
       </View>
-      <View>
-        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+
+      {modalVisible && (
+        <AlertBox
+          isOpen={modalVisible}
+          onClose={closeModal}
+          onDontShowAgain={handleDontShowAgain}>
           <CustomText
             fontFamily="Montserrat-Medium"
             style={{
@@ -149,7 +163,8 @@ const OtpSecurity: React.FC = () => {
             ensures that authentication codes remain private and protected.
           </CustomText>
         </AlertBox>
-      </View>
+      )}
+
       <BackBtn />
     </ScreenLayout>
   );

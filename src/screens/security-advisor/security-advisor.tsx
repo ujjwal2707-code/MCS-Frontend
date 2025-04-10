@@ -5,7 +5,7 @@ import {
   StyleSheet,
   FlatList,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {NativeModules} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ScreenLayout from '@components/screen-layout';
@@ -16,6 +16,7 @@ import {RootScreenProps} from '@navigation/types';
 import {Paths} from '@navigation/paths';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
+import {AlertContext} from '@context/alert-context';
 
 interface SecurityData {
   rootStatus: boolean;
@@ -59,11 +60,20 @@ const SecurityAdvisor = ({
   const [securityData, setSecurityData] = useState<SecurityData | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Alert Box
+  const {alertSettings, setAlertSetting} = useContext(AlertContext);
+  const alertKey = 'securityAdvisor';
   const [modalVisible, setModalVisible] = useState(true);
-
   const closeModal = () => {
     setModalVisible(false);
   };
+  const handleDontShowAgain = () => {
+    setAlertSetting(alertKey, true);
+    closeModal();
+  };
+  useEffect(() => {
+    setModalVisible(!alertSettings[alertKey]);
+  }, [alertSettings[alertKey]]);
 
   const checkSecurity = async () => {
     try {
@@ -200,8 +210,11 @@ const SecurityAdvisor = ({
         />
       )}
 
-      <View>
-        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+      {modalVisible && (
+        <AlertBox
+          isOpen={modalVisible}
+          onClose={closeModal}
+          onDontShowAgain={handleDontShowAgain}>
           <CustomText
             fontFamily="Montserrat-Medium"
             style={{
@@ -215,7 +228,8 @@ const SecurityAdvisor = ({
             on improving device security, app safety, and online protection.
           </CustomText>
         </AlertBox>
-      </View>
+      )}
+
       <BackBtn />
     </ScreenLayout>
   );

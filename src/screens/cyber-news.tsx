@@ -2,12 +2,11 @@ import {
   View,
   Image,
   StyleSheet,
-  FlatList,
   Linking,
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {apiService} from '@services/index';
 import CustomText from '@components/ui/custom-text';
@@ -18,6 +17,7 @@ import Loader from '@components/loader';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
 import Swiper from 'react-native-swiper';
+import {AlertContext} from '@context/alert-context';
 
 interface NewsItem {
   source: {id: string; name: string};
@@ -55,11 +55,20 @@ const CyberNews = () => {
     retry: true,
   });
 
+  // Alert Box
+  const {alertSettings, setAlertSetting} = useContext(AlertContext);
+  const alertKey = 'cyberNews';
   const [modalVisible, setModalVisible] = useState(true);
-
   const closeModal = () => {
     setModalVisible(false);
   };
+  const handleDontShowAgain = () => {
+    setAlertSetting(alertKey, true);
+    closeModal();
+  };
+  useEffect(() => {
+    setModalVisible(!alertSettings[alertKey]);
+  }, [alertSettings[alertKey]]);
 
   const swiperRef = useRef<any>(null);
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -68,7 +77,7 @@ const CyberNews = () => {
   const {width, height} = Dimensions.get('window');
 
   // const swiperHeight = 800;
-  const swiperHeight = height 
+  const swiperHeight = height;
 
   const renderItem = ({item}: {item: NewsItem}) => (
     <View style={styles.itemContainer}>
@@ -118,56 +127,71 @@ const CyberNews = () => {
         ) : (
           <>
             <View style={{width, height: swiperHeight}}>
-            <Swiper
-              horizontal={false}
-              ref={swiperRef}
-              loop={false}
-              onIndexChanged={(index: number) => setActiveIndex(index)}
-              containerStyle={{width, height: swiperHeight}}
-              showsPagination={false}>
-              {newsList?.map((item: NewsItem, index) => (
-                <View
-                  key={index}
-                  style={[styles.slideContainer, {width, height: swiperHeight}]}>
-                  {item.urlToImage ? (
-                    <Image
-                      source={{uri: item.urlToImage}}
-                      style={styles.image}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <View style={styles.noImageContainer}>
-                      <CustomText color="#fff">No Image Available.</CustomText>
-                    </View>
-                  )}
-                  <View style={styles.content}>
-                    <CustomText variant="h5" fontFamily="Montserrat-Bold" color="#fff">
-                      {item.title}
-                    </CustomText>
-                    <View style={{marginTop: 10}}>
-                      <CustomText variant="h5" fontSize={14} fontFamily="Montserrat-Regular" color="#fff">
-                        {item.description}
-                      </CustomText>
-                    </View>
-                    <View style={{marginTop: 20}}>
-                      <CustomButton
-                        bgVariant="outline"
-                        textVariant="secondary"
-                        title="Read More"
-                        onPress={() => Linking.openURL(item.url)}
-                        style={{borderWidth: 1, borderColor: '#fff'}}
+              <Swiper
+                horizontal={false}
+                ref={swiperRef}
+                loop={false}
+                onIndexChanged={(index: number) => setActiveIndex(index)}
+                containerStyle={{width, height: swiperHeight}}
+                showsPagination={false}>
+                {newsList?.map((item: NewsItem, index) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.slideContainer,
+                      {width, height: swiperHeight},
+                    ]}>
+                    {item.urlToImage ? (
+                      <Image
+                        source={{uri: item.urlToImage}}
+                        style={styles.image}
+                        resizeMode="cover"
                       />
+                    ) : (
+                      <View style={styles.noImageContainer}>
+                        <CustomText color="#fff">
+                          No Image Available.
+                        </CustomText>
+                      </View>
+                    )}
+                    <View style={styles.content}>
+                      <CustomText
+                        variant="h5"
+                        fontFamily="Montserrat-Bold"
+                        color="#fff">
+                        {item.title}
+                      </CustomText>
+                      <View style={{marginTop: 10}}>
+                        <CustomText
+                          variant="h5"
+                          fontSize={14}
+                          fontFamily="Montserrat-Regular"
+                          color="#fff">
+                          {item.description}
+                        </CustomText>
+                      </View>
+                      <View style={{marginTop: 20}}>
+                        <CustomButton
+                          bgVariant="outline"
+                          textVariant="secondary"
+                          title="Read More"
+                          onPress={() => Linking.openURL(item.url)}
+                          style={{borderWidth: 1, borderColor: '#fff'}}
+                        />
+                      </View>
                     </View>
                   </View>
-                </View>
-              ))}
-            </Swiper>
+                ))}
+              </Swiper>
             </View>
           </>
         )}
 
-        <View>
-          <AlertBox isOpen={modalVisible} onClose={closeModal}>
+        {modalVisible && (
+          <AlertBox
+            isOpen={modalVisible}
+            onClose={closeModal}
+            onDontShowAgain={handleDontShowAgain}>
             <CustomText
               fontFamily="Montserrat-Medium"
               style={{
@@ -181,8 +205,7 @@ const CyberNews = () => {
               and expert advice help users stay ahead of potential risks.
             </CustomText>
           </AlertBox>
-        </View>
-
+        )}
         <BackBtn />
       </LinearGradient>
     </SafeAreaView>
@@ -208,7 +231,7 @@ const styles = StyleSheet.create({
     padding: 0,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    overflow: 'hidden', 
+    overflow: 'hidden',
   },
   image: {
     width: '100%',

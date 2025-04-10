@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -33,6 +33,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Clipboard from '@react-native-clipboard/clipboard';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
+import {AlertContext} from '@context/alert-context';
 
 enum QRTypeState {
   PaymentLink = 'Payment Link',
@@ -57,11 +58,20 @@ const ScanQR = ({navigation}: RootScreenProps<Paths.ScanQr>) => {
 
   const [openScanResult, setOpenScanResult] = useState(false);
 
+  // Alert Box
+  const {alertSettings, setAlertSetting} = useContext(AlertContext);
+  const alertKey = 'scanQr';
   const [modalVisible, setModalVisible] = useState(true);
-
   const closeModal = () => {
     setModalVisible(false);
   };
+  const handleDontShowAgain = () => {
+    setAlertSetting(alertKey, true);
+    closeModal();
+  };
+  useEffect(() => {
+    setModalVisible(!alertSettings[alertKey]);
+  }, [alertSettings[alertKey]]);
 
   // const scanningLineAnim = useRef(new Animated.Value(0)).current;
 
@@ -191,8 +201,11 @@ const ScanQR = ({navigation}: RootScreenProps<Paths.ScanQr>) => {
         />
       )}
 
-      <View>
-        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+      {modalVisible && (
+        <AlertBox
+          isOpen={modalVisible}
+          onClose={closeModal}
+          onDontShowAgain={handleDontShowAgain}>
           <CustomText
             fontFamily="Montserrat-Medium"
             style={{
@@ -206,7 +219,8 @@ const ScanQR = ({navigation}: RootScreenProps<Paths.ScanQr>) => {
             ensures they are safe and free from cyber threats.
           </CustomText>
         </AlertBox>
-      </View>
+      )}
+
       <BackBtn />
     </ScreenLayout>
   );
@@ -428,8 +442,8 @@ const ScanQRResult = ({
                 />
               ) : (
                 <CustomButton
-                  bgVariant='danger'
-                  textVariant='danger'
+                  bgVariant="danger"
+                  textVariant="danger"
                   title="Open Link"
                   onPress={() => {
                     if (scanUrlDetails) {

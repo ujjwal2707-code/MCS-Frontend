@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 
 import {NativeModules} from 'react-native';
 import {WifiNetwork} from '../../../types/types';
@@ -20,6 +20,7 @@ import Loader from '@components/loader';
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
+import {AlertContext} from '@context/alert-context';
 
 const {WifiModule} = NativeModules;
 
@@ -29,11 +30,20 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
   const [selectedNetwork, setSelectedNetwork] = useState<WifiNetwork>();
   const [openWifiDetails, setOpenWifiDetails] = useState(false);
 
+  // Alert Box
+  const {alertSettings, setAlertSetting} = useContext(AlertContext);
+  const alertKey = 'wifiSecurity';
   const [modalVisible, setModalVisible] = useState(true);
-
   const closeModal = () => {
     setModalVisible(false);
   };
+  const handleDontShowAgain = () => {
+    setAlertSetting(alertKey, true);
+    closeModal();
+  };
+  useEffect(() => {
+    setModalVisible(!alertSettings[alertKey]);
+  }, [alertSettings[alertKey]]);
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
@@ -134,8 +144,11 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
         network={selectedNetwork!}
       />
 
-      <View>
-        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+      {modalVisible && (
+        <AlertBox
+          isOpen={modalVisible}
+          onClose={closeModal}
+          onDontShowAgain={handleDontShowAgain}>
           <CustomText
             fontFamily="Montserrat-Medium"
             style={{
@@ -149,7 +162,8 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
             insecure connections, keeping your online activity private.
           </CustomText>
         </AlertBox>
-      </View>
+      )}
+
       <BackBtn />
     </ScreenLayout>
   );

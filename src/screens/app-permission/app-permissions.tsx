@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -20,6 +20,7 @@ import Loader from '@components/loader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
+import {AlertContext} from '@context/alert-context';
 
 interface InstalledAppsModule {
   getInstalledApps: () => Promise<InstalledApp[]>;
@@ -32,11 +33,20 @@ const AppPermissions = ({navigation}: RootScreenProps<Paths.AppPermission>) => {
   const [loading, setLoading] = useState(false);
   // console.log(apps);
 
+  // Alert Box
+  const {alertSettings, setAlertSetting} = useContext(AlertContext);
+  const alertKey = 'appPermission';
   const [modalVisible, setModalVisible] = useState(true);
-
   const closeModal = () => {
     setModalVisible(false);
   };
+  const handleDontShowAgain = () => {
+    setAlertSetting(alertKey, true);
+    closeModal();
+  };
+  useEffect(() => {
+    setModalVisible(!alertSettings[alertKey]);
+  }, [alertSettings[alertKey]]);
 
   useEffect(() => {
     const init = async () => {
@@ -104,8 +114,11 @@ const AppPermissions = ({navigation}: RootScreenProps<Paths.AppPermission>) => {
         />
       )}
 
-      <View>
-        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+      {modalVisible && (
+        <AlertBox
+          isOpen={modalVisible}
+          onClose={closeModal}
+          onDontShowAgain={handleDontShowAgain}>
           <CustomText
             fontFamily="Montserrat-Medium"
             style={{
@@ -119,7 +132,8 @@ const AppPermissions = ({navigation}: RootScreenProps<Paths.AppPermission>) => {
             it easier to revoke access and safeguard privacy.
           </CustomText>
         </AlertBox>
-      </View>
+      )}
+
       <BackBtn />
     </ScreenLayout>
   );
