@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {View, StyleSheet, Keyboard, Alert} from 'react-native';
 import {Paths} from '../../navigation/paths';
 import {RootScreenProps} from '../../navigation/types';
@@ -14,6 +14,7 @@ import {ScanURLResult} from 'types/types';
 import ScanUrlResult from '@components/scan-url-result';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
+import {AlertContext} from '@context/alert-context';
 
 type ScanType = 'app' | 'website' | 'payment';
 
@@ -32,11 +33,20 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
   );
   const [openScanResult, setOpenScanResult] = useState(false);
 
+  // Alert Box
+  const {alertSettings, setAlertSetting} = useContext(AlertContext);
+  const alertKey = 'scanUrl';
   const [modalVisible, setModalVisible] = useState(true);
-
   const closeModal = () => {
     setModalVisible(false);
   };
+  const handleDontShowAgain = () => {
+    setAlertSetting(alertKey, true);
+    closeModal();
+  };
+  useEffect(() => {
+    setModalVisible(!alertSettings[alertKey]);
+  }, [alertSettings[alertKey]]);
 
   const handleInputChange = (type: ScanType, text: string) => {
     const valid = isValidUrl(text);
@@ -184,8 +194,11 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
         />
       )}
 
-      <View>
-        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+      {modalVisible && (
+        <AlertBox
+          isOpen={modalVisible}
+          onClose={closeModal}
+          onDontShowAgain={handleDontShowAgain}>
           <CustomText
             fontFamily="Montserrat-Medium"
             style={{
@@ -199,7 +212,8 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
             warns against unsafe sites, protecting your device.
           </CustomText>
         </AlertBox>
-      </View>
+      )}
+
       <BackBtn />
     </ScreenLayout>
   );

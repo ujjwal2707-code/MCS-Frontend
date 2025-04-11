@@ -6,13 +6,14 @@ import {
   StyleSheet,
   FlatList,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
 import Loader from '@components/loader';
 import CustomText from '@components/ui/custom-text';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
+import {AlertContext} from '@context/alert-context';
 
 const {HiddenAppsModule} = NativeModules;
 
@@ -25,16 +26,22 @@ const HiddenApps = () => {
   const [hiddenApps, setHiddenApps] = useState<AppInfo[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Alert Box
+  const {alertSettings, setAlertSetting} = useContext(AlertContext);
+  const alertKey = 'hiddenApps';
   const [modalVisible, setModalVisible] = useState(true);
-
   const closeModal = () => {
     setModalVisible(false);
   };
+  const handleDontShowAgain = () => {
+    setAlertSetting(alertKey, true);
+    closeModal();
+  };
+  useEffect(() => {
+    setModalVisible(!alertSettings[alertKey]);
+  }, [alertSettings[alertKey]]);
 
-  console.log('====================================');
-  console.log(hiddenApps);
-  console.log('====================================');
-
+  
   useEffect(() => {
     const init = async () => {
       try {
@@ -94,8 +101,11 @@ const HiddenApps = () => {
         </>
       )}
 
-      <View>
-        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+      {modalVisible && (
+        <AlertBox
+          isOpen={modalVisible}
+          onClose={closeModal}
+          onDontShowAgain={handleDontShowAgain}>
           <CustomText
             fontFamily="Montserrat-Medium"
             style={{
@@ -109,7 +119,8 @@ const HiddenApps = () => {
             to remove unauthorized or suspicious software.
           </CustomText>
         </AlertBox>
-      </View>
+      )}
+
       <BackBtn />
     </ScreenLayout>
   );

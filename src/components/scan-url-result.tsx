@@ -42,7 +42,6 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
       onClose={onClose}
       backgroundStyle={{backgroundColor: '#4E4E96'}}>
       <BottomSheetScrollView style={{flex: 1, paddingHorizontal: 20}}>
-        
         <View
           style={{
             display: 'flex',
@@ -80,7 +79,6 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
                     variant="h5"
                     color="#fff"
                     fontFamily="Montserrat-Bold"
-                    fontSize={18}
                     style={{textAlign: 'center'}}>
                     Safe & Harmless Link
                   </CustomText>
@@ -104,7 +102,6 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
                     variant="h5"
                     color="#fff"
                     fontFamily="Montserrat-Bold"
-                    fontSize={18}
                     style={{textAlign: 'center'}}>
                     Suspected Fraud or Malicious Link
                   </CustomText>
@@ -129,7 +126,7 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
           </Card.Content>
         </Card>
 
-        <CustomButton
+        {/* <CustomButton
           title="Open Link"
           onPress={() => {
             if (scanResult) {
@@ -137,7 +134,33 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
             }
           }}
           style={{marginTop: 20}}
-        />
+        /> */}
+
+        {scanResult &&
+          (scanResult.stats.harmless + scanResult.stats.undetected >=
+          10 * (scanResult.stats.malicious + scanResult.stats.suspicious) ? (
+            <CustomButton
+              title="Open Link"
+              onPress={() => {
+                if (scanResult) {
+                  Linking.openURL(scanResult.meta.url_info.url);
+                }
+              }}
+              style={{marginTop: 10, marginBottom: 10}}
+            />
+          ) : (
+            <CustomButton
+              bgVariant="danger"
+              textVariant="danger"
+              title="Open Link"
+              onPress={() => {
+                if (scanResult) {
+                  Linking.openURL(scanResult.meta.url_info.url);
+                }
+              }}
+              style={{marginTop: 10, marginBottom: 10}}
+            />
+          ))}
       </BottomSheetScrollView>
     </BottomSheet>
   );

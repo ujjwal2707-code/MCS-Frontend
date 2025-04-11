@@ -13,6 +13,7 @@ import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
 import Loader from '@components/loader';
 import CustomText from '@components/ui/custom-text';
+import BackBtn from '@components/back-btn';
 
 const {InstalledAppsStatistics} = NativeModules;
 
@@ -103,6 +104,7 @@ const AppUsageStats: React.FC<RootScreenProps> = ({route, navigation}) => {
           contentContainerStyle={styles.listContentContainer}
         />
       )}
+       <BackBtn />
     </ScreenLayout>
   );
 };

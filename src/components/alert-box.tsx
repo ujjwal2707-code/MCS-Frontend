@@ -5,10 +5,16 @@ import CustomText from './ui/custom-text';
 interface AlertBoxProps {
   isOpen: boolean;
   onClose: () => void;
+  onDontShowAgain?: () => void;
   children?: React.ReactNode;
 }
 
-const AlertBox = ({isOpen, onClose, children}: AlertBoxProps) => {
+const AlertBox = ({
+  isOpen,
+  onClose,
+  onDontShowAgain,
+  children,
+}: AlertBoxProps) => {
   return (
     <Modal
       animationType="slide"
@@ -20,11 +26,10 @@ const AlertBox = ({isOpen, onClose, children}: AlertBoxProps) => {
           <Pressable style={styles.closeButton} onPress={onClose}>
             <CustomText style={styles.closeButtonText}>×</CustomText>
           </Pressable>
-
-          {/* Render content passed from the parent */}
           {children}
-
-          <Pressable style={styles.dontShowAgainButton} onPress={onClose}>
+          <Pressable
+            style={styles.dontShowAgainButton}
+            onPress={onDontShowAgain ? onDontShowAgain : onClose}>
             <CustomText
               variant="h6"
               color="black"

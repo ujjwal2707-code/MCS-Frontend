@@ -8,6 +8,7 @@ import CustomText from '@components/ui/custom-text';
 import {Linking} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomButton from '@components/ui/custom-button';
+import BackBtn from '@components/back-btn';
 
 type CheckItem = {
   label: string;
@@ -230,6 +231,7 @@ const SecurityDetails = ({route}: RootScreenProps<Paths.SecurityDetails>) => {
           />
         )}
       </ScrollView>
+      <BackBtn />
     </ScreenLayout>
   );
 };

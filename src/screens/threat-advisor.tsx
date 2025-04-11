@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import Loader from '@components/loader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
+import {AlertContext} from '@context/alert-context';
 
 interface InstalledApp {
   packageName: string;
@@ -41,11 +42,20 @@ const ThreatAdvisor = () => {
   const [error, setError] = useState<string>('');
   const [selectedTab, setSelectedTab] = useState<'risky' | 'nonRisky'>('risky');
 
+  // Alert Box
+  const {alertSettings, setAlertSetting} = useContext(AlertContext);
+  const alertKey = 'threatAdvisor';
   const [modalVisible, setModalVisible] = useState(true);
-
   const closeModal = () => {
     setModalVisible(false);
   };
+  const handleDontShowAgain = () => {
+    setAlertSetting(alertKey, true);
+    closeModal();
+  };
+  useEffect(() => {
+    setModalVisible(!alertSettings[alertKey]);
+  }, [alertSettings[alertKey]]);
 
   useEffect(() => {
     const init = async () => {
@@ -149,8 +159,11 @@ const ThreatAdvisor = () => {
         )}
       </ScrollView>
 
-      <View>
-        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+      {modalVisible && (
+        <AlertBox
+          isOpen={modalVisible}
+          onClose={closeModal}
+          onDontShowAgain={handleDontShowAgain}>
           <CustomText
             fontFamily="Montserrat-Medium"
             style={{
@@ -164,7 +177,8 @@ const ThreatAdvisor = () => {
             allowing users to take preventive measures before damage occurs.
           </CustomText>
         </AlertBox>
-      </View>
+      )}
+
       <BackBtn />
     </ScreenLayout>
   );

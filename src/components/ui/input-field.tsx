@@ -48,6 +48,7 @@ const InputField = ({
             {icon && <Image source={icon} style={[styles.icon, iconStyle]} />}
             <TextInput
               style={[styles.input, inputStyle]}
+              placeholderTextColor="#F3F4F6" // #F3F4F6
               secureTextEntry={secureTextEntry}
               {...props}
             />

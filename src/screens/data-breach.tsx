@@ -1,5 +1,5 @@
-import {View, StyleSheet, ScrollView} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, ScrollView, Alert} from 'react-native';
+import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
 import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
@@ -12,6 +12,8 @@ import CustomText from '@components/ui/custom-text';
 import {Card, Divider} from 'react-native-paper';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
+import Loader from '@components/loader';
+import {AlertContext} from '@context/alert-context';
 
 let content = [
   'Change your password immediately.',
@@ -36,12 +38,22 @@ const DataBreach = () => {
   const [resultData, setResultData] = useState<DataBreachResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Alert Box
+  const {alertSettings, setAlertSetting} = useContext(AlertContext);
+  const alertKey = 'dataBreach';
   const [modalVisible, setModalVisible] = useState(true);
-
   const closeModal = () => {
     setModalVisible(false);
   };
+  const handleDontShowAgain = () => {
+    setAlertSetting(alertKey, true);
+    closeModal();
+  };
+  useEffect(() => {
+    setModalVisible(!alertSettings[alertKey]);
+  }, [alertSettings[alertKey]]);
 
+  // Check data breach
   const checkDataBreach = async () => {
     if (!email || !email.trim()) return;
     setErrorData(null);
@@ -51,18 +63,26 @@ const DataBreach = () => {
     try {
       const trimmedEmail = email.trim();
       const encodedEmail = encodeURIComponent(trimmedEmail);
-      const {data} = await axios.get<DataBreachResponse>(
+      console.log(encodedEmail, 'encodedEmail');
+
+      const {data} = await axios.get(
         `https://api.xposedornot.com/v1/check-email/${encodedEmail}`,
       );
 
-      setResultData(data);
-    } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response) {
-        const errorResponseData = error.response.data as ErrorResponse;
-        setErrorData(errorResponseData);
+      // setResultData(data);
+      if (data.Error === 'Not found') {
+        setErrorData(data);
       } else {
-        setErrorData({Error: error.message, email});
+        setResultData(data);
       }
+    } catch (error: any) {
+      // if (axios.isAxiosError(error) && error.response) {
+      //   const errorResponseData = error.response.data as ErrorResponse;
+      //   setErrorData(errorResponseData);
+      // } else {
+      //   setErrorData({Error: error.message, email});
+      // }
+      Alert.alert('Error', error);
     } finally {
       setLoading(false);
     }
@@ -94,15 +114,19 @@ const DataBreach = () => {
   });
 
   useEffect(() => {
-    if (user.email === 'bigaja9282@flektel.com') {
+    if (user?.email === 'bigaja9282@flektel.com') {
       return;
     } else {
-      setEmail(user.email);
+      setEmail(user?.email);
     }
   }, [user]);
 
   const inputDefaultValue =
-    user.email === 'bigaja9282@flektel.com' ? email : user.email;
+    user?.email === 'bigaja9282@flektel.com' ? email : user?.email;
+
+  // console.log(email,"email");
+  // console.log(errorData,"errorData")
+  // console.log(resultData,"resultData")
 
   return (
     <ScreenLayout>
@@ -116,31 +140,36 @@ const DataBreach = () => {
           Enter an Email
         </CustomText>
       </View>
-      <View
-        style={{
-          paddingVertical: 10,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <View style={{width: '100%'}}>
-          <InputField
-            placeholder="Enter email"
-            textContentType="emailAddress"
-            defaultValue={inputDefaultValue}
-            onChangeText={value => setEmail(value)}
-          />
+
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <View
+          style={{
+            paddingVertical: 10,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View style={{width: '100%'}}>
+            <InputField
+              placeholder="Enter email"
+              textContentType="emailAddress"
+              defaultValue={inputDefaultValue}
+              onChangeText={value => setEmail(value)}
+            />
+          </View>
+          <View style={{marginTop: 20, width: '50%'}}>
+            <CustomButton
+              bgVariant="secondary"
+              title={errorData || resultData ? 'CHECK AGAIN' : 'CHECK BREACH'}
+              textVariant="secondary"
+              onPress={checkDataBreach}
+              isDisabled={!email}
+              isLoading={loading}
+            />
+          </View>
         </View>
-        <View style={{marginTop: 20, width: '50%'}}>
-          <CustomButton
-            bgVariant="secondary"
-            title={errorData || resultData ? 'CHECK AGAIN' : 'CHECK BREACH'}
-            textVariant="secondary"
-            onPress={checkDataBreach}
-            isDisabled={!email}
-            isLoading={loading}
-          />
-        </View>
-      </View>
+      )}
 
       {/* No breach found */}
       {errorData && (
@@ -149,7 +178,8 @@ const DataBreach = () => {
             variant="h5"
             fontFamily="Montserrat-Bold"
             style={styles.errorText}>
-            {errorData.Error}
+            {/* {errorData.Error} */}
+            No Data Breach found on this email.
           </CustomText>
         </View>
       )}
@@ -159,7 +189,7 @@ const DataBreach = () => {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Card style={styles.card}>
             <Card.Content>
-              {resultData.breaches.map((group, groupIndex) => (
+              {resultData?.breaches?.map((group, groupIndex) => (
                 <View style={styles.cardItemContainer} key={groupIndex}>
                   {group.map((breach, index) => (
                     <React.Fragment key={index}>
@@ -224,8 +254,11 @@ const DataBreach = () => {
         </ScrollView>
       )}
 
-      <View>
-        <AlertBox isOpen={modalVisible} onClose={closeModal}>
+      {modalVisible && (
+        <AlertBox
+          isOpen={modalVisible}
+          onClose={closeModal}
+          onDontShowAgain={handleDontShowAgain}>
           <CustomText
             fontFamily="Montserrat-Medium"
             style={{
@@ -240,7 +273,8 @@ const DataBreach = () => {
             accounts.
           </CustomText>
         </AlertBox>
-      </View>
+      )}
+
       <BackBtn />
     </ScreenLayout>
   );
