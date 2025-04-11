@@ -84,7 +84,7 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <LinearGradient
         colors={['#0A1D4D', '#08164C']}
         style={styles.gradientBackground}>
@@ -175,7 +175,7 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
           </ImageBackground>
         </View>
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 };
 

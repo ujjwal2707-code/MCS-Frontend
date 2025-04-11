@@ -55,7 +55,7 @@ const Register = ({navigation}: RootScreenProps<Paths.Register>) => {
     }
   };
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <LinearGradient
         colors={['#0A1D4D', '#08164C']}
         style={styles.gradientBackground}>
@@ -136,7 +136,7 @@ const Register = ({navigation}: RootScreenProps<Paths.Register>) => {
           </ImageBackground>
         </View>
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 };
 

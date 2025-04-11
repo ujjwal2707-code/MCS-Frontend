@@ -28,7 +28,7 @@ const SplashScreen = ({navigation}: RootScreenProps<Paths.SplashScreen>) => {
   }, [token]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <LinearGradient
         colors={['#0A1D4D', '#08164C']}
         style={styles.gradientBackground}>
@@ -90,7 +90,7 @@ const SplashScreen = ({navigation}: RootScreenProps<Paths.SplashScreen>) => {
           </ImageBackground>
         </View>
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -47,7 +47,7 @@ const ForgetPassword = ({navigation}: RootScreenProps<Paths.ForgetPassword>) => 
     }
   };
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <LinearGradient
         colors={['#0A1D4D', '#08164C']}
         style={styles.gradientBackground}>
@@ -107,7 +107,7 @@ const ForgetPassword = ({navigation}: RootScreenProps<Paths.ForgetPassword>) => 
           </ImageBackground>
         </View>
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 };
 

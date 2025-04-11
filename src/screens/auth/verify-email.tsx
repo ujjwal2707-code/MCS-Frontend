@@ -89,7 +89,7 @@ const VerifyEmail: React.FC<RootScreenProps<Paths.VerifyEmail>> = ({
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <LinearGradient
         colors={['#0A1D4D', '#08164C']}
         style={styles.gradientBackground}>
@@ -150,7 +150,7 @@ const VerifyEmail: React.FC<RootScreenProps<Paths.VerifyEmail>> = ({
           </ImageBackground>
         </View>
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 };
 
