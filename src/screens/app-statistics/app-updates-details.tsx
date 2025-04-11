@@ -6,6 +6,7 @@ import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
 import {Card, Divider} from 'react-native-paper';
 import CustomText from '@components/ui/custom-text';
+import BackBtn from '@components/back-btn';
 
 const convertDateString = (dateStr: string): string => {
   // Optional: Replace space with "T" if necessary
@@ -89,6 +90,7 @@ const AppUpdatesDetails = ({
           </View>
         </Card.Content>
       </Card>
+      <BackBtn />
     </ScreenLayout>
   );
 };

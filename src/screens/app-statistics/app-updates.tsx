@@ -16,6 +16,7 @@ import {InstalledAppStats} from 'types/types';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {RootScreenProps} from '@navigation/types';
 import {Paths} from '@navigation/paths';
+import BackBtn from '@components/back-btn';
 
 const {InstalledAppsStatistics} = NativeModules;
 
@@ -86,6 +87,7 @@ const AppUpdates = ({navigation}: RootScreenProps<Paths.AppUpdates>) => {
           contentContainerStyle={styles.listContentContainer}
         />
       )}
+       <BackBtn />
     </ScreenLayout>
   );
 };

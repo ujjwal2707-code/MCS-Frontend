@@ -5,6 +5,7 @@ import { Paths } from '@navigation/paths'
 import ScreenLayout from '@components/screen-layout'
 import ScreenHeader from '@components/screen-header'
 import CustomText from '@components/ui/custom-text'
+import BackBtn from '@components/back-btn'
 
 const AdsList = ({route}: RootScreenProps<Paths.AdsList>) => {
   const { app, ads } = route.params;
@@ -33,6 +34,7 @@ const AdsList = ({route}: RootScreenProps<Paths.AdsList>) => {
         )}
         ItemSeparatorComponent={() => <View style={styles.divider} />}
       />
+       <BackBtn />
     </ScreenLayout>
   )
 }

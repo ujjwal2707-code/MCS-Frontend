@@ -5,6 +5,7 @@ import {InstalledApp} from '../../../types/types';
 import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
 import CustomText from '@components/ui/custom-text';
+import BackBtn from '@components/back-btn';
 
 const AppPermissionDetail: React.FC<RootScreenProps> = ({route}) => {
   const {app} = route.params as {app: InstalledApp};
@@ -34,6 +35,7 @@ const AppPermissionDetail: React.FC<RootScreenProps> = ({route}) => {
         )}
         ItemSeparatorComponent={() => <View style={styles.divider} />}
       />
+       <BackBtn />
     </ScreenLayout>
   );
 };

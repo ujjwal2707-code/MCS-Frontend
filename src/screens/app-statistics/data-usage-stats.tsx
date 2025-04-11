@@ -14,6 +14,7 @@ import ScreenHeader from '@components/screen-header';
 import CustomText from '@components/ui/custom-text';
 import Loader from '@components/loader';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import BackBtn from '@components/back-btn';
 
 const {InstalledAppsStatistics} = NativeModules;
 
@@ -106,6 +107,7 @@ const DataUsageStats: React.FC<RootScreenProps> = ({route}) => {
             contentContainerStyle={styles.listContentContainer}
           />
         )}
+        <BackBtn />
       </ScreenLayout>
     </>
   );
