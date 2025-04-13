@@ -1,12 +1,53 @@
-import React from 'react';
-import {StyleSheet, View, Text, Image, Dimensions} from 'react-native';
+import React, {useState} from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  Dimensions,
+  Modal,
+  TouchableOpacity,
+  Linking,
+} from 'react-native';
 import CustomText from './ui/custom-text';
+import CustomButton from './ui/custom-button';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface AppBarProps {
   username: string;
 }
 
 const AppBar = ({username}: AppBarProps) => {
+  const [SOSModalVisible, setSOSModalVisible] = useState(false);
+
+  const handleSOSPress = () => {
+    setSOSModalVisible(true);
+  };
+
+  const handleCloseSOSModal = () => {
+    setSOSModalVisible(false);
+  };
+
+  const handleDialCyberCrime = async () => {
+    const no = '1945';
+    const telUrl = `tel:${no}`;
+
+    try {
+      await Linking.openURL(telUrl);
+    } catch (error) {
+      console.error('Error opening dialer:', error);
+    }
+  };
+  const handleDialCrime = async () => {
+    const no = '112';
+    const telUrl = `tel:${no}`;
+
+    try {
+      await Linking.openURL(telUrl);
+    } catch (error) {
+      console.error('Error opening dialer:', error);
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -48,11 +89,44 @@ const AppBar = ({username}: AppBarProps) => {
             source={require('@assets/images/notify.png')}
             style={styles.notifyImage}
           />
-          <View style={styles.sosContainer}>
+          <TouchableOpacity
+            onPress={handleSOSPress}
+            style={styles.sosContainer}>
             <CustomText style={styles.sosText}>SOS</CustomText>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
+
+      <Modal visible={SOSModalVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={{paddingVertical: 10, width: '100%', gap: 20}}>
+              <CustomButton
+                title="Report Cyber Crime"
+                IconLeft={() => (
+                  <Ionicons name="call" size={24} color="black" />
+                )}
+                onPress={handleDialCyberCrime}
+              />
+              <CustomButton
+                title="Report Any Other Crime"
+                IconLeft={() => (
+                  <Ionicons name="call" size={24} color="black" />
+                )}
+                onPress={handleDialCrime}
+              />
+            </View>
+            <View style={{paddingVertical: 10}}>
+              <CustomButton
+                title="Close"
+                bgVariant="danger"
+                textVariant="danger"
+                onPress={handleCloseSOSModal}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -109,6 +183,27 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 10,
     fontWeight: 'bold',
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#2337A8',
+    padding: 20,
+    borderRadius: 8,
+    width: '80%',
+    alignItems: 'center',
+  },
+  closeButton: {
+    marginTop: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#007bff',
+    borderRadius: 4,
   },
 });
 
