@@ -15,7 +15,7 @@ import hiddenApps from '@assets/icons/hiddenapps.png';
 import appStats from '@assets/icons/appstats.png';
 import adwareScan from '@assets/icons/adwarescan.png';
 
-export const featureTilesData: FeatureTileType[] = [
+export const featureTilesDataAndroid: FeatureTileType[] = [
   {
     id: '1',
     image: scanQr,
@@ -88,4 +88,38 @@ export const featureTilesData: FeatureTileType[] = [
     label: 'Threat Analyzer',
     route: Paths.ThreatAdvisor,
   },
+];
+
+
+export const featureTilesDataIos: FeatureTileType[] = [
+  {
+    id: '1',
+    image: scanQr,
+    label: 'Scan QR Code',
+    route: Paths.ScanQr,
+  },
+  {
+    id: '2',
+    image: scanWeb,
+    label: 'Scan URL',
+    route: Paths.ScanUrl,
+  },
+  {
+    id: '8',
+    image: cyberNews,
+    label: 'Cyber News',
+    route: Paths.CyberNews,
+  },
+  {
+    id: '9',
+    image: otpSecurity,
+    label: 'OTP Security',
+    route: Paths.OtpSecurity,
+  },
+  {
+    id: '10',
+    image: dataBreach,
+    label: 'Data Breach',
+    route: Paths.DataBreach,
+  }
 ];

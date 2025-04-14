@@ -40,33 +40,33 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = MCS/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MCS/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = MCS/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		14E2EAC04D4B45A4B2A3F631 /* bgcirclesplash.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = bgcirclesplash.png; path = ../src/assets/images/bgcirclesplash.png; sourceTree = "<group>"; };
-		1C69B6F5399D475CBE3F5F0C /* logo.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = logo.png; path = ../src/assets/images/logo.png; sourceTree = "<group>"; };
-		2172C25F326544A691DC564E /* bgshadow.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = bgshadow.png; path = ../src/assets/images/bgshadow.png; sourceTree = "<group>"; };
-		2B918B15E69B44A2A553B499 /* logoo.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = logoo.png; path = ../src/assets/images/logoo.png; sourceTree = "<group>"; };
-		2FB3A8771C2347B9AB7CD077 /* Montserrat-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ExtraBold.ttf"; path = "../src/assets/fonts/Montserrat-ExtraBold.ttf"; sourceTree = "<group>"; };
+		14E2EAC04D4B45A4B2A3F631 /* bgcirclesplash.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bgcirclesplash.png; path = ../src/assets/images/bgcirclesplash.png; sourceTree = "<group>"; };
+		1C69B6F5399D475CBE3F5F0C /* logo.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = logo.png; path = ../src/assets/images/logo.png; sourceTree = "<group>"; };
+		2172C25F326544A691DC564E /* bgshadow.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bgshadow.png; path = ../src/assets/images/bgshadow.png; sourceTree = "<group>"; };
+		2B918B15E69B44A2A553B499 /* logoo.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = logoo.png; path = ../src/assets/images/logoo.png; sourceTree = "<group>"; };
+		2FB3A8771C2347B9AB7CD077 /* Montserrat-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ExtraBold.ttf"; path = "../src/assets/fonts/Montserrat-ExtraBold.ttf"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-MCS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MCS.debug.xcconfig"; path = "Target Support Files/Pods-MCS/Pods-MCS.debug.xcconfig"; sourceTree = "<group>"; };
-		3C2DCF2610314DDA9C2A3F63 /* secure.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = secure.png; path = ../src/assets/images/secure.png; sourceTree = "<group>"; };
-		56BE0C0A61B045D7B7A8D78D /* Montserrat-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-SemiBold.ttf"; path = "../src/assets/fonts/Montserrat-SemiBold.ttf"; sourceTree = "<group>"; };
+		3C2DCF2610314DDA9C2A3F63 /* secure.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = secure.png; path = ../src/assets/images/secure.png; sourceTree = "<group>"; };
+		56BE0C0A61B045D7B7A8D78D /* Montserrat-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-SemiBold.ttf"; path = "../src/assets/fonts/Montserrat-SemiBold.ttf"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-MCS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MCS.release.xcconfig"; path = "Target Support Files/Pods-MCS/Pods-MCS.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-MCS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MCS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		720211A709C84431A885F586 /* homehero.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = homehero.png; path = ../src/assets/images/homehero.png; sourceTree = "<group>"; };
-		73F42AEACDEE4AC9A8789590 /* notify.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = notify.png; path = ../src/assets/images/notify.png; sourceTree = "<group>"; };
+		720211A709C84431A885F586 /* homehero.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = homehero.png; path = ../src/assets/images/homehero.png; sourceTree = "<group>"; };
+		73F42AEACDEE4AC9A8789590 /* notify.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = notify.png; path = ../src/assets/images/notify.png; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = MCS/AppDelegate.swift; sourceTree = "<group>"; };
-		7F3FDD59ADE14F7DA6BAF643 /* Montserrat-ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ExtraLight.ttf"; path = "../src/assets/fonts/Montserrat-ExtraLight.ttf"; sourceTree = "<group>"; };
+		7F3FDD59ADE14F7DA6BAF643 /* Montserrat-ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-ExtraLight.ttf"; path = "../src/assets/fonts/Montserrat-ExtraLight.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = MCS/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		844C50CA379D4B36A1C6D4CC /* Montserrat-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Thin.ttf"; path = "../src/assets/fonts/Montserrat-Thin.ttf"; sourceTree = "<group>"; };
-		9B32E5F2F348428681508500 /* secureprotection.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = secureprotection.png; path = ../src/assets/images/secureprotection.png; sourceTree = "<group>"; };
-		AC8E09D9AD1F42B1B79E6D64 /* bgcirclehomee.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = bgcirclehomee.png; path = ../src/assets/images/bgcirclehomee.png; sourceTree = "<group>"; };
-		ADE552DB4CDB4A53A309354E /* Montserrat-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Medium.ttf"; path = "../src/assets/fonts/Montserrat-Medium.ttf"; sourceTree = "<group>"; };
-		B2B30985EC404F558A5F4013 /* appicon.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = appicon.png; path = ../src/assets/images/appicon.png; sourceTree = "<group>"; };
-		EA584B7645B444BA9D7688FA /* secureprotectionn.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = secureprotectionn.png; path = ../src/assets/images/secureprotectionn.png; sourceTree = "<group>"; };
+		844C50CA379D4B36A1C6D4CC /* Montserrat-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Thin.ttf"; path = "../src/assets/fonts/Montserrat-Thin.ttf"; sourceTree = "<group>"; };
+		9B32E5F2F348428681508500 /* secureprotection.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = secureprotection.png; path = ../src/assets/images/secureprotection.png; sourceTree = "<group>"; };
+		AC8E09D9AD1F42B1B79E6D64 /* bgcirclehomee.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bgcirclehomee.png; path = ../src/assets/images/bgcirclehomee.png; sourceTree = "<group>"; };
+		ADE552DB4CDB4A53A309354E /* Montserrat-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Medium.ttf"; path = "../src/assets/fonts/Montserrat-Medium.ttf"; sourceTree = "<group>"; };
+		B2B30985EC404F558A5F4013 /* appicon.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = appicon.png; path = ../src/assets/images/appicon.png; sourceTree = "<group>"; };
+		EA584B7645B444BA9D7688FA /* secureprotectionn.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = secureprotectionn.png; path = ../src/assets/images/secureprotectionn.png; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F0179C7FE0644774A0331A40 /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Bold.ttf"; path = "../src/assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; };
-		F4B82DFCBF134E23ADD9343B /* bgcircleauth.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = bgcircleauth.png; path = ../src/assets/images/bgcircleauth.png; sourceTree = "<group>"; };
-		F5C39B972F684C9FB25022C7 /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Regular.ttf"; path = "../src/assets/fonts/Montserrat-Regular.ttf"; sourceTree = "<group>"; };
-		FE36519106504E4E8A5B766D /* Montserrat-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Light.ttf"; path = "../src/assets/fonts/Montserrat-Light.ttf"; sourceTree = "<group>"; };
-		FFE69D8324BF4118B532CCA7 /* bgcirclehome.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = bgcirclehome.png; path = ../src/assets/images/bgcirclehome.png; sourceTree = "<group>"; };
+		F0179C7FE0644774A0331A40 /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Bold.ttf"; path = "../src/assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; };
+		F4B82DFCBF134E23ADD9343B /* bgcircleauth.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bgcircleauth.png; path = ../src/assets/images/bgcircleauth.png; sourceTree = "<group>"; };
+		F5C39B972F684C9FB25022C7 /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Regular.ttf"; path = "../src/assets/fonts/Montserrat-Regular.ttf"; sourceTree = "<group>"; };
+		FE36519106504E4E8A5B766D /* Montserrat-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Light.ttf"; path = "../src/assets/fonts/Montserrat-Light.ttf"; sourceTree = "<group>"; };
+		FFE69D8324BF4118B532CCA7 /* bgcirclehome.png */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = bgcirclehome.png; path = ../src/assets/images/bgcirclehome.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -167,7 +167,6 @@
 				720211A709C84431A885F586 /* homehero.png */,
 			);
 			name = Resources;
-			path = "";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -353,6 +352,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 98UFL2F847;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MCS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -381,6 +381,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 98UFL2F847;
 				INFOPLIST_FILE = MCS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (

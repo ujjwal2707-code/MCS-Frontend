@@ -3,7 +3,6 @@ import {
   View,
   StyleSheet,
   Dimensions,
-  Button,
   Alert,
   Linking,
   TouchableOpacity,
@@ -43,12 +42,7 @@ enum QRTypeState {
   Unknown = 'Unknown',
 }
 
-const {width, height} = Dimensions.get('window');
-
-// const SCAN_RECT_WIDTH = width * 0.7;
-// const SCAN_RECT_HEIGHT = 250;
-// const SCAN_RECT_LEFT = (width - SCAN_RECT_WIDTH) / 2;
-// const SCAN_RECT_TOP = (height - SCAN_RECT_HEIGHT) / 2;
+const {width} = Dimensions.get('window');
 
 const ScanQR = ({navigation}: RootScreenProps<Paths.ScanQr>) => {
   const [hasPermissions, setHasPermissions] = useState(false);
@@ -73,18 +67,6 @@ const ScanQR = ({navigation}: RootScreenProps<Paths.ScanQr>) => {
     setModalVisible(!alertSettings[alertKey]);
   }, [alertSettings[alertKey]]);
 
-  // const scanningLineAnim = useRef(new Animated.Value(0)).current;
-
-  // const [modalVisible, setModalVisible] = useState(false);
-
-  // const handleModelOpen = () => {
-  //   setModalVisible(true);
-  // };
-
-  // const handleModelClose = () => {
-  //   setModalVisible(false);
-  // };
-
   const {hasPermission, requestPermission} = useCameraPermission();
 
   const device = useCameraDevice('back');
@@ -95,14 +77,12 @@ const ScanQR = ({navigation}: RootScreenProps<Paths.ScanQr>) => {
         setHasPermissions(true);
       }
     })();
-    // startLineAnimation();
   }, []);
 
   const handleScannedData = (data: string) => {
     setScannedData(data);
     const detectedType = detectQRType(data);
     setQRType(detectedType);
-    // handleModelOpen();
     setOpenScanResult(true);
   };
 
@@ -132,24 +112,6 @@ const ScanQR = ({navigation}: RootScreenProps<Paths.ScanQr>) => {
   });
 
   console.log(hasPermissions, scannedData, qrType);
-
-  // const startLineAnimation = () => {
-  //   scanningLineAnim.setValue(0);
-  //   Animated.loop(
-  //     Animated.sequence([
-  //       Animated.timing(scanningLineAnim, {
-  //         toValue: SCAN_RECT_HEIGHT,
-  //         duration: 1000,
-  //         useNativeDriver: true,
-  //       }),
-  //       Animated.timing(scanningLineAnim, {
-  //         toValue: 0,
-  //         duration: 1000,
-  //         useNativeDriver: true,
-  //       }),
-  //     ]),
-  //   ).start();
-  // };
 
   if (!hasPermission) {
     return (

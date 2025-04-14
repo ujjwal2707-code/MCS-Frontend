@@ -3,8 +3,10 @@ import {
   FlatList,
   Image,
   ImageBackground,
+  Platform,
   SafeAreaView,
   ScrollView,
+  StatusBar,
   StyleSheet,
   View,
 } from 'react-native';
@@ -25,7 +27,10 @@ import CustomButton from '@components/ui/custom-button';
 import AppBar from '@components/app-bar';
 import {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import {BottomTabParamList} from '@navigation/bottom-tab-params';
-import {featureTilesData} from '@constants/feature-tiles';
+import {
+  featureTilesDataAndroid,
+  featureTilesDataIos,
+} from '@constants/feature-tiles';
 import PhoneSecurityScan from '@components/phone-security-scan';
 
 const {width} = Dimensions.get('window');
@@ -61,43 +66,88 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      {/* <StatusBar hidden={Platform.OS !== 'android'} /> */}
       <LinearGradient
         colors={['#0A1D4D', '#08164C']}
-        style={styles.gradientBackground}>
-        <ImageBackground
-          source={require('@assets/images/homehero.png')}
-          style={styles.heroImage}>
-          <View style={styles.appBarContainer}>
-            <AppBar username={user?.name} />
-          </View>
-          <PhoneSecurityScan />
-        </ImageBackground>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContainer}>
-          <FlatList
-            data={featureTilesData}
-            keyExtractor={item => item.id}
-            numColumns={3}
-            contentContainerStyle={{paddingHorizontal: 10}}
-            columnWrapperStyle={{justifyContent: 'space-between'}}
-            renderItem={({item}) => (
-              <FeatureTile
-                icon={item.icon}
-                image={item.image!}
-                label={item.label}
-                onPress={() => {
-                  console.log('Navigating to:', item.route);
-                  navigation.navigate(item.route);
-                }}
+        style={StyleSheet.absoluteFill}></LinearGradient>
+      <SafeAreaView style={[styles.SafeAreaViewcontainer]}>
+        <View style={{flex: 1}}>
+          <ImageBackground
+            source={require('@assets/images/homehero.png')}
+            style={styles.heroImage}>
+            <View style={styles.appBarContainer}>
+              <AppBar username={user?.name} />
+            </View>
+            {Platform.OS === 'android' && <PhoneSecurityScan />}
+          </ImageBackground>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContainer}>
+            {/* {Platform.OS === 'android' ? (
+              <FlatList
+                data={featureTilesDataAndroid}
+                keyExtractor={item => item.id}
+                numColumns={3}
+                contentContainerStyle={{paddingHorizontal: 10}}
+                columnWrapperStyle={{justifyContent: 'space-between'}}
+                renderItem={({item}) => (
+                  <FeatureTile
+                    icon={item.icon}
+                    image={item.image!}
+                    label={item.label}
+                    onPress={() => {
+                      console.log('Navigating to:', item.route);
+                      navigation.navigate(item.route);
+                    }}
+                  />
+                )}
+                scrollEnabled={false}
               />
-            )}
-            scrollEnabled={false}
-          />
-        </ScrollView>
-      </LinearGradient>
-    </SafeAreaView>
+            ) : (
+              <FlatList
+                data={featureTilesDataIos}
+                keyExtractor={item => item.id}
+                numColumns={3}
+                contentContainerStyle={{paddingHorizontal: 10}}
+                columnWrapperStyle={{justifyContent: 'space-between'}}
+                renderItem={({item}) => (
+                  <FeatureTile
+                    icon={item.icon}
+                    image={item.image!}
+                    label={item.label}
+                    onPress={() => {
+                      console.log('Navigating to:', item.route);
+                      navigation.navigate(item.route);
+                    }}
+                  />
+                )}
+                scrollEnabled={false}
+              />
+            )} */}
+            <FlatList
+                data={featureTilesDataAndroid}
+                keyExtractor={item => item.id}
+                numColumns={3}
+                contentContainerStyle={{paddingHorizontal: 10}}
+                columnWrapperStyle={{justifyContent: 'space-between'}}
+                renderItem={({item}) => (
+                  <FeatureTile
+                    icon={item.icon}
+                    image={item.image!}
+                    label={item.label}
+                    onPress={() => {
+                      console.log('Navigating to:', item.route);
+                      navigation.navigate(item.route);
+                    }}
+                  />
+                )}
+                scrollEnabled={false}
+              />
+          </ScrollView>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -109,6 +159,10 @@ const styles = StyleSheet.create({
   },
   gradientBackground: {
     flex: 1,
+  },
+  SafeAreaViewcontainer: {
+    flex: 1,
+    backgroundColor: 'transparent',
   },
   heroImage: {
     width,
@@ -175,90 +229,3 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
 });
-
-// const featureTiles: FeatureTileType[] = [
-//   {
-//     id: '1',
-//     icon: <MaterialCommunityIcons name="web-check" size={24} color="white" />,
-//     label: 'Scan QR Code',
-//     route: Paths.ScanQr,
-//   },
-//   {
-//     id: '2',
-//     icon: <Ionicons name="globe-outline" size={24} color="white" />,
-//     label: 'Scan URL',
-//     route: Paths.ScanUrl,
-//   },
-//   {
-//     id: '3',
-//     icon: <MaterialCommunityIcons name="wifi" size={24} color="white" />,
-//     label: 'Wifi Security',
-//     route: Paths.WifiSecurity,
-//   },
-//   {
-//     id: '8',
-//     icon: <MaterialCommunityIcons name="wifi" size={24} color="white" />,
-//     label: 'Cyber News',
-//     route: Paths.CyberNews,
-//   },
-//   {
-//     id: '9',
-//     icon: <MaterialCommunityIcons name="wifi" size={24} color="white" />,
-//     label: 'OTP Security',
-//     route: Paths.OtpSecurity,
-//   },
-//   {
-//     id: '10',
-//     icon: <MaterialCommunityIcons name="wifi" size={24} color="white" />,
-//     label: 'Data Breach',
-//     route: Paths.DataBreach,
-//   },
-//   {
-//     id: '4',
-//     icon: (
-//       <MaterialCommunityIcons
-//         name="application-settings"
-//         size={24}
-//         color="white"
-//       />
-//     ),
-//     label: 'App Permissions',
-//     route: Paths.AppPermission,
-//   },
-//   {
-//     id: '5',
-//     icon: (
-//       <MaterialCommunityIcons name="shield-check" size={24} color="white" />
-//     ),
-//     label: 'Security Advisor',
-//     route: Paths.SecurityAdvisor,
-//   },
-//   {
-//     id: '6',
-//     icon: (
-//       <MaterialCommunityIcons name="shield-alert" size={24} color="white" />
-//     ),
-//     label: 'Threat Analyzer',
-//     route: Paths.ThreatAdvisor,
-//   },
-//   {
-//     id: '7',
-//     icon: (
-//       <MaterialCommunityIcons name="shield-check" size={24} color="white" />
-//     ),
-//     label: 'Adware Scan',
-//     route: Paths.AdwareScan,
-//   },
-//   {
-//     id: '11',
-//     icon: <MaterialCommunityIcons name="wifi" size={24} color="white" />,
-//     label: 'App Statistics',
-//     route: Paths.AppStatistics,
-//   },
-//   {
-//     id: '12',
-//     icon: <MaterialCommunityIcons name="wifi" size={24} color="white" />,
-//     label: 'Hidden Application',
-//     route: Paths.HiddenApps,
-//   },
-// ];
