@@ -79,7 +79,8 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
             <View style={styles.appBarContainer}>
               <AppBar username={user?.name} />
             </View>
-            {Platform.OS === 'android' && <PhoneSecurityScan />}
+            {/* {Platform.OS === 'android' && <PhoneSecurityScan />} */}
+            <PhoneSecurityScan />
           </ImageBackground>
           <ScrollView
             style={styles.scrollView}

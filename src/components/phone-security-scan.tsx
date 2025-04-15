@@ -253,8 +253,8 @@ const PhoneSecurityScan = () => {
     setModalVisible(false);
   };
 
-  const securityRating = averageRatingPercentage.toFixed(2);
-  // const securityRating = '10';
+  // const securityRating = averageRatingPercentage.toFixed(2);
+  const securityRating = '75';
 
   return (
     <>
