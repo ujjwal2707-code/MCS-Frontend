@@ -32,6 +32,7 @@ import {
   featureTilesDataIos,
 } from '@constants/feature-tiles';
 import PhoneSecurityScan from '@components/phone-security-scan';
+import PhoneScanIos from '@components/phone-scan-ios';
 
 const {width} = Dimensions.get('window');
 
@@ -79,13 +80,16 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
             <View style={styles.appBarContainer}>
               <AppBar username={user?.name} />
             </View>
-            {/* {Platform.OS === 'android' && <PhoneSecurityScan />} */}
-            <PhoneSecurityScan />
+            {Platform.OS === 'android' ? (
+              <PhoneSecurityScan />
+            ) : (
+              <PhoneScanIos />
+            )}
           </ImageBackground>
           <ScrollView
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContainer}>
-            {/* {Platform.OS === 'android' ? (
+            {Platform.OS === 'android' ? (
               <FlatList
                 data={featureTilesDataAndroid}
                 keyExtractor={item => item.id}
@@ -110,8 +114,12 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
                 data={featureTilesDataIos}
                 keyExtractor={item => item.id}
                 numColumns={3}
-                contentContainerStyle={{paddingHorizontal: 10}}
-                columnWrapperStyle={{justifyContent: 'space-between'}}
+                columnWrapperStyle={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: 10,
+                  marginTop: 10,
+                }}
                 renderItem={({item}) => (
                   <FeatureTile
                     icon={item.icon}
@@ -125,26 +133,7 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
                 )}
                 scrollEnabled={false}
               />
-            )} */}
-            <FlatList
-                data={featureTilesDataAndroid}
-                keyExtractor={item => item.id}
-                numColumns={3}
-                contentContainerStyle={{paddingHorizontal: 10}}
-                columnWrapperStyle={{justifyContent: 'space-between'}}
-                renderItem={({item}) => (
-                  <FeatureTile
-                    icon={item.icon}
-                    image={item.image!}
-                    label={item.label}
-                    onPress={() => {
-                      console.log('Navigating to:', item.route);
-                      navigation.navigate(item.route);
-                    }}
-                  />
-                )}
-                scrollEnabled={false}
-              />
+            )}
           </ScrollView>
         </View>
       </SafeAreaView>

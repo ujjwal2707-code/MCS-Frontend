@@ -3,7 +3,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Home, Profile, Contact, Share} from '../screens';
 import {Paths} from './paths';
 import {BottomTabParamList} from './bottom-tab-params';
-import {Image} from 'react-native';
+import {Image, Platform} from 'react-native';
 
 import homeIcon from '@assets/icons/home.png';
 import profileIcon from '@assets/icons/profile.png';
@@ -42,9 +42,18 @@ const BottomTabNavigator = () => {
         tabBarInactiveTintColor: 'grey',
         tabBarStyle: {
           backgroundColor: '#5A29FD',
-          height: 60,
-          paddingBottom: 5,
-          paddingTop: 5,
+          ...Platform.select({
+            android: {
+              height: 60,
+              paddingBottom: 5,
+              paddingTop: 5,
+            },
+            ios: {
+              height: 75,
+              paddingBottom: 10,
+              paddingTop: 10,
+            },
+          }),
         },
       })}>
       <Tab.Screen
