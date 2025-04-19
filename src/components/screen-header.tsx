@@ -19,7 +19,7 @@ const ScreenHeader = ({name}: ScreenHeaderProps) => {
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Image
-            source={require('@assets/images/notify.png')}
+            source={require('@assets/images/notification.png')}
             style={styles.notifyImage}
           />
           <View style={styles.sosContainer}>
