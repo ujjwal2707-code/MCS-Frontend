@@ -43,6 +43,7 @@ export type RootStackParamList = {
   [Paths.AppUpdates]: undefined;
   [Paths.AppUpdatesDetails]: {app: InstalledAppStats}
   [Paths.HiddenApps]: undefined;
+  [Paths.PhoneScan]:undefined;
 };
 
 export type NoParamsRoutes = {

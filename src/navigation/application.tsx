@@ -37,6 +37,7 @@ import {
   CyberNews,
   OtpSecurity,
   DataBreach,
+  PhoneScan
 } from '../screens';
 import {useAuth} from '../context/auth-context';
 import BottomTabNavigator from './bottom-tab-navigator';
@@ -128,6 +129,7 @@ const ApplicationNavigator = () => {
               <Stack.Screen component={AppUpdates} name={Paths.AppUpdates} />
               <Stack.Screen component={AppUpdatesDetails} name={Paths.AppUpdatesDetails} />
               <Stack.Screen component={HiddenApps} name={Paths.HiddenApps} />
+              <Stack.Screen component={PhoneScan} name={Paths.PhoneScan} />
             </>
           ) : (
             <>

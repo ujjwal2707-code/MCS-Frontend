@@ -5,15 +5,80 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import CustomText from './ui/custom-text';
 import CustomButton from './ui/custom-button';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '@navigation/types';
+import {Paths} from '@navigation/paths';
+import { useDataBreachChecker } from '../hooks/useDataBreachChecker';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@context/auth-context';
+import { apiService } from '@services/index';
 
 const {width} = Dimensions.get('window');
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, Paths.Home>;
+
 const PhoneScanIos = () => {
-  const handleSecurePhonePress = () => {};
-  const securityRating = '67.06';
+  const navigation = useNavigation<NavigationProp>();
+  const handleSecurePhonePress = () => {
+    navigation.navigate(Paths.PhoneScan);
+  };
+
+  const {token} = useAuth();
+
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['userProfile', token],
+    queryFn: async () => {
+      if (!token) throw new Error('Token is missing');
+
+      const response = await apiService.getUserProfile(token);
+      if (!response) {
+        throw new Error('API call failed: No response received.');
+      }
+      if (response.status !== 200) {
+        throw new Error(
+          `API Error: ${response.status} - ${response.statusText}`,
+        );
+      }
+      if (!response.data || !response.data.success) {
+        throw new Error('Invalid API response format.');
+      }
+
+      return response.data.data;
+    },
+    staleTime: 0,
+    retry: false,
+  });
+
+  const {loading, errorData, resultData, checkDataBreach} =
+      useDataBreachChecker();
+
+  useEffect(() => {
+     const init = async() => {
+       await checkDataBreach(user?.email)
+     }
+     init()
+  }, [user])
+
+  console.log("useDataBreachChecker",errorData, resultData);
+  
+  /**
+   If 0 breaches → 100%
+   If 1 breach → 90%
+   If 3 breaches → 70% (penalty = 10)
+   */
+
+  const breachCount = resultData?.breaches?.flat()?.length || 0;
+  const penaltyPerBreach = 10;
+  const securityRating = Math.max(0, 100 - breachCount * penaltyPerBreach).toFixed(2);
+  
   return (
     <>
       <View style={styles.contentContainer}>

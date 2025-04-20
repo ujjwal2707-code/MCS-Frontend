@@ -33,6 +33,7 @@ export const enum Paths {
     ActiveTimeDetails = 'active-time-details',
     AppUpdates = 'app-updates',
     AppUpdatesDetails = 'app-updates-details',
-    HiddenApps = 'hidden-apps'
+    HiddenApps = 'hidden-apps',
+    PhoneScan = 'phone-scan'
   }
   
