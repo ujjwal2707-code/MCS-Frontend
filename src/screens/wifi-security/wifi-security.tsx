@@ -21,6 +21,7 @@ import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
 import {AlertContext} from '@context/alert-context';
+import { CustomToast } from '@components/ui/custom-toast';
 
 const {WifiModule} = NativeModules;
 
@@ -60,8 +61,8 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
           },
         );
         return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
+      } catch (err:any) {
+        CustomToast.showInfo(err)
         return false;
       }
     }
@@ -76,7 +77,7 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
         const wifiNetworks: WifiNetwork[] = await WifiModule.scanWifiNetworks();
         setNetworks(wifiNetworks);
       } catch (error: any) {
-        Alert.alert('Error scanning WiFi networks:', error);
+        CustomToast.showError('Error scanning WiFi networks:', error)
       } finally {
         setLoading(false);
       }

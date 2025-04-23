@@ -10,6 +10,7 @@ import {apiService} from '@services/index';
 import {useAuth} from '@context/auth-context';
 import InputField from '@components/ui/input-field';
 import BackBtn from '@components/back-btn';
+import {CustomToast} from '@components/ui/custom-toast';
 
 const MangeAccounts = () => {
   const [openUpdatePass, setOpenUpdatePass] = useState(false);
@@ -92,12 +93,12 @@ const UpdatePassword = ({isOpen, onClose, userEmail}: WifiDetailsProps) => {
       newPassword: string;
     }) => apiService.changePassword(values),
     onSuccess: res => {
-      Alert.alert('Success', res?.data?.message);
+      CustomToast.showSuccess('Success!', res?.data?.message);
       handleLogout();
     },
     onError: (err: any) => {
-      Alert.alert(
-        'Error',
+      CustomToast.showError(
+        'Error:',
         err.response?.data?.message || 'Something went wrong!',
       );
     },
@@ -111,7 +112,6 @@ const UpdatePassword = ({isOpen, onClose, userEmail}: WifiDetailsProps) => {
         newPassword,
       });
     } catch (error) {
-      console.log('forgetPasswordMutation error', error);
     }
   };
 

@@ -34,6 +34,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
 import {AlertContext} from '@context/alert-context';
+import { CustomToast } from '@components/ui/custom-toast';
 
 enum QRTypeState {
   PaymentLink = 'Payment Link',
@@ -260,7 +261,8 @@ const ScanQRResult = ({
         setScanUrlDetails(res.data);
       },
       onError: (err: any) => {
-        Alert.alert('Error', err);
+        // Alert.alert('Error', err);
+        CustomToast.showError('Error', err)
       },
     });
 
@@ -272,7 +274,8 @@ const ScanQRResult = ({
 
   const copyToClipboard = (text: string) => {
     Clipboard.setString(text);
-    Alert.alert('Copied', 'The data has been copied to your clipboard!');
+    // Alert.alert('Copied', 'The data has been copied to your clipboard!');
+    CustomToast.showInfo('Copied', 'The data has been copied to your clipboard!')
   };
 
   useEffect(() => {

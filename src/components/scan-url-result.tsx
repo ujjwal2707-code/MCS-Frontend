@@ -8,6 +8,7 @@ import HorizontalBarsChart from './bar-chart';
 import CustomButton from './ui/custom-button';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { CustomToast } from './ui/custom-toast';
 
 interface ScanUrlResultProps {
   isOpen: boolean;
@@ -17,12 +18,10 @@ interface ScanUrlResultProps {
 
 const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
-
-  console.log('ScanUrlResult component', scanResult);
-
+  
   const copyToClipboard = (text: string) => {
     Clipboard.setString(text);
-    Alert.alert('Copied', 'The data has been copied to your clipboard!');
+    CustomToast.showInfo('Copied', 'The data has been copied to your clipboard!')
   };
 
   useEffect(() => {

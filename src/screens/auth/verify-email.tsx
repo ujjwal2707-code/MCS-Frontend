@@ -1,7 +1,6 @@
 import {
   View,
   StyleSheet,
-  Alert,
   SafeAreaView,
   Image,
   ImageBackground,
@@ -16,6 +15,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '@components/ui/custom-text';
 import CustomButton from '@components/ui/custom-button';
 import OtpInput from '@components/ui/otp-input';
+import {CustomToast} from '@components/ui/custom-toast';
 
 const {width} = Dimensions.get('window');
 
@@ -37,14 +37,12 @@ const VerifyEmail: React.FC<RootScreenProps<Paths.VerifyEmail>> = ({
     mutationFn: (values: {email: string; tempOtp: string}) =>
       apiService.verifyEmail(values),
     onSuccess: res => {
-      console.log('Verification Successful:', res?.data);
-      Alert.alert('Success', 'Email verified!');
+      CustomToast.showSuccess('Success!', 'Email verified!');
       navigation.navigate(Paths.Login);
     },
     onError: (err: any) => {
-      // console.error('Email Verification Error:', err.response?.data?.message);
-      Alert.alert(
-        'Error',
+      CustomToast.showError(
+        'Error:',
         err.response?.data?.message || 'Something went wrong!',
       );
     },
@@ -54,11 +52,9 @@ const VerifyEmail: React.FC<RootScreenProps<Paths.VerifyEmail>> = ({
     if (otp.length === 6) {
       try {
         await verifyEmailMutation({email, tempOtp: otp});
-      } catch (error) {
-        // console.error('Verification failed:', error);
-      }
+      } catch (error) {}
     } else {
-      Alert.alert('Invalid OTP', 'Please enter the full 6-digit OTP.');
+      CustomToast.showInfo('Invalid OTP', 'Please enter the full 6-digit OTP.');
     }
   };
 
@@ -67,13 +63,13 @@ const VerifyEmail: React.FC<RootScreenProps<Paths.VerifyEmail>> = ({
       mutationFn: (values: {email: string}) => apiService.resendOtp(values),
       onSuccess: res => {
         console.log('New otp sent:', res?.data);
-        Alert.alert(
+        CustomToast.showSuccess(
           'Success',
           `OTP sent to your mail ${email}.Please check your mail.`,
         );
       },
       onError: (err: any) => {
-        Alert.alert(
+        CustomToast.showError(
           'Error',
           err.response?.data?.message || 'Something went wrong!',
         );

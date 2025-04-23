@@ -14,6 +14,7 @@ import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
 import Loader from '@components/loader';
 import {AlertContext} from '@context/alert-context';
+import { CustomToast } from '@components/ui/custom-toast';
 
 let content = [
   'Change your password immediately.',
@@ -82,7 +83,7 @@ const DataBreach = () => {
       // } else {
       //   setErrorData({Error: error.message, email});
       // }
-      Alert.alert('Error', error);
+      CustomToast.showError('Error', error)
     } finally {
       setLoading(false);
     }

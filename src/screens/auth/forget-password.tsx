@@ -17,10 +17,13 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '@components/ui/custom-text';
 import InputField from '@components/ui/input-field';
 import CustomButton from '@components/ui/custom-button';
+import {CustomToast} from '@components/ui/custom-toast';
 
 const {width} = Dimensions.get('window');
 
-const ForgetPassword = ({navigation}: RootScreenProps<Paths.ForgetPassword>) => {
+const ForgetPassword = ({
+  navigation,
+}: RootScreenProps<Paths.ForgetPassword>) => {
   const [email, setEmail] = useState('');
 
   const {
@@ -29,11 +32,11 @@ const ForgetPassword = ({navigation}: RootScreenProps<Paths.ForgetPassword>) => 
   } = useMutation({
     mutationFn: (values: {email: string}) => apiService.forgetPassword(values),
     onSuccess: res => {
-      Alert.alert('Success', res?.data?.message);
+      CustomToast.showSuccess('Success!', res?.data?.message);
     },
     onError: (err: any) => {
-      Alert.alert(
-        'Error',
+      CustomToast.showError(
+        'Error:',
         err.response?.data?.message || 'Something went wrong!',
       );
     },
@@ -42,8 +45,11 @@ const ForgetPassword = ({navigation}: RootScreenProps<Paths.ForgetPassword>) => 
   const handleForgetPassword = async () => {
     try {
       await forgetPasswordMutation({email});
-    } catch (error) {
-      console.log('forgetPasswordMutation error', error);
+    } catch (error:any) {
+      CustomToast.showError(
+        'Error:',
+        error.response?.data?.message || 'Something went wrong!',
+      );
     }
   };
   return (
@@ -85,7 +91,9 @@ const ForgetPassword = ({navigation}: RootScreenProps<Paths.ForgetPassword>) => 
             <View style={styles.buttonSpacing}>
               <CustomButton
                 title={
-                  forgetPasswordMutationPending ? 'Sending Email...' : 'Reset password'
+                  forgetPasswordMutationPending
+                    ? 'Sending Email...'
+                    : 'Reset password'
                 }
                 textVariant="primary"
                 onPress={handleForgetPassword}
@@ -93,8 +101,8 @@ const ForgetPassword = ({navigation}: RootScreenProps<Paths.ForgetPassword>) => 
                 isLoading={forgetPasswordMutationPending}
               />
             </View>
-            
-             <TouchableOpacity
+
+            <TouchableOpacity
               onPress={() => navigation.navigate(Paths.Login)}
               style={styles.linkSpacingForgetPass}>
               <CustomText
@@ -177,7 +185,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: 'center',
     color: '#FFFFFF',
-  }
+  },
 });
 
 export default ForgetPassword;

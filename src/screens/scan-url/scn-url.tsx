@@ -15,6 +15,7 @@ import ScanUrlResult from '@components/scan-url-result';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
 import {AlertContext} from '@context/alert-context';
+import { CustomToast } from '@components/ui/custom-toast';
 
 type ScanType = 'app' | 'website' | 'payment';
 
@@ -73,7 +74,8 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
       setOpenScanResult(true);
     },
     onError: (err: any) => {
-      Alert.alert('Error', err);
+      // Alert.alert('Error', err);
+      CustomToast.showError('Error', err)
     },
   });
 

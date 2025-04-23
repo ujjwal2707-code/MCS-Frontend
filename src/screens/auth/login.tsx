@@ -19,6 +19,7 @@ import CustomText from '@components/ui/custom-text';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from '@components/ui/custom-button';
 import InputField from '@components/ui/input-field';
+import {CustomToast} from '@components/ui/custom-toast';
 
 const {width} = Dimensions.get('window');
 
@@ -33,14 +34,14 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
     useMutation({
       mutationFn: (values: typeof form) => apiService.login(values),
       onSuccess: async res => {
-        console.log('Login Successfull:', res?.data);
         if (!res?.data?.varified) {
           navigation.navigate(Paths.VerifyEmail, {email: form.email});
         }
         if (res.data.token) {
           await setAuthToken(res.data.token);
         }
-        Alert.alert('Success', 'Login Successfull!');
+        CustomToast.showSuccess('Success!', 'Login Successfull!');
+        // Alert.alert('Success', 'Login Successfull!');
         // navigation.dispatch(
         //   CommonActions.reset({
         //     index: 0,
@@ -59,13 +60,13 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
         ) {
           navigation.navigate(Paths.VerifyEmail, {email: form.email});
         }
-        Alert.alert('Login Error:', errorMessage);
+        CustomToast.showError('Login Error:', errorMessage);
+        // Alert.alert('Login Error:', errorMessage);
       },
     });
 
   const onSignInPress = async () => {
     try {
-      console.log('Submitting Form:', form);
       await loginMutation(form);
     } catch (error) {
       // console.log('Signin Failed:', error);
@@ -78,9 +79,7 @@ const Login = ({navigation}: RootScreenProps<Paths.Login>) => {
         email: 'bigaja9282@flektel.com',
         password: '12345678',
       });
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
   return (
