@@ -1,6 +1,7 @@
 import React from 'react';
 import {Modal, StyleSheet, Text, View, Pressable} from 'react-native';
 import CustomText from './ui/custom-text';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface AlertBoxProps {
   isOpen: boolean;
@@ -24,7 +25,8 @@ const AlertBox = ({
       <View style={styles.modalContainer}>
         <View style={styles.contentContainer}>
           <Pressable style={styles.closeButton} onPress={onClose}>
-            <CustomText style={styles.closeButtonText}>×</CustomText>
+            {/* <CustomText style={styles.closeButtonText}>×</CustomText> */}
+            <Ionicons name="close-sharp" size={20} color="white" />
           </Pressable>
           {children}
           <Pressable
@@ -74,8 +76,8 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    top: -12,
-    left: -15,
+    top: -10,
+    right: -12,
     width: 30,
     height: 30,
     borderRadius: 20,
