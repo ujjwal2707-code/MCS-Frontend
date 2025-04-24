@@ -4,6 +4,7 @@ import {
   Image,
   Modal,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
@@ -11,6 +12,11 @@ import CustomText from './ui/custom-text';
 import {NativeModules} from 'react-native';
 import {InstalledApp} from 'types/types';
 import CustomButton from './ui/custom-button';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '@navigation/types';
+import {Paths} from '@navigation/paths';
+import {useNavigation} from '@react-navigation/native';
 
 const {width} = Dimensions.get('window');
 
@@ -68,7 +74,13 @@ const {AdsServices, SecurityCheckModule, HiddenAppsModule} = NativeModules as {
   };
 };
 
+type NavigationProps = NativeStackNavigationProp<
+  RootStackParamList,
+  Paths.Home
+>;
+
 const PhoneSecurityScan = () => {
+  const navigation = useNavigation<NavigationProps>();
   const [apps, setApps] = useState<InstalledApp[]>([]);
   const [adsServices, setAdsServices] = useState<AdsServiceInfo[]>([]);
   const [appsWithAds, setAppsWithAds] = useState<AppWithAds[]>([]);
@@ -211,40 +223,14 @@ const PhoneSecurityScan = () => {
       5 - (hiddenApps.length / maxHiddenApps) * 5,
     );
 
-    const weightedScore = (scoreAppsWithAds * 1 + scoreSecurity * 3 + scoreHiddenApps * 3) / 7;
+    const weightedScore =
+      (scoreAppsWithAds * 1 + scoreSecurity * 3 + scoreHiddenApps * 3) / 7;
 
     // Convert the weighted score (range 0 to 5) into a percentage (0 to 100)
     return (weightedScore / 5) * 100;
   }, [appsWithAds.length, securityDataCount, hiddenApps.length]);
 
-  // const averageRatingPercentage = useMemo(() => {
-  //   const maxAppsWithAds = 10;
-  //   const maxSecurityIssues = 10;
-  //   const maxHiddenApps = 10;
-
-  //   const scoreAppsWithAds = Math.max(
-  //     0,
-  //     5 - (appsWithAds.length / maxAppsWithAds) * 5,
-  //   );
-
-  //   const scoreSecurity = Math.max(
-  //     0,
-  //     5 * ((maxSecurityIssues - securityDataCount) / maxSecurityIssues),
-  //   );
-
-  //   const scoreHiddenApps = Math.max(
-  //     0,
-  //     5 - (hiddenApps.length / maxHiddenApps) * 5,
-  //   );
-
-  //   const avgScore = (scoreAppsWithAds + scoreSecurity + scoreHiddenApps) / 3;
-
-  //   // Convert the average score (0 to 5) into a percentage (0 to 100)
-  //   return (avgScore / 5) * 100;
-  // }, [appsWithAds.length, securityDataCount, hiddenApps.length]);
-
   // Handle modal visibility on button press
-
   const handleSecurePhonePress = () => {
     setModalVisible(true);
   };
@@ -254,7 +240,6 @@ const PhoneSecurityScan = () => {
   };
 
   const securityRating = averageRatingPercentage.toFixed(2);
-  // const securityRating = '10';
 
   return (
     <>
@@ -287,69 +272,107 @@ const PhoneSecurityScan = () => {
           <View style={styles.modalContent}>
             <View
               style={{
-                paddingVertical: 20,
+                paddingVertical: 10,
                 display: 'flex',
-                alignItems: 'center',
                 gap: 10,
               }}>
               <View
                 style={{
                   display: 'flex',
                   flexDirection: 'row',
-                  gap: 8,
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                 }}>
-                <Image
-                  source={require('@assets/icons/adwarescan.png')}
-                  style={styles.icon}
-                />
-                <CustomText
-                  variant="h5"
-                  color="#fff"
-                  fontSize={16}
-                  fontFamily="Montserrat-Bold">
-                  Apps with Ads: {appsWithAds.length}
-                </CustomText>
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 8,
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={require('@assets/icons/adwarescan.png')}
+                    style={styles.icon}
+                  />
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontSize={16}
+                    fontFamily="Montserrat-Bold">
+                    Apps with Ads: {appsWithAds.length}
+                  </CustomText>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate(Paths.AdwareScan)}>
+                  <Ionicons name="arrow-redo-sharp" size={30} color="white" />
+                </TouchableOpacity>
               </View>
 
               <View
                 style={{
                   display: 'flex',
                   flexDirection: 'row',
-                  gap: 4,
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                 }}>
-                <Image
-                  source={require('@assets/icons/securityadv.png')}
-                  style={styles.icon}
-                />
-                <CustomText
-                  variant="h5"
-                  color="#fff"
-                  fontSize={16}
-                  fontFamily="Montserrat-Bold">
-                  Misconfigured Setting: {securityDataCount}
-                </CustomText>
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 8,
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={require('@assets/icons/securityadv.png')}
+                    style={styles.icon}
+                  />
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontSize={16}
+                    fontFamily="Montserrat-Bold">
+                    Misconfigured Setting: {securityDataCount}
+                  </CustomText>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate(Paths.SecurityAdvisor)}>
+                  <Ionicons name="arrow-redo-sharp" size={30} color="white" />
+                </TouchableOpacity>
               </View>
 
               <View
                 style={{
                   display: 'flex',
                   flexDirection: 'row',
-                  gap: 8,
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                 }}>
-                <Image
-                  source={require('@assets/icons/hiddenapps.png')}
-                  style={styles.icon}
-                />
-                <CustomText
-                  variant="h5"
-                  color="#fff"
-                  fontSize={18}
-                  fontFamily="Montserrat-Bold">
-                  Hidden Apps: {hiddenApps.length}
-                </CustomText>
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 8,
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={require('@assets/icons/hiddenapps.png')}
+                    style={styles.icon}
+                  />
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontSize={18}
+                    fontFamily="Montserrat-Bold">
+                    Hidden Apps: {hiddenApps.length}
+                  </CustomText>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate(Paths.HiddenApps)}>
+                  <Ionicons name="arrow-redo-sharp" size={30} color="white" />
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -458,11 +481,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#2337A8',
+    backgroundColor: '#2337A8', // #2337A8
     padding: 20,
     borderRadius: 8,
-    width: '80%',
-    alignItems: 'center',
+    width: '90%',
+    // alignItems: 'center',
   },
   closeButton: {
     marginTop: 20,
