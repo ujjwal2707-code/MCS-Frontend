@@ -73,9 +73,10 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
           </View>
           <PhoneSecurityScan />
         </ImageBackground>
-        <ScrollView
+        <View
           style={styles.scrollView}
-          contentContainerStyle={styles.scrollContainer}>
+          // contentContainerStyle={styles.scrollContainer}
+          >
           <FlatList
             data={featureTilesData}
             keyExtractor={item => item.id}
@@ -95,7 +96,7 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
             )}
             scrollEnabled={false}
           />
-        </ScrollView>
+        </View>
       </LinearGradient>
     </SafeAreaView>
   );
