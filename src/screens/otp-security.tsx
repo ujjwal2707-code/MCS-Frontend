@@ -118,6 +118,16 @@ const OtpSecurity: React.FC = () => {
         />
       </View>
 
+      <View style={{marginTop: 15}}>
+        <CustomText
+          variant="h5"
+          fontFamily="Montserrat-Regular"
+          style={{color: '#FFFFFF', fontSize: 16, textAlign: 'center'}}>
+          Tap on each step to dial and disable the corresponding call forwarding
+          method.
+        </CustomText>
+      </View>
+
       <View style={styles.stepsContainer}>
         {Object.entries(stepsData[selectedValue]).map(([key, step]) => (
           <Pressable
