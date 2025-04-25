@@ -8,7 +8,8 @@ import HorizontalBarsChart from './bar-chart';
 import CustomButton from './ui/custom-button';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { CustomToast } from './ui/custom-toast';
+import {CustomToast} from './ui/custom-toast';
+import ScanAnalysis from './scan-analysis';
 
 interface ScanUrlResultProps {
   isOpen: boolean;
@@ -18,10 +19,13 @@ interface ScanUrlResultProps {
 
 const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
-  
+
   const copyToClipboard = (text: string) => {
     Clipboard.setString(text);
-    CustomToast.showInfo('Copied', 'The data has been copied to your clipboard!')
+    CustomToast.showInfo(
+      'Copied',
+      'The data has been copied to your clipboard!',
+    );
   };
 
   useEffect(() => {
@@ -125,15 +129,42 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
           </Card.Content>
         </Card>
 
-        {/* <CustomButton
-          title="Open Link"
-          onPress={() => {
-            if (scanResult) {
-              Linking.openURL(scanResult.meta.url_info.url);
-            }
-          }}
-          style={{marginTop: 20}}
-        /> */}
+        <View style={{flex: 1, marginTop: 16, width: '100%'}}>
+          <CustomText
+            variant="h4"
+            style={{color: '#fff', marginBottom: 12, textAlign: 'center'}}
+            fontFamily="Montserrat-Bold">
+            Security Analysis Details
+          </CustomText>
+
+          <ScanAnalysis
+            category="Malicious"
+            engines={scanResult.scanners.malicious}
+            count={scanResult.stats.malicious}
+            color="#ff4444"
+          />
+
+          <ScanAnalysis
+            category="Suspicious"
+            engines={scanResult.scanners.suspicious}
+            count={scanResult.stats.suspicious}
+            color="#ffbb33"
+          />
+
+          <ScanAnalysis
+            category="Harmless"
+            engines={scanResult.scanners.harmless}
+            count={scanResult.stats.harmless}
+            color="#00C851"
+          />
+
+          <ScanAnalysis
+            category="Undetected"
+            engines={scanResult.scanners.undetected}
+            count={scanResult.stats.undetected}
+            color="#33b5e5"
+          />
+        </View>
 
         {scanResult &&
           (scanResult.stats.harmless + scanResult.stats.undetected >=
@@ -145,7 +176,12 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
                   Linking.openURL(scanResult.meta.url_info.url);
                 }
               }}
-              style={{marginTop: 10, marginBottom: 10}}
+              style={{
+                marginTop: 10,
+                marginBottom: 10,
+                width: '50%',
+                alignSelf: 'center',
+              }}
             />
           ) : (
             <CustomButton
@@ -157,7 +193,12 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
                   Linking.openURL(scanResult.meta.url_info.url);
                 }
               }}
-              style={{marginTop: 10, marginBottom: 10}}
+              style={{
+                marginTop: 10,
+                marginBottom: 10,
+                width: '50%',
+                alignSelf: 'center',
+              }}
             />
           ))}
       </BottomSheetScrollView>
