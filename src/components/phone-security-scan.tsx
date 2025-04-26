@@ -1,4 +1,6 @@
 import {
+  ActivityIndicator,
+  Animated,
   Dimensions,
   DimensionValue,
   Image,
@@ -7,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import CustomText from './ui/custom-text';
 import {NativeModules} from 'react-native';
 import {InstalledApp} from 'types/types';
@@ -17,6 +19,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '@navigation/types';
 import {Paths} from '@navigation/paths';
 import {useNavigation} from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
 
 const {width} = Dimensions.get('window');
 
@@ -88,6 +91,28 @@ const PhoneSecurityScan = () => {
   const [securityDataCount, setSecurityDataCount] = useState(0);
   const [hiddenApps, setHiddenApps] = useState<AppInfo[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  const [displayRating, setDisplayRating] = useState(0);
+  const ratingAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.2,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
 
   // Fetch installed apps and ads services concurrently
   useEffect(() => {
@@ -230,16 +255,39 @@ const PhoneSecurityScan = () => {
     return (weightedScore / 5) * 100;
   }, [appsWithAds.length, securityDataCount, hiddenApps.length]);
 
-  // Handle modal visibility on button press
-  const handleSecurePhonePress = () => {
-    setModalVisible(true);
+  const handleSecurePhonePress = async () => {
+    setIsScanning(true);
+    setTimeout(async () => {
+      setIsScanning(false);
+      setModalVisible(true);
+    }, 3000);
   };
-
   const handleCloseModal = () => {
     setModalVisible(false);
   };
 
   const securityRating = averageRatingPercentage.toFixed(2);
+
+  useEffect(() => {
+    const ratingValue = parseFloat(securityRating);
+    
+    // Reset animation to 0 before starting
+    ratingAnim.setValue(0);
+    
+    Animated.timing(ratingAnim, {
+      toValue: ratingValue,
+      duration: 2000,
+      useNativeDriver: false,
+    }).start();
+  
+    const listener = ratingAnim.addListener(({ value }) => {
+      setDisplayRating(value);
+    });
+  
+    return () => {
+      ratingAnim.removeListener(listener);
+    };
+  }, [securityRating]);
 
   return (
     <>
@@ -248,23 +296,35 @@ const PhoneSecurityScan = () => {
           <CustomText variant="h7" color="white">
             You are
           </CustomText>
-          <CustomText
-            variant="h5"
-            fontFamily="Montserrat-SemiBold"
-            color="white">
-            {securityRating}% Secure
-          </CustomText>
-        </View>
+          <View style={styles.animatedTextContainer}>
+            <CustomText
+              variant="h5"
+              fontFamily="Montserrat-SemiBold"
+              color="white">
+              {displayRating.toFixed(2)}% Secure
+            </CustomText>
+          </View>
+          </View>
+
         <View style={styles.progressBarContainer}>
           <ProgressBar securityRating={securityRating} />
-          <Image
+          <Animated.Image
             source={require('@assets/images/secure.png')}
-            style={styles.shieldImage}
+            style={[
+              styles.shieldImage,
+              {
+                transform: [{scale: pulseAnim}],
+              },
+            ]}
           />
         </View>
       </View>
       <View style={styles.scanButton}>
-        <CustomButton title="SCAN" onPress={handleSecurePhonePress} />
+        {isScanning ? (
+          <ActivityIndicator size="large" color="#21e6c1" />
+        ) : (
+          <CustomButton title="SCAN" onPress={handleSecurePhonePress} />
+        )}
       </View>
 
       <Modal visible={modalVisible} animationType="slide" transparent>
@@ -396,20 +456,42 @@ interface ProgressBarProps {
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({securityRating}) => {
+  const fillAnim = useRef(new Animated.Value(0)).current;
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // Parse the securityRating if it is a string (remove '%' if present)
-  const ratingValue =
-    typeof securityRating === 'string'
-      ? parseFloat(securityRating.replace('%', ''))
+  useEffect(() => {
+    if (containerWidth <= 0) return; // Wait until width is measured
+    
+    const ratingValue = typeof securityRating === 'string' 
+      ? parseFloat(securityRating) 
       : securityRating;
-
-  const fillWidth: DimensionValue = `${(ratingValue / 100) * 85 + 10}%`;
+    
+    // Correct target width calculation
+    const targetWidth = (ratingValue / 100) * (containerWidth * 0.85);
+  
+    Animated.timing(fillAnim, {
+      toValue: targetWidth,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
+  }, [securityRating, containerWidth]);
 
   return (
-    <View style={styles.progressBar}>
+    <View
+      style={styles.progressBar}
+      onLayout={event => setContainerWidth(event.nativeEvent.layout.width)}>
       <View style={styles.progressBackground} />
-      <View style={[styles.progressFill, {width: fillWidth}]} />
+      <Animated.View style={[styles.progressFill, {width: fillAnim}]}>
+        <LinearGradient
+          colors={['#21e6c1', '#1acba3']}
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 0}}
+          style={StyleSheet.absoluteFill}
+        />
+      </Animated.View>
+      {/* <View style={styles.progressEndIndicator}>
+        <Ionicons name="shield-checkmark" size={20} color="#21e6c1" />
+      </View> */}
     </View>
   );
 };
@@ -428,6 +510,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 50,
   },
+  animatedTextContainer: {
+    position: 'relative',
+    marginTop: 4,
+  },
   progressBarContainer: {
     width: '80%',
     alignItems: 'center',
@@ -436,7 +522,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     width: '100%',
-    height: 8,
+    height: 12,
     position: 'relative',
     overflow: 'visible',
   },
@@ -452,9 +538,31 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: '15%',
     height: '100%',
-    backgroundColor: '#21e6c1', // #21e6c1
-    borderRadius: 4,
+    // borderRadius: 4,
     zIndex: 1,
+    shadowColor: '#21e6c1',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 5,
+    overflow: 'hidden',
+  },
+  progressEndIndicator: {
+    position: 'absolute',
+    right: -10,
+    top: -6,
+    zIndex: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 10,
+    padding: 2,
+  },
+  scanningContainer: {
+    alignItems: 'center',
+    padding: 20,
+  },
+  scanningText: {
+    marginTop: 10,
+    fontFamily: 'Montserrat-Medium',
   },
   shieldImage: {
     position: 'absolute',
