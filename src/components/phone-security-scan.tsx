@@ -97,6 +97,10 @@ const PhoneSecurityScan = () => {
   const [displayRating, setDisplayRating] = useState(0);
   const ratingAnim = useRef(new Animated.Value(0)).current;
 
+  const [isAppsLoaded, setIsAppsLoaded] = useState(false);
+  const [isSecurityLoaded, setIsSecurityLoaded] = useState(false);
+  const [isHiddenAppsLoaded, setIsHiddenAppsLoaded] = useState(false);
+
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -124,6 +128,7 @@ const PhoneSecurityScan = () => {
         ]);
         setApps(installedApps);
         setAdsServices(adsData);
+        setIsAppsLoaded(true);
       } catch (error) {
         console.error('Error fetching apps or ads services:', error);
       }
@@ -194,6 +199,7 @@ const PhoneSecurityScan = () => {
         showPassword,
         lockScreenNotifications,
       });
+      setIsSecurityLoaded(true);
     } catch (error) {
       console.error('Error checking security:', error);
     }
@@ -220,6 +226,7 @@ const PhoneSecurityScan = () => {
       try {
         const apps = await HiddenAppsModule.getHiddenApps();
         setHiddenApps(apps);
+        setIsHiddenAppsLoaded(true);
       } catch (error) {
         console.error('Error fetching hidden apps:', error);
       }
@@ -229,6 +236,9 @@ const PhoneSecurityScan = () => {
 
   // Compute the normalized scores and average rating in percentage
   const averageRatingPercentage = useMemo(() => {
+    if (!isAppsLoaded || !isSecurityLoaded || !isHiddenAppsLoaded) {
+      return 0;
+    }
     const maxAppsWithAds = 10;
     const maxSecurityIssues = 10;
     const maxHiddenApps = 10;
@@ -253,7 +263,14 @@ const PhoneSecurityScan = () => {
 
     // Convert the weighted score (range 0 to 5) into a percentage (0 to 100)
     return (weightedScore / 5) * 100;
-  }, [appsWithAds.length, securityDataCount, hiddenApps.length]);
+  }, [
+    appsWithAds.length,
+    securityDataCount,
+    hiddenApps.length,
+    isAppsLoaded,
+    isSecurityLoaded,
+    isHiddenAppsLoaded,
+  ]);
 
   const handleSecurePhonePress = async () => {
     setIsScanning(true);
@@ -269,25 +286,21 @@ const PhoneSecurityScan = () => {
   const securityRating = averageRatingPercentage.toFixed(2);
 
   useEffect(() => {
-    const ratingValue = parseFloat(securityRating);
-    
-    // Reset animation to 0 before starting
-    ratingAnim.setValue(0);
-    
-    Animated.timing(ratingAnim, {
-      toValue: ratingValue,
-      duration: 2000,
-      useNativeDriver: false,
-    }).start();
-  
-    const listener = ratingAnim.addListener(({ value }) => {
-      setDisplayRating(value);
-    });
-  
-    return () => {
-      ratingAnim.removeListener(listener);
-    };
-  }, [securityRating]);
+    if (averageRatingPercentage > 0) {
+      ratingAnim.setValue(0); // Reset animation to 0
+      Animated.timing(ratingAnim, {
+        toValue: averageRatingPercentage,
+        duration: 1500,
+        useNativeDriver: false,
+      }).start();
+      const listener = ratingAnim.addListener(({value}) => {
+        setDisplayRating(value);
+      });
+      return () => {
+        ratingAnim.removeListener(listener);
+      };
+    }
+  }, [averageRatingPercentage]);
 
   return (
     <>
@@ -304,7 +317,7 @@ const PhoneSecurityScan = () => {
               {displayRating.toFixed(2)}% Secure
             </CustomText>
           </View>
-          </View>
+        </View>
 
         <View style={styles.progressBarContainer}>
           <ProgressBar securityRating={securityRating} />
@@ -458,23 +471,23 @@ interface ProgressBarProps {
 const ProgressBar: React.FC<ProgressBarProps> = ({securityRating}) => {
   const fillAnim = useRef(new Animated.Value(0)).current;
   const [containerWidth, setContainerWidth] = useState(0);
+  const [targetValue, setTargetValue] = useState(0);
 
   useEffect(() => {
-    if (containerWidth <= 0) return; // Wait until width is measured
-    
-    const ratingValue = typeof securityRating === 'string' 
-      ? parseFloat(securityRating) 
-      : securityRating;
-    
-    // Correct target width calculation
-    const targetWidth = (ratingValue / 100) * (containerWidth * 0.85);
-  
+    const numericRating = parseFloat(String(securityRating));
+    setTargetValue(numericRating);
+  }, [securityRating]);
+
+  useEffect(() => {
+    if (!containerWidth || !targetValue) return;
+    const targetWidth = (targetValue / 100) * (containerWidth * 0.85);
+    fillAnim.setValue(0);
     Animated.timing(fillAnim, {
       toValue: targetWidth,
-      duration: 1000,
+      duration: 2000,
       useNativeDriver: false,
     }).start();
-  }, [securityRating, containerWidth]);
+  }, [targetValue, containerWidth]);
 
   return (
     <View
@@ -489,9 +502,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({securityRating}) => {
           style={StyleSheet.absoluteFill}
         />
       </Animated.View>
-      {/* <View style={styles.progressEndIndicator}>
-        <Ionicons name="shield-checkmark" size={20} color="#21e6c1" />
-      </View> */}
     </View>
   );
 };
