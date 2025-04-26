@@ -272,12 +272,75 @@ const PhoneSecurityScan = () => {
     isHiddenAppsLoaded,
   ]);
 
+  // const handleSecurePhonePress = async () => {
+  //   setIsScanning(true);
+  //   setTimeout(async () => {
+  //     setIsScanning(false);
+  //     setModalVisible(true);
+  //   }, 3000);
+  // };
   const handleSecurePhonePress = async () => {
     setIsScanning(true);
-    setTimeout(async () => {
+    try {
+      // Re-fetch all data sources
+      const [installedApps, adsData, hiddenAppsData] = await Promise.all([
+        AdsServices.getInstalledApps(),
+        AdsServices.getAdsServices(),
+        HiddenAppsModule.getHiddenApps(),
+      ]);
+      
+      // Update apps and ads services state
+      setApps(installedApps);
+      setAdsServices(adsData);
+      setIsAppsLoaded(true);
+  
+      // Update hidden apps state
+      setHiddenApps(hiddenAppsData);
+      setIsHiddenAppsLoaded(true);
+  
+      // Re-check security settings
+      const securityResults = await Promise.all([
+        SecurityCheckModule.isRooted(),
+        SecurityCheckModule.isUSBDebuggingEnabled(),
+        SecurityCheckModule.isBluetoothEnabled(),
+        SecurityCheckModule.isNFCEnabled(),
+        SecurityCheckModule.isPlayProtectEnabled(),
+        SecurityCheckModule.isLockScreenEnabled(),
+        SecurityCheckModule.isDeviceEncrypted(),
+        SecurityCheckModule.isDeveloperModeEnabled(),
+        SecurityCheckModule.isShowPasswordEnabled(),
+        SecurityCheckModule.isLockScreenNotificationsEnabled(),
+      ]);
+  
+      // Update security data state
+      setSecurityData({
+        rootStatus: securityResults[0],
+        usbDebugging: securityResults[1],
+        bluetooth: securityResults[2],
+        nfc: securityResults[3],
+        playProtect: securityResults[4],
+        lockScreen: securityResults[5],
+        encryption: securityResults[6],
+        devMode: securityResults[7],
+        showPassword: securityResults[8],
+        lockScreenNotifications: securityResults[9],
+      });
+      setIsSecurityLoaded(true);
+  
+      // Trigger animations by resetting and updating rating
+      ratingAnim.setValue(0);
+      Animated.timing(ratingAnim, {
+        toValue: averageRatingPercentage,
+        duration: 1500,
+        useNativeDriver: false,
+      }).start();
+  
+    } catch (error) {
+      console.error('Error during scan:', error);
+    } finally {
       setIsScanning(false);
       setModalVisible(true);
-    }, 3000);
+    }
   };
   const handleCloseModal = () => {
     setModalVisible(false);
