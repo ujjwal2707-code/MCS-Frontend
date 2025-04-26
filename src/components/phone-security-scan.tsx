@@ -101,6 +101,8 @@ const PhoneSecurityScan = () => {
   const [isSecurityLoaded, setIsSecurityLoaded] = useState(false);
   const [isHiddenAppsLoaded, setIsHiddenAppsLoaded] = useState(false);
 
+  const [animationResetTrigger, setAnimationResetTrigger] = useState(0);
+
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -262,7 +264,8 @@ const PhoneSecurityScan = () => {
       (scoreAppsWithAds * 1 + scoreSecurity * 3 + scoreHiddenApps * 3) / 7;
 
     // Convert the weighted score (range 0 to 5) into a percentage (0 to 100)
-    return (weightedScore / 5) * 100;
+    const percentage = (weightedScore / 5) * 100;
+    return Math.max(percentage, 20);
   }, [
     appsWithAds.length,
     securityDataCount,
@@ -288,16 +291,16 @@ const PhoneSecurityScan = () => {
         AdsServices.getAdsServices(),
         HiddenAppsModule.getHiddenApps(),
       ]);
-      
+
       // Update apps and ads services state
       setApps(installedApps);
       setAdsServices(adsData);
       setIsAppsLoaded(true);
-  
+
       // Update hidden apps state
       setHiddenApps(hiddenAppsData);
       setIsHiddenAppsLoaded(true);
-  
+
       // Re-check security settings
       const securityResults = await Promise.all([
         SecurityCheckModule.isRooted(),
@@ -311,7 +314,7 @@ const PhoneSecurityScan = () => {
         SecurityCheckModule.isShowPasswordEnabled(),
         SecurityCheckModule.isLockScreenNotificationsEnabled(),
       ]);
-  
+
       // Update security data state
       setSecurityData({
         rootStatus: securityResults[0],
@@ -326,15 +329,15 @@ const PhoneSecurityScan = () => {
         lockScreenNotifications: securityResults[9],
       });
       setIsSecurityLoaded(true);
-  
+
       // Trigger animations by resetting and updating rating
       ratingAnim.setValue(0);
+      setAnimationResetTrigger(prev => prev + 1);
       Animated.timing(ratingAnim, {
         toValue: averageRatingPercentage,
         duration: 1500,
         useNativeDriver: false,
       }).start();
-  
     } catch (error) {
       console.error('Error during scan:', error);
     } finally {
@@ -383,7 +386,10 @@ const PhoneSecurityScan = () => {
         </View>
 
         <View style={styles.progressBarContainer}>
-          <ProgressBar securityRating={securityRating} />
+          <ProgressBar
+            securityRating={securityRating}
+            resetTrigger={animationResetTrigger}
+          />
           <Animated.Image
             source={require('@assets/images/secure.png')}
             style={[
@@ -529,28 +535,30 @@ export default PhoneSecurityScan;
 
 interface ProgressBarProps {
   securityRating: number | string;
+  resetTrigger: number;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({securityRating}) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({
+  securityRating,
+  resetTrigger,
+}) => {
   const fillAnim = useRef(new Animated.Value(0)).current;
   const [containerWidth, setContainerWidth] = useState(0);
-  const [targetValue, setTargetValue] = useState(0);
 
   useEffect(() => {
     const numericRating = parseFloat(String(securityRating));
-    setTargetValue(numericRating);
-  }, [securityRating]);
+    if (!containerWidth) return;
 
-  useEffect(() => {
-    if (!containerWidth || !targetValue) return;
-    const targetWidth = (targetValue / 100) * (containerWidth * 0.85);
+    // Reset animation on every resetTrigger change
     fillAnim.setValue(0);
+    const targetWidth = (numericRating / 100) * (containerWidth * 0.85);
+
     Animated.timing(fillAnim, {
       toValue: targetWidth,
       duration: 2000,
       useNativeDriver: false,
     }).start();
-  }, [targetValue, containerWidth]);
+  }, [resetTrigger, containerWidth, securityRating]);
 
   return (
     <View
