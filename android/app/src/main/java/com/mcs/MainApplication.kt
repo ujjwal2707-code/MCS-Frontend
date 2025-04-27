@@ -84,6 +84,17 @@ class InstalledAppsThreatAnalysisPackage : ReactPackage {
     }
 }
 
+// Custom package to register DeviceSecurityModule
+class DeviceSecurityPackage : ReactPackage {
+    override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
+        return listOf(DeviceSecurityModule(reactContext))
+    }
+
+    override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
+        return emptyList()
+    }
+}
+
 
 class MainApplication : Application(), ReactApplication {
 
@@ -98,6 +109,7 @@ class MainApplication : Application(), ReactApplication {
           packages.add(InstalledAppsStatisticsPackage())
           packages.add(AdsServicesPackage())
           packages.add(InstalledAppsThreatAnalysisPackage())
+          packages.add(DeviceSecurityPackage())
           return packages
         }
 
