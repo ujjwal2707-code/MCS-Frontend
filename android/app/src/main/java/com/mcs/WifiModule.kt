@@ -71,46 +71,51 @@ class WifiModule(private val reactContext: ReactApplicationContext) :
 
     // New function: Get current connected WiFi network information
     @ReactMethod
-    fun getCurrentWifiInfo(promise: Promise) {
-        try {
-            val wifiInfo: WifiInfo = wifiManager.connectionInfo
-            if (wifiInfo.networkId == -1) {
-                promise.reject("ERROR", "No WiFi connection")
-                return
-            }
-
-            val currentSSID = wifiInfo.ssid.trim('"')
-            val currentBSSID = wifiInfo.bssid
-
-            // Try to match connected BSSID to ScanResults to get capabilities
-            val scanResults = wifiManager.scanResults
-            var capabilities = ""
-            for (result in scanResults) {
-                if (result.BSSID.equals(currentBSSID, ignoreCase = true)) {
-                    capabilities = result.capabilities
-                    break
-                }
-            }
-
-            val securityRating = calculateSecurityRating(capabilities)
-
-            val map: WritableMap = Arguments.createMap()
-            map.putString("SSID", currentSSID)
-            map.putString("BSSID", currentBSSID)
-            map.putInt("rssi", wifiInfo.rssi)
-            map.putInt("linkSpeedMbps", wifiInfo.linkSpeed)
-            map.putInt("frequencyMHz", wifiInfo.frequency)
-            map.putInt("networkId", wifiInfo.networkId)
-            map.putString("ipAddress", formatIpAddress(wifiInfo.ipAddress))
-            map.putString("capabilities", capabilities)
-            map.putInt("securityRating", securityRating)
-            map.putBoolean("isSecure", securityRating > 1)
-
-            promise.resolve(map)
-        } catch (e: Exception) {
-            promise.reject("ERROR", e)
+fun getCurrentWifiInfo(promise: Promise) {
+    try {
+        val wifiInfo: WifiInfo = wifiManager.connectionInfo
+        if (wifiInfo.networkId == -1) {
+            promise.reject("ERROR", "No WiFi connection")
+            return
         }
+
+        val currentSSID = wifiInfo.ssid.trim('"')
+        val currentBSSID = wifiInfo.bssid
+        val rssi = wifiInfo.rssi
+        val frequency = wifiInfo.frequency
+        val level = WifiManager.calculateSignalLevel(rssi, 5) // 5 levels (0-4)
+
+        // Try to match connected BSSID to ScanResults to get capabilities
+        val scanResults = wifiManager.scanResults
+        var capabilities = ""
+        for (result in scanResults) {
+            if (result.BSSID.equals(currentBSSID, ignoreCase = true)) {
+                capabilities = result.capabilities
+                break
+            }
+        }
+
+        val securityRating = calculateSecurityRating(capabilities)
+
+        val map: WritableMap = Arguments.createMap()
+        map.putString("SSID", currentSSID)
+        map.putString("BSSID", currentBSSID)
+        map.putInt("rssi", rssi)
+        map.putInt("level", level)
+        map.putInt("linkSpeedMbps", wifiInfo.linkSpeed)
+        map.putInt("frequency", frequency)
+        map.putInt("networkId", wifiInfo.networkId)
+        map.putString("ipAddress", formatIpAddress(wifiInfo.ipAddress))
+        map.putString("capabilities", capabilities)
+        map.putInt("securityRating", securityRating)
+        map.putBoolean("isSecure", securityRating > 1)
+
+        promise.resolve(map)
+    } catch (e: Exception) {
+        promise.reject("ERROR", e)
     }
+}
+
 
 
     private fun calculateSecurityRating(capabilities: String): Int {
