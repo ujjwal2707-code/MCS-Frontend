@@ -15,125 +15,132 @@ import {VirusTotalResponse} from '../../../types/types';
 import {fetchScanResults} from '../../../utils/fetch-scan-results';
 import {scanUrl} from '../../../utils/scan-url';
 import ScanUrlDetails from '../../components/scan-url-details';
+import {CustomToast} from '@components/ui/custom-toast';
 
 const ScanPaymentUrl = () => {
   const [url, setUrl] = useState('');
-    const [isValid, setIsValid] = useState(true);
-    const [loading, setLoading] = useState(false);
-  
-    const [urlDetails, setUrlDetails] = useState<VirusTotalResponse | null>(null);
-  
-    console.log(urlDetails);
-  
-    const handleUrlChange = (text: string) => {
-      setUrl(text);
-      setIsValid(isValidUrl(text));
-    };
-  
-    const handleScan = async () => {
-      console.log(url);
-      console.log(isValid);
-      
-      // if (!isValidUrl(url.trim())) {
-      //   Alert.alert(
-      //     'Error',
-      //     'Please enter a valid URL.(e.g., https://example.com,http://example.com)',
-      //   );
-      //   return;
-      // }
-      if (!url.trim()) {
-        Alert.alert('Error', 'Please enter a valid URL.');
-        return;
-      }
-  
-      setLoading(true);
-  
-      try {
-        const scanId = await scanUrl(url);
-        console.log('Scan ID:', scanId);
-  
-        let scanResults;
-        let retries = 10;
-        const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-  
-        do {
-          scanResults = await fetchScanResults(scanId);
-          console.log('API Status:', scanResults.data.attributes.status);
-  
-          if (scanResults.data.attributes.status === 'completed') {
-            setUrlDetails(scanResults);
-            break;
-          }
-  
-          await delay(2000); // Wait for 2 seconds before retrying
-          retries--;
-        } while (
-          scanResults.data.attributes.status !== 'completed' &&
-          retries > 0
-        );
-  
-        if (scanResults.data.attributes.status !== 'completed') {
-          Alert.alert(
-            'Error',
-            'Scan did not complete in time. Please try again later.',
-          );
+  const [isValid, setIsValid] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const [urlDetails, setUrlDetails] = useState<VirusTotalResponse | null>(null);
+
+  console.log(urlDetails);
+
+  const handleUrlChange = (text: string) => {
+    setUrl(text);
+    setIsValid(isValidUrl(text));
+  };
+
+  const handleScan = async () => {
+    console.log(url);
+    console.log(isValid);
+
+    // if (!isValidUrl(url.trim())) {
+    //   Alert.alert(
+    //     'Error',
+    //     'Please enter a valid URL.(e.g., https://example.com,http://example.com)',
+    //   );
+    //   return;
+    // }
+    if (!url.trim()) {
+      // Alert.alert('Error', 'Please enter a valid URL.');
+      CustomToast.showError('Error', 'Please enter a valid URL.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const scanId = await scanUrl(url);
+      console.log('Scan ID:', scanId);
+
+      let scanResults;
+      let retries = 10;
+      const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+      do {
+        scanResults = await fetchScanResults(scanId);
+        console.log('API Status:', scanResults.data.attributes.status);
+
+        if (scanResults.data.attributes.status === 'completed') {
+          setUrlDetails(scanResults);
+          break;
         }
-      } catch (error: any) {
-        Alert.alert('Error:', error.message);
-      } finally {
-        setLoading(false);
+
+        await delay(2000); // Wait for 2 seconds before retrying
+        retries--;
+      } while (
+        scanResults.data.attributes.status !== 'completed' &&
+        retries > 0
+      );
+
+      if (scanResults.data.attributes.status !== 'completed') {
+        // Alert.alert(
+        //   'Error',
+        //   'Scan did not complete in time. Please try again later.',
+        // );
+        CustomToast.showError(
+          'Error',
+          'Scan did not complete in time. Please try again later.',
+        );
       }
-    };
+    } catch (error: any) {
+      // Alert.alert('Error:', error.message);
+      CustomToast.showError('Error:', error.message)
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <View style={styles.container}>
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        style={styles.scrollView}>
-        {/* <Text style={styles.navText}>Data Breach</Text> */}
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          style={styles.scrollView}>
+          {/* <Text style={styles.navText}>Data Breach</Text> */}
 
-        <View style={styles.userContainer}>
-          <TextInput
-            style={styles.inputField}
-            placeholder="Enter a URL to scan or paste"
-            placeholderTextColor="#ccc"
-            keyboardType="email-address"
-            value={url}
-            onChangeText={handleUrlChange}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
+          <View style={styles.userContainer}>
+            <TextInput
+              style={styles.inputField}
+              placeholder="Enter a URL to scan or paste"
+              placeholderTextColor="#ccc"
+              keyboardType="email-address"
+              value={url}
+              onChangeText={handleUrlChange}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
 
-          <TouchableOpacity
-            style={[
-              styles.button,
-              (!url || loading) && styles.disabledButton,
-            ]}
-            onPress={handleScan}
-            disabled={!url || loading}>
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Scan</Text>
-            )}
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                (!url || loading) && styles.disabledButton,
+              ]}
+              onPress={handleScan}
+              disabled={!url || loading}>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Scan</Text>
+              )}
+            </TouchableOpacity>
+          </View>
 
-        {urlDetails && (
-          <ScanUrlDetails
-            stats={urlDetails?.data.attributes.stats}
-            url={urlDetails.meta.url_info.url}
-          />
-        )}
-      </ScrollView>
-    </SafeAreaView>
-  </View>
-  )
-}
+          {urlDetails && (
+            <ScanUrlDetails
+              stats={urlDetails?.data.attributes.stats}
+              url={urlDetails.meta.url_info.url}
+            />
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </View>
+  );
+};
 
-export default ScanPaymentUrl
+export default ScanPaymentUrl;
 
 const styles = StyleSheet.create({
   container: {

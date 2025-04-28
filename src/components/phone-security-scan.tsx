@@ -1,16 +1,25 @@
 import {
+  ActivityIndicator,
+  Animated,
   Dimensions,
   DimensionValue,
   Image,
   Modal,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import CustomText from './ui/custom-text';
 import {NativeModules} from 'react-native';
 import {InstalledApp} from 'types/types';
 import CustomButton from './ui/custom-button';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '@navigation/types';
+import {Paths} from '@navigation/paths';
+import {useNavigation} from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
 
 const {width} = Dimensions.get('window');
 
@@ -68,7 +77,13 @@ const {AdsServices, SecurityCheckModule, HiddenAppsModule} = NativeModules as {
   };
 };
 
+type NavigationProps = NativeStackNavigationProp<
+  RootStackParamList,
+  Paths.Home
+>;
+
 const PhoneSecurityScan = () => {
+  const navigation = useNavigation<NavigationProps>();
   const [apps, setApps] = useState<InstalledApp[]>([]);
   const [adsServices, setAdsServices] = useState<AdsServiceInfo[]>([]);
   const [appsWithAds, setAppsWithAds] = useState<AppWithAds[]>([]);
@@ -76,6 +91,34 @@ const PhoneSecurityScan = () => {
   const [securityDataCount, setSecurityDataCount] = useState(0);
   const [hiddenApps, setHiddenApps] = useState<AppInfo[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  const [displayRating, setDisplayRating] = useState(0);
+  const ratingAnim = useRef(new Animated.Value(0)).current;
+
+  const [isAppsLoaded, setIsAppsLoaded] = useState(false);
+  const [isSecurityLoaded, setIsSecurityLoaded] = useState(false);
+  const [isHiddenAppsLoaded, setIsHiddenAppsLoaded] = useState(false);
+
+  const [animationResetTrigger, setAnimationResetTrigger] = useState(0);
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.2,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
 
   // Fetch installed apps and ads services concurrently
   useEffect(() => {
@@ -87,6 +130,7 @@ const PhoneSecurityScan = () => {
         ]);
         setApps(installedApps);
         setAdsServices(adsData);
+        setIsAppsLoaded(true);
       } catch (error) {
         console.error('Error fetching apps or ads services:', error);
       }
@@ -157,6 +201,7 @@ const PhoneSecurityScan = () => {
         showPassword,
         lockScreenNotifications,
       });
+      setIsSecurityLoaded(true);
     } catch (error) {
       console.error('Error checking security:', error);
     }
@@ -183,6 +228,7 @@ const PhoneSecurityScan = () => {
       try {
         const apps = await HiddenAppsModule.getHiddenApps();
         setHiddenApps(apps);
+        setIsHiddenAppsLoaded(true);
       } catch (error) {
         console.error('Error fetching hidden apps:', error);
       }
@@ -192,6 +238,9 @@ const PhoneSecurityScan = () => {
 
   // Compute the normalized scores and average rating in percentage
   const averageRatingPercentage = useMemo(() => {
+    if (!isAppsLoaded || !isSecurityLoaded || !isHiddenAppsLoaded) {
+      return 0;
+    }
     const maxAppsWithAds = 10;
     const maxSecurityIssues = 10;
     const maxHiddenApps = 10;
@@ -211,49 +260,113 @@ const PhoneSecurityScan = () => {
       5 - (hiddenApps.length / maxHiddenApps) * 5,
     );
 
-    const weightedScore = (scoreAppsWithAds * 1 + scoreSecurity * 3 + scoreHiddenApps * 3) / 7;
+    const weightedScore =
+      (scoreAppsWithAds * 1 + scoreSecurity * 3 + scoreHiddenApps * 3) / 7;
 
     // Convert the weighted score (range 0 to 5) into a percentage (0 to 100)
-    return (weightedScore / 5) * 100;
-  }, [appsWithAds.length, securityDataCount, hiddenApps.length]);
+    const percentage = (weightedScore / 5) * 100;
+    return Math.max(percentage, 20);
+  }, [
+    appsWithAds.length,
+    securityDataCount,
+    hiddenApps.length,
+    isAppsLoaded,
+    isSecurityLoaded,
+    isHiddenAppsLoaded,
+  ]);
 
-  // const averageRatingPercentage = useMemo(() => {
-  //   const maxAppsWithAds = 10;
-  //   const maxSecurityIssues = 10;
-  //   const maxHiddenApps = 10;
+  // const handleSecurePhonePress = async () => {
+  //   setIsScanning(true);
+  //   setTimeout(async () => {
+  //     setIsScanning(false);
+  //     setModalVisible(true);
+  //   }, 3000);
+  // };
+  const handleSecurePhonePress = async () => {
+    setIsScanning(true);
+    try {
+      // Re-fetch all data sources
+      const [installedApps, adsData, hiddenAppsData] = await Promise.all([
+        AdsServices.getInstalledApps(),
+        AdsServices.getAdsServices(),
+        HiddenAppsModule.getHiddenApps(),
+      ]);
 
-  //   const scoreAppsWithAds = Math.max(
-  //     0,
-  //     5 - (appsWithAds.length / maxAppsWithAds) * 5,
-  //   );
+      // Update apps and ads services state
+      setApps(installedApps);
+      setAdsServices(adsData);
+      setIsAppsLoaded(true);
 
-  //   const scoreSecurity = Math.max(
-  //     0,
-  //     5 * ((maxSecurityIssues - securityDataCount) / maxSecurityIssues),
-  //   );
+      // Update hidden apps state
+      setHiddenApps(hiddenAppsData);
+      setIsHiddenAppsLoaded(true);
 
-  //   const scoreHiddenApps = Math.max(
-  //     0,
-  //     5 - (hiddenApps.length / maxHiddenApps) * 5,
-  //   );
+      // Re-check security settings
+      const securityResults = await Promise.all([
+        SecurityCheckModule.isRooted(),
+        SecurityCheckModule.isUSBDebuggingEnabled(),
+        SecurityCheckModule.isBluetoothEnabled(),
+        SecurityCheckModule.isNFCEnabled(),
+        SecurityCheckModule.isPlayProtectEnabled(),
+        SecurityCheckModule.isLockScreenEnabled(),
+        SecurityCheckModule.isDeviceEncrypted(),
+        SecurityCheckModule.isDeveloperModeEnabled(),
+        SecurityCheckModule.isShowPasswordEnabled(),
+        SecurityCheckModule.isLockScreenNotificationsEnabled(),
+      ]);
 
-  //   const avgScore = (scoreAppsWithAds + scoreSecurity + scoreHiddenApps) / 3;
+      // Update security data state
+      setSecurityData({
+        rootStatus: securityResults[0],
+        usbDebugging: securityResults[1],
+        bluetooth: securityResults[2],
+        nfc: securityResults[3],
+        playProtect: securityResults[4],
+        lockScreen: securityResults[5],
+        encryption: securityResults[6],
+        devMode: securityResults[7],
+        showPassword: securityResults[8],
+        lockScreenNotifications: securityResults[9],
+      });
+      setIsSecurityLoaded(true);
 
-  //   // Convert the average score (0 to 5) into a percentage (0 to 100)
-  //   return (avgScore / 5) * 100;
-  // }, [appsWithAds.length, securityDataCount, hiddenApps.length]);
-
-  // Handle modal visibility on button press
-
-  const handleSecurePhonePress = () => {
-    setModalVisible(true);
+      // Trigger animations by resetting and updating rating
+      ratingAnim.setValue(0);
+      setAnimationResetTrigger(prev => prev + 1);
+      Animated.timing(ratingAnim, {
+        toValue: averageRatingPercentage,
+        duration: 1500,
+        useNativeDriver: false,
+      }).start();
+    } catch (error) {
+      console.error('Error during scan:', error);
+    } finally {
+      setIsScanning(false);
+      setModalVisible(true);
+    }
   };
-
   const handleCloseModal = () => {
     setModalVisible(false);
   };
 
   const securityRating = averageRatingPercentage.toFixed(2);
+
+  useEffect(() => {
+    if (averageRatingPercentage > 0) {
+      ratingAnim.setValue(0); // Reset animation to 0
+      Animated.timing(ratingAnim, {
+        toValue: averageRatingPercentage,
+        duration: 1500,
+        useNativeDriver: false,
+      }).start();
+      const listener = ratingAnim.addListener(({value}) => {
+        setDisplayRating(value);
+      });
+      return () => {
+        ratingAnim.removeListener(listener);
+      };
+    }
+  }, [averageRatingPercentage]);
 
   return (
     <>
@@ -262,23 +375,38 @@ const PhoneSecurityScan = () => {
           <CustomText variant="h7" color="white">
             You are
           </CustomText>
-          <CustomText
-            variant="h5"
-            fontFamily="Montserrat-SemiBold"
-            color="white">
-            {securityRating}% Secure
-          </CustomText>
+          <View style={styles.animatedTextContainer}>
+            <CustomText
+              variant="h5"
+              fontFamily="Montserrat-SemiBold"
+              color="white">
+              {displayRating.toFixed(2)}% Secure
+            </CustomText>
+          </View>
         </View>
+
         <View style={styles.progressBarContainer}>
-          <ProgressBar securityRating={securityRating} />
-          <Image
+          <ProgressBar
+            securityRating={securityRating}
+            resetTrigger={animationResetTrigger}
+          />
+          <Animated.Image
             source={require('@assets/images/secure.png')}
-            style={styles.shieldImage}
+            style={[
+              styles.shieldImage,
+              {
+                transform: [{scale: pulseAnim}],
+              },
+            ]}
           />
         </View>
       </View>
       <View style={styles.scanButton}>
-        <CustomButton title="SCAN" onPress={handleSecurePhonePress} />
+        {isScanning ? (
+          <ActivityIndicator size="large" color="#21e6c1" />
+        ) : (
+          <CustomButton title="SCAN" onPress={handleSecurePhonePress} />
+        )}
       </View>
 
       <Modal visible={modalVisible} animationType="slide" transparent>
@@ -286,69 +414,107 @@ const PhoneSecurityScan = () => {
           <View style={styles.modalContent}>
             <View
               style={{
-                paddingVertical: 20,
+                paddingVertical: 10,
                 display: 'flex',
-                alignItems: 'center',
                 gap: 10,
               }}>
               <View
                 style={{
                   display: 'flex',
                   flexDirection: 'row',
-                  gap: 8,
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                 }}>
-                <Image
-                  source={require('@assets/icons/adwarescan.png')}
-                  style={styles.icon}
-                />
-                <CustomText
-                  variant="h5"
-                  color="#fff"
-                  fontSize={16}
-                  fontFamily="Montserrat-Bold">
-                  Apps with Ads: {appsWithAds.length}
-                </CustomText>
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 8,
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={require('@assets/icons/adwarescan.png')}
+                    style={styles.icon}
+                  />
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontSize={16}
+                    fontFamily="Montserrat-Bold">
+                    Apps with Ads: {appsWithAds.length}
+                  </CustomText>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate(Paths.AdwareScan)}>
+                  <Ionicons name="arrow-redo-sharp" size={30} color="white" />
+                </TouchableOpacity>
               </View>
 
               <View
                 style={{
                   display: 'flex',
                   flexDirection: 'row',
-                  gap: 4,
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                 }}>
-                <Image
-                  source={require('@assets/icons/securityadv.png')}
-                  style={styles.icon}
-                />
-                <CustomText
-                  variant="h5"
-                  color="#fff"
-                  fontSize={16}
-                  fontFamily="Montserrat-Bold">
-                  Misconfigured Setting: {securityDataCount}
-                </CustomText>
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 8,
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={require('@assets/icons/securityadv.png')}
+                    style={styles.icon}
+                  />
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontSize={16}
+                    fontFamily="Montserrat-Bold">
+                    Misconfigured Setting: {securityDataCount}
+                  </CustomText>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate(Paths.SecurityAdvisor)}>
+                  <Ionicons name="arrow-redo-sharp" size={30} color="white" />
+                </TouchableOpacity>
               </View>
 
               <View
                 style={{
                   display: 'flex',
                   flexDirection: 'row',
-                  gap: 8,
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                 }}>
-                <Image
-                  source={require('@assets/icons/hiddenapps.png')}
-                  style={styles.icon}
-                />
-                <CustomText
-                  variant="h5"
-                  color="#fff"
-                  fontSize={18}
-                  fontFamily="Montserrat-Bold">
-                  Hidden Apps: {hiddenApps.length}
-                </CustomText>
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 8,
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={require('@assets/icons/hiddenapps.png')}
+                    style={styles.icon}
+                  />
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontSize={18}
+                    fontFamily="Montserrat-Bold">
+                    Hidden Apps: {hiddenApps.length}
+                  </CustomText>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate(Paths.HiddenApps)}>
+                  <Ionicons name="arrow-redo-sharp" size={30} color="white" />
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -369,23 +535,44 @@ export default PhoneSecurityScan;
 
 interface ProgressBarProps {
   securityRating: number | string;
+  resetTrigger: number;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({securityRating}) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({
+  securityRating,
+  resetTrigger,
+}) => {
+  const fillAnim = useRef(new Animated.Value(0)).current;
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // Parse the securityRating if it is a string (remove '%' if present)
-  const ratingValue =
-    typeof securityRating === 'string'
-      ? parseFloat(securityRating.replace('%', ''))
-      : securityRating;
+  useEffect(() => {
+    const numericRating = parseFloat(String(securityRating));
+    if (!containerWidth) return;
 
-  const fillWidth: DimensionValue = `${(ratingValue / 100) * 85 + 10}%`;
+    // Reset animation on every resetTrigger change
+    fillAnim.setValue(0);
+    const targetWidth = (numericRating / 100) * (containerWidth * 0.85);
+
+    Animated.timing(fillAnim, {
+      toValue: targetWidth,
+      duration: 2000,
+      useNativeDriver: false,
+    }).start();
+  }, [resetTrigger, containerWidth, securityRating]);
 
   return (
-    <View style={styles.progressBar}>
+    <View
+      style={styles.progressBar}
+      onLayout={event => setContainerWidth(event.nativeEvent.layout.width)}>
       <View style={styles.progressBackground} />
-      <View style={[styles.progressFill, {width: fillWidth}]} />
+      <Animated.View style={[styles.progressFill, {width: fillAnim}]}>
+        <LinearGradient
+          colors={['#21e6c1', '#1acba3']}
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 0}}
+          style={StyleSheet.absoluteFill}
+        />
+      </Animated.View>
     </View>
   );
 };
@@ -404,6 +591,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 50,
   },
+  animatedTextContainer: {
+    position: 'relative',
+    marginTop: 4,
+  },
   progressBarContainer: {
     width: '80%',
     alignItems: 'center',
@@ -412,7 +603,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     width: '100%',
-    height: 8,
+    height: 12,
     position: 'relative',
     overflow: 'visible',
   },
@@ -428,9 +619,31 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: '15%',
     height: '100%',
-    backgroundColor: '#21e6c1', // #21e6c1
-    borderRadius: 4,
+    // borderRadius: 4,
     zIndex: 1,
+    shadowColor: '#21e6c1',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 5,
+    overflow: 'hidden',
+  },
+  progressEndIndicator: {
+    position: 'absolute',
+    right: -10,
+    top: -6,
+    zIndex: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 10,
+    padding: 2,
+  },
+  scanningContainer: {
+    alignItems: 'center',
+    padding: 20,
+  },
+  scanningText: {
+    marginTop: 10,
+    fontFamily: 'Montserrat-Medium',
   },
   shieldImage: {
     position: 'absolute',
@@ -457,11 +670,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#2337A8',
+    backgroundColor: '#2337A8', // #2337A8
     padding: 20,
     borderRadius: 8,
-    width: '80%',
-    alignItems: 'center',
+    width: '90%',
+    // alignItems: 'center',
   },
   closeButton: {
     marginTop: 20,

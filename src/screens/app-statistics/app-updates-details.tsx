@@ -1,4 +1,11 @@
-import {Image, StyleSheet, Text, View} from 'react-native';
+import {
+  Image,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React from 'react';
 import {RootScreenProps} from '@navigation/types';
 import {Paths} from '@navigation/paths';
@@ -7,6 +14,8 @@ import ScreenHeader from '@components/screen-header';
 import {Card, Divider} from 'react-native-paper';
 import CustomText from '@components/ui/custom-text';
 import BackBtn from '@components/back-btn';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import CustomButton from '@components/ui/custom-button';
 
 const convertDateString = (dateStr: string): string => {
   // Optional: Replace space with "T" if necessary
@@ -27,6 +36,17 @@ const AppUpdatesDetails = ({
 }: RootScreenProps<Paths.AppUpdatesDetails>) => {
   const {app} = route.params;
   console.log(app);
+
+  const handlePlayStore = (packageName: string) => {
+    const marketUrl = `market://details?id=${packageName}`;
+
+    // First, try to open the Play Store app
+    Linking.openURL(marketUrl).catch(err => {
+      console.log('Could not open Play Store app, falling back to browser');
+      const webUrl = `https://play.google.com/store/apps/details?id=${packageName}`;
+      Linking.openURL(webUrl);
+    });
+  };
   return (
     <ScreenLayout>
       <ScreenHeader name={app.name} />
@@ -72,7 +92,18 @@ const AppUpdatesDetails = ({
               Version: {app.version}
             </CustomText>
 
-            {app.isUpToDate ? (
+            <CustomButton
+              title="Check For Update"
+              bgVariant="primary"
+              textVariant="primary"
+              IconRight={() => (
+                <Ionicons name="logo-google-playstore" size={24} color="blue" />
+              )}
+              onPress={() => handlePlayStore(app.packageName)}
+              style={{marginTop: 10}}
+            />
+
+            {/* {app.isUpToDate ? (
               <CustomText
                 variant="h5"
                 fontFamily="Montserrat-Medium"
@@ -86,7 +117,7 @@ const AppUpdatesDetails = ({
                 color="#fff">
                 App is not up to date.
               </CustomText>
-            )}
+            )} */}
           </View>
         </Card.Content>
       </Card>
@@ -121,5 +152,12 @@ const styles = StyleSheet.create({
     height: 1,
     marginVertical: 8,
     marginHorizontal: 0,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  playStoreButton: {
+    marginRight: 10, // Space between button and chevron
   },
 });

@@ -225,6 +225,7 @@ const SecurityDetails = ({route}: RootScreenProps<Paths.SecurityDetails>) => {
         {detail.buttonLabel && (
           <CustomButton
             bgVariant="secondary"
+            textVariant='secondary'
             title={detail.buttonLabel}
             onPress={handleSystemSettingsPress}
             style={{marginTop: 20}}

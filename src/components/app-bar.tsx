@@ -85,10 +85,10 @@ const AppBar = ({username}: AppBarProps) => {
 
         <View style={styles.actions}>
           {/* <Bell color="white" size={20} /> */}
-          <Image
+          {/* <Image
             source={require('@assets/images/notification.png')}
             style={styles.notifyImage}
-          />
+          /> */}
           <TouchableOpacity
             onPress={handleSOSPress}
             style={styles.sosContainer}>

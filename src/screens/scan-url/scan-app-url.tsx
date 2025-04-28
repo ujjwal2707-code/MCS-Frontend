@@ -15,6 +15,7 @@ import {VirusTotalResponse} from '../../../types/types';
 import {fetchScanResults} from '../../../utils/fetch-scan-results';
 import {scanUrl} from '../../../utils/scan-url';
 import ScanUrlDetails from '../../components/scan-url-details';
+import { CustomToast } from '@components/ui/custom-toast';
 
 const ScanAppUrl = () => {
   const [url, setUrl] = useState('');
@@ -35,14 +36,15 @@ const ScanAppUrl = () => {
       console.log(isValid);
       
       if (!isValidUrl(url.trim())) {
-        Alert.alert(
-          'Error',
-          'Please enter a valid URL.(e.g., https://example.com,http://example.com)',
-        );
+        // Alert.alert(
+        //   'Error',
+        //   'Please enter a valid URL.(e.g., https://example.com,http://example.com)',
+        // );
+        CustomToast.showError('Error','Please enter a valid URL.')
         return;
       }
       if (!url.trim()) {
-        Alert.alert('Error', 'Please enter a valid URL.');
+        CustomToast.showError('Error','Please enter a valid URL.')
         return;
       }
   

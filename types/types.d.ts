@@ -7,7 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export interface FeatureTileType {
   id: string;
-  icon?: IconNameReact.ComponentProps<typeof Ionicons>["name"];
+  icon?: IconNameReact.ComponentProps<typeof Ionicons>['name'];
   image?: ImageSourcePropType;
   label: string;
   route: NoParamsRoutes;
@@ -69,6 +69,13 @@ export interface ScanURLResult {
       id: string;
       url: string;
     };
+  };
+  scanners: {
+    malicious: string[];
+    suspicious: string[];
+    undetected: string[];
+    harmless: string[];
+    timeout: string[];
   };
 }
 

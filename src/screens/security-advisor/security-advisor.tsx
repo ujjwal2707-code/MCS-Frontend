@@ -177,15 +177,18 @@ const SecurityAdvisor = ({
         <CustomText variant="h5" color="#fff">
           {item.label}
         </CustomText>
+        <CustomText
+          fontFamily="Montserrat-Bold"
+          variant="h5"
+          style={[
+            styles.statusText,
+            item.enabled ? styles.greenStatus : styles.redStatus,
+          ]}>
+          {item.enabled ? 'Enabled' : 'Disabled'}
+        </CustomText>
       </View>
-      <CustomText
-        fontFamily="Montserrat-Bold"
-        style={[
-          styles.statusText,
-          item.enabled ? styles.greenStatus : styles.redStatus,
-        ]}>
-        {item.enabled ? 'Enabled' : 'Disabled'}
-      </CustomText>
+
+      <Ionicons name="chevron-forward-sharp" size={30} color="white" />
     </TouchableOpacity>
   );
 

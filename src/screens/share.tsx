@@ -7,13 +7,15 @@ import CustomText from '@components/ui/custom-text';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Clipboard from '@react-native-clipboard/clipboard';
 import BackBtn from '@components/back-btn';
+import { CustomToast } from '@components/ui/custom-toast';
 
 const Share = () => {
   const sharableLink = 'www.google.com';
 
   const copyToClipboard = (text: string) => {
     Clipboard.setString(text);
-    Alert.alert('Copied', 'The URL has been copied to your clipboard!');
+    // Alert.alert('Copied', 'The URL has been copied to your clipboard!');
+    CustomToast.showInfo('Copied', 'The data has been copied to your clipboard!')
   };
   return (
     <ScreenLayout>

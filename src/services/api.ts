@@ -19,10 +19,8 @@ export class Api {
       return await request();
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('API Error:', error.response?.data || error.message);
         throw new Error(error.response?.data?.message || 'API request failed.');
       } else {
-        console.error('Unexpected Error:', error);
         throw new Error('An unexpected error occurred.');
       }
     }

@@ -6,6 +6,7 @@ import {
   Alert,
   Linking,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import {
   Camera,
@@ -33,6 +34,8 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
 import {AlertContext} from '@context/alert-context';
+import {CustomToast} from '@components/ui/custom-toast';
+import ScanAnalysis from '@components/scan-analysis';
 
 enum QRTypeState {
   PaymentLink = 'Payment Link',
@@ -222,7 +225,8 @@ const ScanQRResult = ({
         setScanUrlDetails(res.data);
       },
       onError: (err: any) => {
-        Alert.alert('Error', err);
+        // Alert.alert('Error', err);
+        CustomToast.showError('Error', err);
       },
     });
 
@@ -234,7 +238,11 @@ const ScanQRResult = ({
 
   const copyToClipboard = (text: string) => {
     Clipboard.setString(text);
-    Alert.alert('Copied', 'The data has been copied to your clipboard!');
+    // Alert.alert('Copied', 'The data has been copied to your clipboard!');
+    CustomToast.showInfo(
+      'Copied',
+      'The data has been copied to your clipboard!',
+    );
   };
 
   useEffect(() => {
@@ -244,6 +252,65 @@ const ScanQRResult = ({
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  // const ScannerCategorySection = ({
+  //   category,
+  //   engines,
+  //   count,
+  //   color,
+  // }: {
+  //   category: string;
+  //   engines: string[];
+  //   count: number;
+  //   color: string;
+  // }) => {
+  //   const isExpanded =
+  //     expandedCategories[
+  //       category.toLowerCase() as keyof typeof expandedCategories
+  //     ];
+
+  //   return (
+  //     <Card style={[styles.categoryCard, {backgroundColor: color}]}>
+  //       <TouchableOpacity
+  //         onPress={() =>
+  //           toggleCategory(
+  //             category.toLowerCase() as keyof typeof expandedCategories,
+  //           )
+  //         }
+  //         style={styles.categoryHeader}>
+  //         <View style={styles.categoryTitle}>
+  //           <CustomText variant="h5" fontFamily="Montserrat-Bold">
+  //             {category} ({count})
+  //           </CustomText>
+  //           {/* <MaterialIcons
+  //             name={isExpanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
+  //             size={24}
+  //             color="#fff"
+  //           /> */}
+  //         </View>
+  //       </TouchableOpacity>
+
+  //       {isExpanded && (
+  //         <ScrollView
+  //           style={styles.engineScrollView}
+  //           nestedScrollEnabled={true}
+  //           showsVerticalScrollIndicator={false}>
+  //           <View style={styles.engineList}>
+  //             {engines.map((engine, index) => (
+  //               <View key={index} style={styles.engineItem}>
+  //                 <CustomText variant="h6" color="#fff">
+  //                   {engine}
+  //                 </CustomText>
+  //               </View>
+  //             ))}
+  //           </View>
+  //         </ScrollView>
+  //       )}
+
+  //     </Card>
+  //   );
+  // };
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -387,6 +454,45 @@ const ScanQRResult = ({
               </Card.Content>
             </Card>
 
+            {/** Scanners */}
+
+            <View style={{flex: 1, marginTop: 16, width: '100%'}}>
+              <CustomText
+                variant="h4"
+                style={{color: '#fff', marginBottom: 12, textAlign: 'center'}}
+                fontFamily="Montserrat-Bold">
+                Security Analysis Details
+              </CustomText>
+
+              <ScanAnalysis
+                category="Malicious"
+                engines={scanUrlDetails.scanners.malicious}
+                count={scanUrlDetails.stats.malicious}
+                color="#ff4444"
+              />
+
+              <ScanAnalysis
+                category="Suspicious"
+                engines={scanUrlDetails.scanners.suspicious}
+                count={scanUrlDetails.stats.suspicious}
+                color="#ffbb33"
+              />
+
+              <ScanAnalysis
+                category="Harmless"
+                engines={scanUrlDetails.scanners.harmless}
+                count={scanUrlDetails.stats.harmless}
+                color="#00C851"
+              />
+
+              <ScanAnalysis
+                category="Undetected"
+                engines={scanUrlDetails.scanners.undetected}
+                count={scanUrlDetails.stats.undetected}
+                color="#33b5e5"
+              />
+            </View>
+
             {scanUrlDetails &&
               (scanUrlDetails.stats.harmless +
                 scanUrlDetails.stats.undetected >=
@@ -400,7 +506,7 @@ const ScanQRResult = ({
                       Linking.openURL(scanUrlDetails.meta.url_info.url);
                     }
                   }}
-                  style={{marginTop: 10, marginBottom: 10}}
+                  style={{marginTop: 10, marginBottom: 10,width: '50%', alignSelf: 'center'}}
                 />
               ) : (
                 <CustomButton
@@ -412,7 +518,7 @@ const ScanQRResult = ({
                       Linking.openURL(scanUrlDetails.meta.url_info.url);
                     }
                   }}
-                  style={{marginTop: 10, marginBottom: 10}}
+                  style={{marginTop: 10, marginBottom: 10,width: '50%', alignSelf: 'center'}}
                 />
               ))}
           </>

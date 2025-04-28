@@ -17,6 +17,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomText from '@components/ui/custom-text';
 import InputField from '@components/ui/input-field';
 import CustomButton from '@components/ui/custom-button';
+import {CustomToast} from '@components/ui/custom-toast';
 
 const {width} = Dimensions.get('window');
 
@@ -32,14 +33,18 @@ const Register = ({navigation}: RootScreenProps<Paths.Register>) => {
     useMutation({
       mutationFn: (values: typeof form) => apiService.register(values),
       onSuccess: res => {
-        Alert.alert(
-          'Success',
-          'Registered successfully.We have sent a verification email to your inbox.!',
+        // Alert.alert(
+        //   'Success',
+        //   'Registered successfully.We have sent a verification email to your inbox.!',
+        // );
+        CustomToast.showSuccess(
+          'Success!',
+          'Registered successfully.Check your Email!',
         );
         navigation.navigate(Paths.VerifyEmail, {email: form.email});
       },
       onError: (err: any) => {
-        Alert.alert(
+        CustomToast.showError(
           'Registration Error:',
           err.response?.data?.message || 'Something went wrong!',
         );
@@ -48,11 +53,8 @@ const Register = ({navigation}: RootScreenProps<Paths.Register>) => {
 
   const onSignUpPress = async () => {
     try {
-      console.log('Submitting Form:', form);
       await registerMutation(form);
-    } catch (error) {
-      console.log('Signup Failed:', error);
-    }
+    } catch (error) {}
   };
   return (
     <View style={styles.container}>

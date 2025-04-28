@@ -5,6 +5,7 @@ import {
   Linking,
   SafeAreaView,
   Dimensions,
+  Animated,
 } from 'react-native';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
@@ -18,6 +19,7 @@ import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
 import Swiper from 'react-native-swiper';
 import {AlertContext} from '@context/alert-context';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface NewsItem {
   source: {id: string; name: string};
@@ -79,39 +81,24 @@ const CyberNews = () => {
   // const swiperHeight = 800;
   const swiperHeight = height;
 
-  const renderItem = ({item}: {item: NewsItem}) => (
-    <View style={styles.itemContainer}>
-      {item.urlToImage ? (
-        <Image
-          source={{uri: item.urlToImage}}
-          style={styles.image}
-          resizeMode="cover"
-        />
-      ) : (
-        <View>No Image Available.</View>
-      )}
-      <View style={styles.content}>
-        <CustomText variant="h5" fontFamily="Montserrat-Bold" color="#fff">
-          {item.title}
-        </CustomText>
-        <View style={{marginTop: 10}}>
-          <CustomText variant="h6" fontFamily="Montserrat-Regular" color="#fff">
-            {item.description}
-          </CustomText>
-        </View>
+  const bounceAnim = useRef(new Animated.Value(0)).current;
 
-        <View style={{marginTop: 10}}>
-          <CustomButton
-            bgVariant="outline"
-            textVariant="secondary"
-            title="Read More"
-            onPress={() => Linking.openURL(item.url)}
-            style={{borderWidth: 1, borderColor: '#fff'}}
-          />
-        </View>
-      </View>
-    </View>
-  );
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(bounceAnim, {
+          toValue: 10,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounceAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, [bounceAnim]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -206,6 +193,22 @@ const CyberNews = () => {
             </CustomText>
           </AlertBox>
         )}
+
+        {activeIndex === 0 && (
+          <Animated.View
+            style={[
+              styles.hintContainer,
+              {transform: [{translateY: bounceAnim}]},
+            ]}>
+            <Ionicons name="arrow-up" size={24} color="white" />
+            <CustomText
+              style={styles.hintText}
+              color="#fff"
+              fontFamily="Montserrat-Bold">
+              Swipe up to see more news
+            </CustomText>
+          </Animated.View>
+        )}
         <BackBtn />
       </LinearGradient>
     </SafeAreaView>
@@ -254,5 +257,22 @@ const styles = StyleSheet.create({
     width: '80%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  hintContainer: {
+    position: 'absolute',
+    bottom: 40,
+    display:'flex',
+    flexDirection:'row',
+    alignItems:'center',
+    gap:4,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  hintText: {
+    fontSize: 14,
+    textAlign: 'center',
   },
 });

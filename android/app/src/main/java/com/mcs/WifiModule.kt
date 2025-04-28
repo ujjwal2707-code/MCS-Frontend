@@ -4,8 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
@@ -26,11 +24,9 @@ class WifiModule(private val reactContext: ReactApplicationContext) :
 
     override fun getName(): String = "WifiModule"
 
-    // Uses a BroadcastReceiver to listen for scan results.
     @ReactMethod
     fun scanWifiNetworks(promise: Promise) {
         try {
-            // Create and register the BroadcastReceiver
             val scanResultsReceiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
                     try {
@@ -39,15 +35,13 @@ class WifiModule(private val reactContext: ReactApplicationContext) :
                         for (result in results) {
                             Log.d("WifiResult", result.toString())
                             val map: WritableMap = Arguments.createMap()
-                            map.putString("SSID", result.SSID)      // WiFi network name
+                            map.putString("SSID", result.SSID)
                             map.putString("BSSID", result.BSSID)
                             map.putString("capabilities", result.capabilities)
                             map.putInt("frequency", result.frequency)
                             map.putInt("level", result.level)
-                            // timestamp in microseconds (result.timestamp is already in microseconds)
                             map.putDouble("timestamp", result.timestamp.toDouble())
 
-                            // Calculate security rating and secure flag.
                             val rating = calculateSecurityRating(result.capabilities)
                             map.putInt("securityRating", rating)
                             map.putBoolean("isSecure", rating > 1)
@@ -58,7 +52,6 @@ class WifiModule(private val reactContext: ReactApplicationContext) :
                     } catch (e: Exception) {
                         promise.reject("ERROR", e)
                     } finally {
-                        // Always unregister the receiver to avoid leaks
                         reactContext.unregisterReceiver(this)
                     }
                 }
@@ -66,7 +59,6 @@ class WifiModule(private val reactContext: ReactApplicationContext) :
             val intentFilter = IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
             reactContext.registerReceiver(scanResultsReceiver, intentFilter)
 
-            // Initiate a new WiFi scan.
             val scanStarted = wifiManager.startScan()
             if (!scanStarted) {
                 reactContext.unregisterReceiver(scanResultsReceiver)
@@ -77,45 +69,55 @@ class WifiModule(private val reactContext: ReactApplicationContext) :
         }
     }
 
-    // Returns the IP (as an integer) of the currently connected WiFi network.
+    // New function: Get current connected WiFi network information
     @ReactMethod
-    fun getIP(promise: Promise) {
-        try {
-            val wifiInfo: WifiInfo = wifiManager.connectionInfo
-            val ipInt: Int = wifiInfo.ipAddress
-            promise.resolve(ipInt)
-        } catch (e: Exception) {
-            promise.reject("ERROR", e)
+fun getCurrentWifiInfo(promise: Promise) {
+    try {
+        val wifiInfo: WifiInfo = wifiManager.connectionInfo
+        if (wifiInfo.networkId == -1) {
+            promise.reject("ERROR", "No WiFi connection")
+            return
         }
-    }
 
-    // Returns whether the device is connected to a WiFi network.
-    @ReactMethod
-    fun connectionStatus(promise: Promise) {
-        try {
-            val cm = reactContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
-            val isConnected = activeNetwork != null && activeNetwork.isConnected &&
-                    activeNetwork.type == ConnectivityManager.TYPE_WIFI
-            promise.resolve(isConnected)
-        } catch (e: Exception) {
-            promise.reject("ERROR", e)
+        val currentSSID = wifiInfo.ssid.trim('"')
+        val currentBSSID = wifiInfo.bssid
+        val rssi = wifiInfo.rssi
+        val frequency = wifiInfo.frequency
+        val level = WifiManager.calculateSignalLevel(rssi, 5) // 5 levels (0-4)
+
+        // Try to match connected BSSID to ScanResults to get capabilities
+        val scanResults = wifiManager.scanResults
+        var capabilities = ""
+        for (result in scanResults) {
+            if (result.BSSID.equals(currentBSSID, ignoreCase = true)) {
+                capabilities = result.capabilities
+                break
+            }
         }
-    }
 
-    // Disconnects from the currently connected WiFi network.
-    @ReactMethod
-    fun disconnect(promise: Promise) {
-        try {
-            val result = wifiManager.disconnect()
-            promise.resolve(result)
-        } catch (e: Exception) {
-            promise.reject("ERROR", e)
-        }
-    }
+        val securityRating = calculateSecurityRating(capabilities)
 
-    // Helper function to calculate security rating based on capabilities.
-    // Returns a rating from 1 (open network) to 5 (most secure).
+        val map: WritableMap = Arguments.createMap()
+        map.putString("SSID", currentSSID)
+        map.putString("BSSID", currentBSSID)
+        map.putInt("rssi", rssi)
+        map.putInt("level", level)
+        map.putInt("linkSpeedMbps", wifiInfo.linkSpeed)
+        map.putInt("frequency", frequency)
+        map.putInt("networkId", wifiInfo.networkId)
+        map.putString("ipAddress", formatIpAddress(wifiInfo.ipAddress))
+        map.putString("capabilities", capabilities)
+        map.putInt("securityRating", securityRating)
+        map.putBoolean("isSecure", securityRating > 1)
+
+        promise.resolve(map)
+    } catch (e: Exception) {
+        promise.reject("ERROR", e)
+    }
+}
+
+
+
     private fun calculateSecurityRating(capabilities: String): Int {
         val cap = capabilities.uppercase()
         return when {
@@ -123,7 +125,17 @@ class WifiModule(private val reactContext: ReactApplicationContext) :
             cap.contains("WPA2") -> 4
             cap.contains("WPA") -> 3
             cap.contains("WEP") -> 2
-            else -> 1  // Open network
+            else -> 1
         }
+    }
+
+    private fun formatIpAddress(ip: Int): String {
+        return String.format(
+            "%d.%d.%d.%d",
+            ip and 0xff,
+            ip shr 8 and 0xff,
+            ip shr 16 and 0xff,
+            ip shr 24 and 0xff
+        )
     }
 }
