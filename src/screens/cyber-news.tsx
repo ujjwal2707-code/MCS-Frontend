@@ -101,10 +101,11 @@ const CyberNews = () => {
   }, [bounceAnim]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <LinearGradient
         colors={['#0A1D4D', '#08164C']}
-        style={styles.gradientBackground}>
+        style={StyleSheet.absoluteFill}></LinearGradient>
+      <SafeAreaView style={[styles.SafeAreaViewcontainer]}>
         <View style={{padding: 20}}>
           <ScreenHeader name="Cyber News" />
         </View>
@@ -210,8 +211,8 @@ const CyberNews = () => {
           </Animated.View>
         )}
         <BackBtn />
-      </LinearGradient>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -223,6 +224,10 @@ const styles = StyleSheet.create({
   },
   gradientBackground: {
     flex: 1,
+  },
+  SafeAreaViewcontainer: {
+    flex: 1,
+    backgroundColor: 'transparent',
   },
   listContainer: {
     paddingBottom: 20,
@@ -261,10 +266,10 @@ const styles = StyleSheet.create({
   hintContainer: {
     position: 'absolute',
     bottom: 40,
-    display:'flex',
-    flexDirection:'row',
-    alignItems:'center',
-    gap:4,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     alignSelf: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingVertical: 8,

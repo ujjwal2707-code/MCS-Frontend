@@ -86,9 +86,10 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
               <PhoneScanIos />
             )}
           </ImageBackground>
-          <ScrollView
+          <View
             style={styles.scrollView}
-            contentContainerStyle={styles.scrollContainer}>
+            // contentContainerStyle={styles.scrollContainer}
+            >
             {Platform.OS === 'android' ? (
               <FlatList
                 data={featureTilesDataAndroid}
@@ -134,7 +135,7 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
                 scrollEnabled={false}
               />
             )}
-          </ScrollView>
+          </View>
         </View>
       </SafeAreaView>
     </View>
