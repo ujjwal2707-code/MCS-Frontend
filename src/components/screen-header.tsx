@@ -146,7 +146,8 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end', // updated to push SOS to the right
+    paddingHorizontal: 0, // optional: adds a little space from edges
   },
   actions: {
     flexDirection: 'row',
@@ -158,13 +159,12 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   sosContainer: {
-    width: 30,
+    width: 30, // increased size slightly to make it look better
     height: 30,
     backgroundColor: '#DC2626',
-    borderRadius: 16,
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 10,
   },
   sosText: {
     color: 'white',

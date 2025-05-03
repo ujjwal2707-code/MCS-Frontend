@@ -139,26 +139,6 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
 
               <View style={styles.formSection}>
                 <InputField
-                  placeholder="Enter App URL"
-                  value={appUrl}
-                  onChangeText={text => handleInputChange('app', text)}
-                />
-                {!isValidApp && (
-                  <CustomText style={styles.errorText}>
-                    Please enter a valid URL
-                  </CustomText>
-                )}
-                <CustomButton
-                  title="Scan App"
-                  style={styles.button}
-                  onPress={() => handleScanURL('app')}
-                  isDisabled={!appUrl || !isValidApp}
-                  isLoading={loadingScanType === 'app'}
-                />
-              </View>
-
-              <View style={styles.formSection}>
-                <InputField
                   placeholder="Enter Website URL"
                   value={websiteUrl}
                   onChangeText={text => handleInputChange('website', text)}
@@ -196,6 +176,28 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
                   isLoading={loadingScanType === 'payment'}
                 />
               </View>
+
+              <View style={styles.formSection}>
+                <InputField
+                  placeholder="Enter App URL"
+                  value={appUrl}
+                  onChangeText={text => handleInputChange('app', text)}
+                />
+                {!isValidApp && (
+                  <CustomText style={styles.errorText}>
+                    Please enter a valid URL
+                  </CustomText>
+                )}
+                <CustomButton
+                  title="Scan App"
+                  style={styles.button}
+                  onPress={() => handleScanURL('app')}
+                  isDisabled={!appUrl || !isValidApp}
+                  isLoading={loadingScanType === 'app'}
+                />
+              </View>
+
+              
             </View>
           </ScrollView>
         </KeyboardAvoidingView>

@@ -345,7 +345,7 @@ const WifiDetails = ({isOpen, onClose, network}: WifiDetailsProps) => {
         return {label: 'Critical', color: '#F44336', bg: '#FFEBEE'}; // Red
     }
   };
-  
+
   const encryptionStatus = getEncryptionStatus(network.capabilities);
   const securityRatingInfo = getSecurityRatingStyle(network.securityRating);
 
@@ -407,12 +407,13 @@ const WifiDetails = ({isOpen, onClose, network}: WifiDetailsProps) => {
             BSSID: {network.BSSID}
           </CustomText>
 
-          <CustomText variant="h5" color="#fff" fontFamily="Montserrat-Medium">
+          {/* <CustomText variant="h5" color="#fff" fontFamily="Montserrat-Medium">
             Signal Level: {network.level} dBm
           </CustomText>
+          
           <CustomText variant="h5" color="#fff" fontFamily="Montserrat-Medium">
             Frequency: {network.frequency}
-          </CustomText>
+          </CustomText> */}
           <CustomText
             variant="h5"
             fontFamily="Montserrat-Medium"
