@@ -8,6 +8,8 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
+import android.os.Bundle
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -28,19 +30,24 @@ class DeviceSecurityModule(reactContext: ReactApplicationContext) :
         private const val OUTDATED_THRESHOLD_DAYS = 730L // 2 years
     }
 
-    override fun getName() = "DeviceSecurity"
+    override fun getName() = "DeviceSecurityModule"
 
     @ReactMethod
     fun checkRiskyConnection(promise: Promise) {
         try {
             val context = reactApplicationContext
             val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-            val networkInfo = connectivityManager?.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
+                ?: throw Exception("Connectivity service not available")
             
+            val networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
+                ?: throw Exception("Wifi network info not available")
+
             val isRisky = when {
-                networkInfo?.isConnected == true -> {
+                networkInfo.isConnected -> {
                     val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
-                    wifiManager?.connectionInfo?.networkId?.let { networkId ->
+                        ?: throw Exception("Wifi service not available")
+                    
+                    wifiManager.connectionInfo?.networkId?.let { networkId ->
                         isNetworkOpen(wifiManager, networkId)
                     } ?: false
                 }
@@ -49,7 +56,7 @@ class DeviceSecurityModule(reactContext: ReactApplicationContext) :
             
             promise.resolve(isRisky)
         } catch (e: Exception) {
-            promise.reject("CONNECTION_ERROR", e.message)
+            promise.reject("CONNECTION_ERROR", e.message ?: "Unknown connection error", e)
         }
     }
 
@@ -63,24 +70,57 @@ class DeviceSecurityModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
+    fun getPermissionMisuseList(promise: Promise) {
+        try {
+            val pm = reactApplicationContext.packageManager
+            val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+            
+            val result = mutableListOf<Bundle>().apply {
+                apps.forEach { app ->
+                    val dangerousPerms = try {
+                        pm.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
+                            .requestedPermissions
+                            ?.filter { DANGEROUS_PERMS.contains(it) }
+                            ?.toList() ?: emptyList()
+                    } catch (e: Exception) {
+                        emptyList()
+                    }
+
+                    if (dangerousPerms.isNotEmpty()) {
+                        add(Bundle().apply {
+                            putString("appName", app.loadLabel(pm).toString())
+                            putString("packageName", app.packageName)
+                            putStringArrayList("permissions", ArrayList(dangerousPerms))
+                        })
+                    }
+                }
+            }
+            
+            promise.resolve(Arguments.fromList(result))
+        } catch (e: Exception) {
+            promise.reject("PERMISSION_ERROR", e.message ?: "Unknown error", e)
+        }
+    }
+
+    @ReactMethod
     fun getPermissionMisuseCount(promise: Promise) {
         try {
             val pm = reactApplicationContext.packageManager
             val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
             
-            val count = apps.sumOf { app ->
+            val count = apps.count { app ->
                 try {
                     pm.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
                         .requestedPermissions
-                        ?.count { DANGEROUS_PERMS.contains(it) } ?: 0
-                } catch (e: PackageManager.NameNotFoundException) {
-                    0
+                        ?.any { DANGEROUS_PERMS.contains(it) } ?: false
+                } catch (e: Exception) {
+                    false
                 }
             }
             
             promise.resolve(count)
         } catch (e: Exception) {
-            promise.reject("PERMISSION_ERROR", e.message)
+            promise.reject("PERMISSION_COUNT_ERROR", e.message ?: "Unknown error", e)
         }
     }
 
@@ -102,7 +142,7 @@ class DeviceSecurityModule(reactContext: ReactApplicationContext) :
             
             promise.resolve(count)
         } catch (e: Exception) {
-            promise.reject("OUTDATED_APPS_ERROR", e.message)
+            promise.reject("OUTDATED_APPS_ERROR", e.message ?: "Unknown outdated apps error", e)
         }
     }
 }
