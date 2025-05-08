@@ -14,13 +14,13 @@ export const featureTilesData: (FeatureTileType & {route: AllowedRoutes})[] = [
   {
     id: '1',
     image: activeTimeStats,
-    label: 'Active Time Stats',
+    label: 'Active Time Statistics',
     route: Paths.AppUsageStats,
   },
   {
     id: '2',
     image: dataUsage,
-    label: 'Data Usage Stats',
+    label: 'Network Usage Statistics',
     route: Paths.DataUsageStats,
   },
   {

@@ -13,11 +13,18 @@ export interface FeatureTileType {
   route: NoParamsRoutes;
 }
 
+export type ControllablePermission = {
+  name: string;
+  granted: boolean;
+  description: string;
+  dangerous: boolean;
+};
+
 export interface InstalledApp {
   packageName: string;
   name: string;
   icon: string;
-  permissions: string[];
+  controllablePermissions: ControllablePermission[];
   sha256: string;
 }
 

@@ -99,7 +99,7 @@ const OtpSecurity: React.FC = () => {
 
   return (
     <ScreenLayout>
-      <ScreenHeader name="OTP Security" />
+      <ScreenHeader name="Check Forwardings" />
       <View style={{paddingVertical: 30}}>
         <CustomText
           variant="h5"

@@ -54,7 +54,13 @@ const AppPermissions = ({navigation}: RootScreenProps<Paths.AppPermission>) => {
         try {
           setLoading(true);
           const installedApps = await InstalledApps.getInstalledApps();
-          setApps(installedApps);
+          const filteredApps = installedApps.filter(app => {
+            return (
+              Array.isArray(app.controllablePermissions) &&
+              app.controllablePermissions.some(permission => permission.granted === true)
+            );
+          });
+          setApps(filteredApps);
         } catch (error) {
           console.error('Error fetching apps:', error);
         } finally {

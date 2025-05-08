@@ -69,7 +69,7 @@ const HiddenApps = () => {
             <CustomText
               variant="h4"
               fontFamily="Montserrat-ExtraBold"
-              style={{textAlign: 'center'}}>
+              style={{textAlign: 'center',marginTop:20,color:'#fff',paddingVertical:20}}>
               No hidden apps found.
             </CustomText>
           ) : (

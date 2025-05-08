@@ -73,9 +73,9 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
           </View>
           <PhoneSecurityScan />
         </ImageBackground>
-        <View
+        {/* <ScrollView
           style={styles.scrollView}
-          // contentContainerStyle={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContainer}
           >
           <FlatList
             data={featureTilesData}
@@ -94,9 +94,31 @@ const Home: React.FC<HomeProps> = ({navigation, route}) => {
                 }}
               />
             )}
-            scrollEnabled={false}
+            // scrollEnabled={false}
           />
-        </View>
+        </ScrollView> */}
+
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContainer}>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+              paddingHorizontal: 10,
+            }}>
+            {featureTilesData.map(item => (
+              <FeatureTile
+                key={item.id}
+                icon={item.icon}
+                image={item.image!}
+                label={item.label}
+                onPress={() => navigation.navigate(item.route)}
+              />
+            ))}
+          </View>
+        </ScrollView>
       </LinearGradient>
     </SafeAreaView>
   );

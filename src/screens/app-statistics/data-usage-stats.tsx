@@ -44,7 +44,7 @@ const DataUsageStats: React.FC<RootScreenProps> = ({route}) => {
   return (
     <>
       <ScreenLayout>
-        <ScreenHeader name="Data Usage Stats" />
+        <ScreenHeader name="Network Usage Statistics" />
 
         {loading ? (
           <Loader />

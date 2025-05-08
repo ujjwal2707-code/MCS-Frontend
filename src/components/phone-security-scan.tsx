@@ -606,7 +606,7 @@ const PhoneSecurityScan = () => {
                 </TouchableOpacity>
               </View>
 
-              <View
+              {/* <View
                 style={{
                   display: 'flex',
                   flexDirection: 'row',
@@ -637,7 +637,7 @@ const PhoneSecurityScan = () => {
                   onPress={() => navigation.navigate(Paths.AppUpdates)}>
                   <Ionicons name="arrow-redo-sharp" size={30} color="white" />
                 </TouchableOpacity>
-              </View>
+              </View> */}
 
               {/* <View
                 style={{

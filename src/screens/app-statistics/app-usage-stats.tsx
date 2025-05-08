@@ -64,7 +64,7 @@ const AppUsageStats: React.FC<RootScreenProps> = ({route, navigation}) => {
 
   return (
     <ScreenLayout>
-      <ScreenHeader name="Active Time Stats" />
+      <ScreenHeader name="Active Time Statistics" />
 
       {loading ? (
         <Loader />

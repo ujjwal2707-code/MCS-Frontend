@@ -1,4 +1,12 @@
-import {FlatList, ScrollView, StyleSheet, View} from 'react-native';
+import {
+  FlatList,
+  Linking,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React from 'react';
 import {RootScreenProps} from '../../navigation/types';
 import {InstalledApp} from '../../../types/types';
@@ -8,36 +16,29 @@ import CustomText from '@components/ui/custom-text';
 import BackBtn from '@components/back-btn';
 
 function cleanPermission(permission: string): string {
-  // const acronyms = new Set([
-  //   'ID',
-  //   'SMS',
-  //   'GPS',
-  //   'VPN',
-  //   'NFC',
-  //   'IMEI',
-  //   'MMS',
-  //   'APN',
-  //   'USB',
-  //   'WIFI',
-  // ]);
-
   const lastSegment = permission.split('.').pop() || '';
-
-  const formatted = lastSegment
-    .split('_')
-    // .map(word => {
-    //   const upper = word.toUpperCase();
-    //   return acronyms.has(upper)
-    //     ? upper
-    //     : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    // })
-    .join(' ');
-
+  const formatted = lastSegment.split('_').join(' ');
   return formatted;
 }
 
 const AppPermissionDetail: React.FC<RootScreenProps> = ({route}) => {
   const {app} = route.params as {app: InstalledApp};
+
+  // const openAppSettings = () => {
+  //   if (Platform.OS === 'android') {
+  //     Linking.openURL(
+  //       'intent://settings#Intent;action=android.settings.APPLICATION_DETAILS_SETTINGS;data=package:' +
+  //         app.packageName +
+  //         ';end',
+  //     ).catch(() => {
+  //       console.warn('Unable to open app settings');
+  //     });
+  //   } else {
+  //     Linking.openSettings().catch(() => {
+  //       console.warn('Unable to open iOS settings');
+  //     });
+  //   }
+  // };
 
   return (
     <ScreenLayout>
@@ -52,31 +53,31 @@ const AppPermissionDetail: React.FC<RootScreenProps> = ({route}) => {
         </CustomText>
       </View>
 
-      {/* <FlatList
-        data={app.permissions}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({item}) => (
-          <View style={styles.appContainer}>
-            <CustomText fontFamily="Montserrat-Medium" color="#fff">
-              {cleanPermission(item)}
-            </CustomText>
-          </View>
-        )}
-        ItemSeparatorComponent={() => <View style={styles.divider} />}
-      /> */}
-
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.pillContainer}>
-          {app.permissions.sort().map((permission, index) => (
-            <View key={index.toString()} style={styles.pill}>
-              <CustomText
-                fontFamily="Montserrat-SemiBold"
-                color="#fff"
-                style={styles.pillText}>
-                {cleanPermission(permission)}
-              </CustomText>
-            </View>
-          ))}
+          {app.controllablePermissions
+            .filter(p => p.granted)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((p, index) => (
+              <TouchableOpacity
+                key={index.toString()}
+                style={styles.pill}
+                // onPress={openAppSettings}
+              >
+                <CustomText
+                  fontFamily="Montserrat-SemiBold"
+                  color="#fff"
+                  style={styles.pillText}>
+                  {cleanPermission(p.name)}
+                </CustomText>
+
+                {/* <CustomText
+                  fontFamily="Montserrat-Bold"
+                  style={[p.granted ? styles.granted : styles.denied]}>
+                  {p.granted ? 'Granted' : 'Denied'}
+                </CustomText> */}
+              </TouchableOpacity>
+            ))}
         </View>
       </ScrollView>
 
@@ -96,18 +97,20 @@ const styles = StyleSheet.create({
     height: 1,
     marginVertical: 8,
   },
-
   scrollContainer: {
     paddingBottom: 50,
   },
-
   pillContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
   },
-
   pill: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
     backgroundColor: '#2337A8',
     borderRadius: 20,
     paddingVertical: 8,
@@ -117,5 +120,11 @@ const styles = StyleSheet.create({
 
   pillText: {
     fontSize: 14,
+  },
+  granted: {
+    color: '#48BB78',
+  },
+  denied: {
+    color: '#F56565',
   },
 });
