@@ -41,13 +41,15 @@ const HiddenApps = () => {
     setModalVisible(!alertSettings[alertKey]);
   }, [alertSettings[alertKey]]);
 
-  
   useEffect(() => {
     const init = async () => {
       try {
         setLoading(true);
         const apps = await HiddenAppsModule.getHiddenApps();
-        setHiddenApps(apps);
+        const filteredApps = apps.sort((a: AppInfo, b: AppInfo) =>
+          a.appName.localeCompare(b.appName),
+        );
+        setHiddenApps(filteredApps);
       } catch (error) {
         console.error('Error fetching hidden apps:', error);
       } finally {
@@ -69,7 +71,12 @@ const HiddenApps = () => {
             <CustomText
               variant="h4"
               fontFamily="Montserrat-ExtraBold"
-              style={{textAlign: 'center',marginTop:20,color:'#fff',paddingVertical:20}}>
+              style={{
+                textAlign: 'center',
+                marginTop: 20,
+                color: '#fff',
+                paddingVertical: 20,
+              }}>
               No hidden apps found.
             </CustomText>
           ) : (
