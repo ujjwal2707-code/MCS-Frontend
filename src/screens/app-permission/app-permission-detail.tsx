@@ -1,5 +1,6 @@
 import {
   Linking,
+  NativeModules,
   Platform,
   ScrollView,
   StyleSheet,
@@ -13,6 +14,7 @@ import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
 import CustomText from '@components/ui/custom-text';
 import BackBtn from '@components/back-btn';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Tooltip} from 'react-native-paper';
 
 // 🔹 Group similar permissions under user-friendly labels
@@ -107,6 +109,8 @@ function getGroupedPermissionLabels(
   return results.sort((a, b) => a.label.localeCompare(b.label));
 }
 
+const {InstalledApps} = NativeModules;
+
 const AppPermissionDetail: React.FC<RootScreenProps> = ({route}) => {
   const {app} = route.params as {app: InstalledApp};
   // const [showAll, setShowAll] = useState(false);
@@ -120,18 +124,8 @@ const AppPermissionDetail: React.FC<RootScreenProps> = ({route}) => {
   //   true,
   // );
 
-  const openAppSettings = (packageName: string) => {
-    if (Platform.OS === 'android') {
-      Linking.openURL(
-        `intent://settings#Intent;action=android.settings.APPLICATION_DETAILS_SETTINGS;data=package:${packageName};end`,
-      ).catch(() => {
-        console.warn('Unable to open app settings');
-      });
-    } else {
-      Linking.openSettings().catch(() => {
-        console.warn('Unable to open iOS settings');
-      });
-    }
+  const openAppInfoScreen = (pkgName: string) => {
+    InstalledApps.openAppInfoForPackage(pkgName);
   };
 
   return (
@@ -150,22 +144,23 @@ const AppPermissionDetail: React.FC<RootScreenProps> = ({route}) => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.pillContainer}>
           {grouped.map(({label, description}, index) => (
-            <Tooltip
-              title={description}
-              enterTouchDelay={0}
-              key={index.toString()}>
-              <TouchableOpacity
-                style={styles.pill}
-                // onPress={() => openAppSettings(app.packageName)}
-              >
-                <CustomText
-                  fontFamily="Montserrat-SemiBold"
-                  color="#fff"
-                  style={styles.pillText}>
-                  {label.toUpperCase()}
-                </CustomText>
-              </TouchableOpacity>
-            </Tooltip>
+            <TouchableOpacity
+              key={index.toString()}
+              style={styles.pill}
+              onPress={() => openAppInfoScreen(app.packageName)}>
+              <CustomText
+                fontFamily="Montserrat-SemiBold"
+                color="#fff"
+                style={styles.pillText}>
+                {label.toUpperCase()}
+              </CustomText>
+
+              <Ionicons name="arrow-redo-circle" size={20} color="white" />
+
+              {/* <Tooltip title={description} enterTouchDelay={0}>
+                <Ionicons name="information-circle" size={30} color="white" />
+              </Tooltip> */}
+            </TouchableOpacity>
           ))}
         </View>
 

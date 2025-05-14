@@ -20,6 +20,9 @@ import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 import android.content.pm.PackageInfo
 import android.content.pm.PermissionInfo
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 
 class InstalledAppsModule(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
@@ -158,5 +161,14 @@ class InstalledAppsModule(private val reactContext: ReactApplicationContext) :
         } catch (e: Exception) {
             promise.reject("ERROR", e)
         }
+    }
+
+    @ReactMethod
+    fun openAppInfoForPackage(packageName: String) {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", packageName, null)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        reactContext.startActivity(intent)
     }
 }
