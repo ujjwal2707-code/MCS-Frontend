@@ -240,13 +240,35 @@ const PhoneSecurityScan = () => {
     checkSecurity();
   }, [checkSecurity]);
 
-  // Count number of true security flags
+  // Count number of Misconfigured settings.
   useEffect(() => {
     if (securityData) {
-      const count = Object.values(securityData).filter(
-        value => value === true,
-      ).length;
-      setSecurityDataCount(count);
+      const insecureWhenTrue = [
+        'rootStatus',
+        'usbDebugging',
+        'nfc',
+        'lockScreenNotifications',
+        'bluetooth',
+        'devMode',
+      ];
+
+      const insecureWhenFalse = [
+        'playProtect',
+        'lockScreen',
+        'encryption',
+        'showPassword',
+      ];
+
+      const insecureCount = [
+        ...insecureWhenTrue.filter(
+          key => securityData[key as keyof SecurityData] === true,
+        ),
+        ...insecureWhenFalse.filter(
+          key => securityData[key as keyof SecurityData] === false,
+        ),
+      ].length;
+
+      setSecurityDataCount(insecureCount);
     }
   }, [securityData]);
 
@@ -309,8 +331,6 @@ const PhoneSecurityScan = () => {
     const maxAppsWithAds = 10;
     const maxSecurityIssues = 10;
     const maxHiddenApps = 10;
-    const maxPermissionMisuse = 10;
-    const maxOutdatedApps = 10;
 
     const scoreAppsWithAds = Math.max(
       0,
@@ -325,23 +345,13 @@ const PhoneSecurityScan = () => {
       5 - (hiddenApps.length / maxHiddenApps) * 5,
     );
     const scoreRisky = riskyConnection ? 0 : 5;
-    const scorePermission = Math.max(
-      0,
-      5 - (permissionMisuseCount / maxPermissionMisuse) * 5,
-    );
-    const scoreOutdated = Math.max(
-      0,
-      5 - (outdatedAppsCount / maxOutdatedApps) * 5,
-    );
 
     const weightedScore =
       (scoreAppsWithAds * 1 +
         scoreSecurity * 3 +
         scoreHiddenApps * 3 +
-        scoreRisky * 2 +
-        scorePermission * 2 +
-        scoreOutdated * 2) /
-      (1 + 3 + 3 + 2 + 2 + 2);
+        scoreRisky * 2 ) /
+      (1 + 3 + 3 + 2 );
 
     const percentage = (weightedScore / 5) * 100;
     return Math.max(percentage, 20);
@@ -350,8 +360,6 @@ const PhoneSecurityScan = () => {
     securityDataCount,
     hiddenApps.length,
     riskyConnection,
-    permissionMisuseCount,
-    outdatedAppsCount,
     isAppsLoaded,
     isSecurityLoaded,
     isHiddenAppsLoaded,
@@ -366,16 +374,12 @@ const PhoneSecurityScan = () => {
         installedApps,
         adsData,
         hiddenAppsData,
-        isRisky,
-        misuseCount,
-        outdatedCount,
+        isRisky
       ] = await Promise.all([
         AdsServices.getInstalledApps(),
         AdsServices.getAdsServices(),
         HiddenAppsModule.getHiddenApps(),
-        DeviceSecurityModule.checkRiskyConnection(),
-        DeviceSecurityModule.getPermissionMisuseCount(),
-        DeviceSecurityModule.getOutdatedAppsCount(),
+        DeviceSecurityModule.checkRiskyConnection()
       ]);
 
       // Update apps and ads services state
@@ -383,8 +387,6 @@ const PhoneSecurityScan = () => {
       setAdsServices(adsData);
       setHiddenApps(hiddenAppsData);
       setRiskyConnection(isRisky);
-      setPermissionMisuseCount(misuseCount);
-      setOutdatedAppsCount(outdatedCount);
 
       // Re-check security settings
       const securityResults = await Promise.all([
@@ -605,74 +607,6 @@ const PhoneSecurityScan = () => {
                   <Ionicons name="arrow-redo-sharp" size={30} color="white" />
                 </TouchableOpacity>
               </View>
-
-              {/* <View
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
-                <View
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: 8,
-                    alignItems: 'center',
-                  }}>
-                  <Image
-                    source={require('@assets/icons/appupdates.png')}
-                    style={styles.icon}
-                  />
-                  <CustomText
-                    variant="h5"
-                    color="#fff"
-                    fontSize={16}
-                    fontFamily="Montserrat-Bold">
-                    Outdated Apps: {outdatedAppsCount}
-                  </CustomText>
-                </View>
-
-                <TouchableOpacity
-                  onPress={() => navigation.navigate(Paths.AppUpdates)}>
-                  <Ionicons name="arrow-redo-sharp" size={30} color="white" />
-                </TouchableOpacity>
-              </View> */}
-
-              {/* <View
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
-                <View
-                  style={{
-                    width:'90%',
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: 8,
-                    alignItems: 'center',
-                  }}>
-                  <Image
-                    source={require('@assets/icons/appperm.png')}
-                    style={styles.icon}
-                  />
-                  <CustomText
-                    variant="h5"
-                    color="#fff"
-                    fontSize={16}
-                    numberOfLine={2}
-                    fontFamily="Montserrat-Bold">
-                    Apps with suspicious permissions: {permissionMisuseCount}
-                  </CustomText>
-                </View>
-
-                <TouchableOpacity
-                  onPress={() => navigation.navigate(Paths.AppPermission)}>
-                  <Ionicons name="arrow-redo-sharp" size={30} color="white" />
-                </TouchableOpacity>
-              </View> */}
 
               <View
                 style={{
