@@ -125,7 +125,7 @@ const ThreatAdvisor = () => {
               styles.tabButtonText,
               selectedTab === 'suspicious' && styles.activeTabText,
             ]}>
-            Suspicious Apps ({suspiciousApps.length})
+            Risky Apps ({suspiciousApps.length})
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -139,7 +139,7 @@ const ThreatAdvisor = () => {
               styles.tabButtonText,
               selectedTab === 'safe' && styles.activeTabText,
             ]}>
-            Safe Apps ({safeApps.length})
+            Non Risky Apps ({safeApps.length})
           </Text>
         </TouchableOpacity>
       </View>
