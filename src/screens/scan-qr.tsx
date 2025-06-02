@@ -37,6 +37,7 @@ import BackBtn from '@components/back-btn';
 import {AlertContext} from '@context/alert-context';
 import {CustomToast} from '@components/ui/custom-toast';
 import ScanAnalysis from '@components/scan-analysis';
+import {ScannerResult} from '@components/scanner-result';
 
 enum QRTypeState {
   PaymentLink = 'Payment Link',
@@ -432,7 +433,13 @@ const ScanQRResult = ({
 
         {scanUrlDetails && (
           <>
-            {scanUrlDetails &&
+           <View style={{paddingVertical:20}}>
+             <ScannerResult
+              stats={scanUrlDetails.stats}
+              meta={scanUrlDetails.meta}
+            />
+           </View>
+            {/* {scanUrlDetails &&
               (scanUrlDetails.stats.harmless +
                 scanUrlDetails.stats.undetected >=
               10 *
@@ -441,13 +448,13 @@ const ScanQRResult = ({
                 <Card style={styles.harmlessCard}>
                   <Card.Content>
                     <View>
-                      {/* <CustomText
+                      <CustomText
                         variant="h5"
                         color="#fff"
                         fontFamily="Montserrat-Bold"
                         style={{textAlign: 'center'}}>
                         Safe & Harmless Link
-                      </CustomText> */}
+                      </CustomText>
                       <CustomText
                         variant="h5"
                         color="#fff"
@@ -464,13 +471,13 @@ const ScanQRResult = ({
                 <Card style={styles.maliciousCard}>
                   <Card.Content>
                     <View>
-                      {/* <CustomText
+                      <CustomText
                         variant="h5"
                         color="#fff"
                         fontFamily="Montserrat-Bold"
                         style={{textAlign: 'center'}}>
                         Suspected Fraud or Malicious Link
-                      </CustomText> */}
+                      </CustomText>
                       <CustomText
                         variant="h5"
                         color="#fff"
@@ -484,7 +491,7 @@ const ScanQRResult = ({
                     </View>
                   </Card.Content>
                 </Card>
-              ))}
+              ))} */}
 
             {/* <Card style={styles.chartContainer}>
               <Card.Content>
@@ -494,7 +501,7 @@ const ScanQRResult = ({
 
             {/** Scanners */}
 
-            <View style={{flex: 1, marginTop: 16, width: '100%'}}>
+            {/* <View style={{flex: 1, marginTop: 16, width: '100%'}}>
               <CustomText
                 variant="h4"
                 style={{color: '#fff', marginBottom: 12, textAlign: 'center'}}
@@ -529,9 +536,9 @@ const ScanQRResult = ({
                 count={scanUrlDetails.stats.undetected}
                 color="#33b5e5"
               />
-            </View>
+            </View> */}
 
-            {scanUrlDetails &&
+            {/* {scanUrlDetails &&
               (scanUrlDetails.stats.harmless +
                 scanUrlDetails.stats.undetected >=
               10 *
@@ -544,7 +551,12 @@ const ScanQRResult = ({
                       Linking.openURL(scanUrlDetails.meta.url_info.url);
                     }
                   }}
-                  style={{marginTop: 10, marginBottom: 10,width: '50%', alignSelf: 'center'}}
+                  style={{
+                    marginTop: 10,
+                    marginBottom: 10,
+                    width: '50%',
+                    alignSelf: 'center',
+                  }}
                 />
               ) : (
                 <CustomButton
@@ -556,9 +568,14 @@ const ScanQRResult = ({
                       Linking.openURL(scanUrlDetails.meta.url_info.url);
                     }
                   }}
-                  style={{marginTop: 10, marginBottom: 10,width: '50%', alignSelf: 'center'}}
+                  style={{
+                    marginTop: 10,
+                    marginBottom: 10,
+                    width: '50%',
+                    alignSelf: 'center',
+                  }}
                 />
-              ))}
+              ))} */}
           </>
         )}
       </BottomSheetScrollView>
