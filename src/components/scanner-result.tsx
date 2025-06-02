@@ -153,7 +153,7 @@ export const ScannerResult = ({stats, meta}: ScannerResultProps) => {
           {borderColor: getStatusColor(safetyStatus), borderWidth: 3},
         ]}>
         <Card.Content>
-          {/* <Favicon domain={meta.url_info.url} /> */}
+          <Favicon domain={meta.url_info.url} />
           <CustomText
             color="#FFF"
             variant="h2"
@@ -258,11 +258,36 @@ const Favicon = ({domain}: {domain: string}) => {
 
   const isValidDomain =
     !!domain && typeof domain === 'string' && domain.trim() !== '';
-  const faviconUrl = isValidDomain
-    ? `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
-    : '';
 
-  const imageSource = hasError || !isValidDomain ? NoImage : {uri: faviconUrl};
+  const sanitizedDomain = useMemo(() => {
+    if (!isValidDomain) return '';
+    try {
+      // Basic URL sanitization
+      let url = domain.startsWith('http') ? domain : `https://${domain}`;
+      const domainObj = new URL(url);
+      return domainObj.hostname;
+    } catch {
+      return '';
+    }
+  }, [domain, isValidDomain]);
+
+  const imageSource = useMemo(() => {
+    if (!isValidDomain || hasError || !sanitizedDomain) {
+      return NoImage;
+    }
+    return {
+      uri: `https://www.google.com/s2/favicons?domain=${sanitizedDomain}&sz=64`,
+      cache: 'force-cache',
+    };
+  }, [sanitizedDomain, isValidDomain, hasError]);
+
+  if (!isValidDomain) {
+    return (
+      <View style={styles.container}>
+        <Image source={NoImage} style={styles.favicon} resizeMode="contain" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -277,6 +302,7 @@ const Favicon = ({domain}: {domain: string}) => {
           setHasError(true);
           setLoading(false);
         }}
+        onLoad={() => setLoading(false)}
         onLoadEnd={() => setLoading(false)}
       />
     </View>
@@ -338,9 +364,7 @@ const WhoisCard = ({domain, getStatusColor, safetyStatus}: WhoisCardProps) => {
     return `${yearsAgo} year${yearsAgo !== 1 ? 's' : ''} ago`;
   };
 
-  
   console.log(whoisData);
-  
 
   return (
     <>
@@ -372,14 +396,22 @@ const WhoisCard = ({domain, getStatusColor, safetyStatus}: WhoisCardProps) => {
                       fontFamily="Montserrat-SemiBold">
                       Registry Date
                     </CustomText>
-                    <CustomText
-                      color={getStatusColor(safetyStatus!)}
-                     
-                      variant="h5"
-                      fontFamily="Montserrat-SemiBold">
-                      {getYearsAgo(whoisData?.create_date)} 
-                      {/* {whoisData?.create_date} */}
-                    </CustomText>
+                    {whoisData?.create_date ? (
+                      <CustomText
+                        color={getStatusColor(safetyStatus!)}
+                        variant="h5"
+                        fontFamily="Montserrat-SemiBold">
+                        {getYearsAgo(whoisData?.create_date)}
+                        {/* {whoisData?.create_date} */}
+                      </CustomText>
+                    ) : (
+                      <CustomText
+                        color={getStatusColor(safetyStatus!)}
+                        variant="h5"
+                        fontFamily="Montserrat-SemiBold">
+                        N/A
+                      </CustomText>
+                    )}
                   </View>
 
                   <View style={styles.cardItemContainer}>
@@ -389,12 +421,22 @@ const WhoisCard = ({domain, getStatusColor, safetyStatus}: WhoisCardProps) => {
                       fontFamily="Montserrat-SemiBold">
                       Country Of Origin
                     </CustomText>
-                    <CustomText
-                      color={getStatusColor(safetyStatus!)}
-                      variant="h5"
-                      fontFamily="Montserrat-SemiBold">
-                      {whoisData?.registrant_contact?.country_name}
-                    </CustomText>
+
+                    {whoisData?.registrant_contact?.country_name ? (
+                      <CustomText
+                        color={getStatusColor(safetyStatus!)}
+                        variant="h5"
+                        fontFamily="Montserrat-SemiBold">
+                        {whoisData?.registrant_contact?.country_name}
+                      </CustomText>
+                    ) : (
+                      <CustomText
+                        color={getStatusColor(safetyStatus!)}
+                        variant="h5"
+                        fontFamily="Montserrat-SemiBold">
+                        N/A
+                      </CustomText>
+                    )}
                   </View>
                 </>
               )}
