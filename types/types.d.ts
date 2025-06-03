@@ -28,23 +28,28 @@ export interface InstalledApp {
   sha256: string;
 }
 
+export interface DataUsage {
+  received: number;
+  transmitted: number;
+}
 export interface InstalledAppStats {
-  receivedBytes: number;
-  transmittedBytes: number;
+  weeklyDataUsage: DataUsage;
   monthlyUsage: number;
   weeklyUsage: number;
+  monthlyDataUsage: DataUsage;
   dailyUsage: number;
-  lastUpdateDate: string;
+  lastUpdateDate: string; // ISO date string
   installerSource: string;
-  lastUsageDate: string;
+  lastUsageDate: string; // Could be an empty string if never used
   version: string;
-  installedOn: string;
+  installedOn: string; // ISO date string
   permissions: string[];
+  dailyDataUsage: DataUsage;
   packageName: string;
   sha256: string;
   isUpToDate: boolean;
-  icon: string;
-  name: string;
+  icon: string; // base64-encoded image
+  name:string;
 }
 
 export interface InstalledAppAdsInfo {

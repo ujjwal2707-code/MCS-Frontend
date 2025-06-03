@@ -119,192 +119,184 @@ class InstalledAppsStatisticsModule(private val reactContext: ReactApplicationCo
 
     // Helper function to query usage stats and sum the foreground time for a given package.
     private fun getUsageTimeForPackage(packageName: String, startTime: Long, endTime: Long): Long {
-    val usageStatsManager =
-        reactContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val usageStatsManager =
+            reactContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-        // Aggregate the usage stats over the given period to avoid overlapping intervals.
-        val aggregatedStats = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
-        aggregatedStats[packageName]?.totalTimeInForeground ?: 0L
-    } else {
-        // Fallback for older devices: sum the daily stats.
-        val usageStatsList: List<UsageStats> = usageStatsManager.queryUsageStats(
-            UsageStatsManager.INTERVAL_DAILY, startTime, endTime
-        )
-        usageStatsList.filter { it.packageName == packageName }
-            .sumOf { it.totalTimeInForeground }
-       }
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            // Aggregate the usage stats over the given period to avoid overlapping intervals.
+            val aggregatedStats = usageStatsManager.queryAndAggregateUsageStats(startTime, endTime)
+            aggregatedStats[packageName]?.totalTimeInForeground ?: 0L
+        } else {
+            // Fallback for older devices: sum the daily stats.
+            val usageStatsList: List<UsageStats> = usageStatsManager.queryUsageStats(
+                UsageStatsManager.INTERVAL_DAILY, startTime, endTime
+            )
+            usageStatsList.filter { it.packageName == packageName }
+                .sumOf { it.totalTimeInForeground }
+        }
     }
-
 
     // Helper function to get the last time the app was used within a given period.
     private fun getLastUsageForPackage(packageName: String, startTime: Long, endTime: Long): Long {
-    val usageStatsManager =
-        reactContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-    val usageStatsList: List<UsageStats> = usageStatsManager.queryUsageStats(
-        UsageStatsManager.INTERVAL_DAILY, startTime, endTime
-    )
-    var lastTimeUsed = 0L
-    usageStatsList.forEach { stats ->
-        if (stats.packageName == packageName && stats.lastTimeUsed > lastTimeUsed) {
-            lastTimeUsed = stats.lastTimeUsed
-        }
-    }
-    return lastTimeUsed
-    }
-
-    // Helper function to get data usage (in MB) for a UID
-    fun getDataUsageForUid(context: Context, uid: Int): Pair<Double, Double> {
-    var txBytes = 0L
-    var rxBytes = 0L
-    // Use boot time as start time (calculated from elapsed time)
-    val endTime = System.currentTimeMillis()
-    val bootTime = endTime - SystemClock.elapsedRealtime() 
-    // val startTime = bootTime
-    val startTime = System.currentTimeMillis() - 24 * 60 * 60 * 1000L
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        try {
-            val networkStatsManager =
-                context.getSystemService(Context.NETWORK_STATS_SERVICE) as NetworkStatsManager
-            val bucket = NetworkStats.Bucket()
-
-            // Query Wi-Fi data usage
-            val wifiStats = networkStatsManager.queryDetailsForUid(
-                ConnectivityManager.TYPE_WIFI,
-                "", // subscriberId not needed for Wi-Fi
-                startTime,
-                endTime,
-                uid
-            )
-            while (wifiStats.hasNextBucket()) {
-                wifiStats.getNextBucket(bucket)
-                txBytes += bucket.txBytes
-                rxBytes += bucket.rxBytes
+        val usageStatsManager =
+            reactContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val usageStatsList: List<UsageStats> = usageStatsManager.queryUsageStats(
+            UsageStatsManager.INTERVAL_DAILY, startTime, endTime
+        )
+        var lastTimeUsed = 0L
+        usageStatsList.forEach { stats ->
+            if (stats.packageName == packageName && stats.lastTimeUsed > lastTimeUsed) {
+                lastTimeUsed = stats.lastTimeUsed
             }
-            wifiStats.close()
-
-            // Query Mobile data usage
-            val telephonyManager =
-                context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-            val networkOperator = telephonyManager.networkOperator ?: ""
-            val mobileStats = networkStatsManager.queryDetailsForUid(
-                ConnectivityManager.TYPE_MOBILE,
-                networkOperator,
-                startTime,
-                endTime,
-                uid
-            )
-            while (mobileStats.hasNextBucket()) {
-                mobileStats.getNextBucket(bucket)
-                txBytes += bucket.txBytes
-                rxBytes += bucket.rxBytes
-            }
-            mobileStats.close()
-        } catch (ex: Exception) {
-            ex.printStackTrace()
         }
-    } else {
-        // For older devices, fallback to TrafficStats
-        txBytes = TrafficStats.getUidTxBytes(uid)
-        rxBytes = TrafficStats.getUidRxBytes(uid)
+        return lastTimeUsed
     }
-    // Convert to megabytes
-    val txMB = if (txBytes < 0) 0.0 else txBytes.toDouble() / (1024 * 1024)
-    val rxMB = if (rxBytes < 0) 0.0 else rxBytes.toDouble() / (1024 * 1024)
-    return Pair(txMB, rxMB)
-}
 
+    // Helper function to get data usage (in MB) for a UID for a specific time period
+    private fun getDataUsageForUid(context: Context, uid: Int, startTime: Long, endTime: Long): Pair<Double, Double> {
+        var txBytes = 0L
+        var rxBytes = 0L
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                val networkStatsManager =
+                    context.getSystemService(Context.NETWORK_STATS_SERVICE) as NetworkStatsManager
+                val bucket = NetworkStats.Bucket()
+
+                // Query Wi-Fi data usage
+                val wifiStats = networkStatsManager.queryDetailsForUid(
+                    ConnectivityManager.TYPE_WIFI,
+                    "", // subscriberId not needed for Wi-Fi
+                    startTime,
+                    endTime,
+                    uid
+                )
+                while (wifiStats.hasNextBucket()) {
+                    wifiStats.getNextBucket(bucket)
+                    txBytes += bucket.txBytes
+                    rxBytes += bucket.rxBytes
+                }
+                wifiStats.close()
+
+                // Query Mobile data usage
+                val telephonyManager =
+                    context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                val networkOperator = telephonyManager.networkOperator ?: ""
+                val mobileStats = networkStatsManager.queryDetailsForUid(
+                    ConnectivityManager.TYPE_MOBILE,
+                    networkOperator,
+                    startTime,
+                    endTime,
+                    uid
+                )
+                while (mobileStats.hasNextBucket()) {
+                    mobileStats.getNextBucket(bucket)
+                    txBytes += bucket.txBytes
+                    rxBytes += bucket.rxBytes
+                }
+                mobileStats.close()
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+            }
+        } else {
+            // For older devices, fallback to TrafficStats (less accurate as it's since device boot)
+            txBytes = TrafficStats.getUidTxBytes(uid)
+            rxBytes = TrafficStats.getUidRxBytes(uid)
+        }
+        // Convert to megabytes
+        val txMB = if (txBytes < 0) 0.0 else txBytes.toDouble() / (1024 * 1024)
+        val rxMB = if (rxBytes < 0) 0.0 else rxBytes.toDouble() / (1024 * 1024)
+        return Pair(txMB, rxMB)
+    }
+
+    // Helper function to get data usage for different time periods
+    private fun getPeriodicDataUsage(context: Context, uid: Int): Map<String, Pair<Double, Double>> {
+        val now = System.currentTimeMillis()
+        val oneDayAgo = now - 24 * 60 * 60 * 1000L
+        val sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000L
+        val thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000L
+
+        return mapOf(
+            "daily" to getDataUsageForUid(context, uid, oneDayAgo, now),
+            "weekly" to getDataUsageForUid(context, uid, sevenDaysAgo, now),
+            "monthly" to getDataUsageForUid(context, uid, thirtyDaysAgo, now)
+        )
+    }
 
     @ReactMethod
     fun checkUsageStatsPermission(promise: Promise) {
-    try {
-        val granted = hasUsageStatsPermission(reactContext)
-        promise.resolve(granted)
-    } catch (e: Exception) {
-        promise.reject("ERROR", e)
-      }
+        try {
+            val granted = hasUsageStatsPermission(reactContext)
+            promise.resolve(granted)
+        } catch (e: Exception) {
+            promise.reject("ERROR", e)
+        }
     }
 
     @ReactMethod
     fun openUsageAccessSettings() {
-    try {
-        val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        reactContext.startActivity(intent)
-    } catch (e: Exception) {
-        e.printStackTrace()
-      }
+        try {
+            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            reactContext.startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     @ReactMethod
-fun getAppUpdates(promise: Promise) {
-    try {
-        val pm: PackageManager = reactContext.packageManager
-        // Retrieve all installed applications
-        val apps: List<ApplicationInfo> = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-        
-        // Create arrays for different update thresholds.
-        // These arrays will contain apps that have not been updated for more than 1 month, 3 months, and 6 months respectively.
-        val past1Month: WritableArray = Arguments.createArray()
-        val past3Month: WritableArray = Arguments.createArray()
-        val past6Month: WritableArray = Arguments.createArray()
-        
-        val currentTime = System.currentTimeMillis()
-        // Define durations in milliseconds
-        val oneMonthMillis = 30L * 24 * 60 * 60 * 1000    // 30 days
-        val threeMonthMillis = 90L * 24 * 60 * 60 * 1000   // 90 days
-        val sixMonthMillis = 180L * 24 * 60 * 60 * 1000    // 180 days
+    fun getAppUpdates(promise: Promise) {
+        try {
+            val pm: PackageManager = reactContext.packageManager
+            val apps: List<ApplicationInfo> = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+            
+            val past1Month: WritableArray = Arguments.createArray()
+            val past3Month: WritableArray = Arguments.createArray()
+            val past6Month: WritableArray = Arguments.createArray()
+            
+            val currentTime = System.currentTimeMillis()
+            val oneMonthMillis = 30L * 24 * 60 * 60 * 1000
+            val threeMonthMillis = 90L * 24 * 60 * 60 * 1000
+            val sixMonthMillis = 180L * 24 * 60 * 60 * 1000
 
-        // Loop through each app
-        for (appInfo in apps) {
-            // Only include apps with a launch intent (visible to the user)
-            if (pm.getLaunchIntentForPackage(appInfo.packageName) == null) continue
+            for (appInfo in apps) {
+                if (pm.getLaunchIntentForPackage(appInfo.packageName) == null) continue
 
-            try {
-                // Get package info to access the lastUpdateTime
-                val pkgInfo = pm.getPackageInfo(appInfo.packageName, 0)
-                val lastUpdateTime = pkgInfo.lastUpdateTime
-                val diff = currentTime - lastUpdateTime
+                try {
+                    val pkgInfo = pm.getPackageInfo(appInfo.packageName, 0)
+                    val lastUpdateTime = pkgInfo.lastUpdateTime
+                    val diff = currentTime - lastUpdateTime
 
-                // Build a map for the app. You can add more details as needed.
-                val appMap: WritableMap = Arguments.createMap()
-                appMap.putString("packageName", appInfo.packageName)
-                val label = pm.getApplicationLabel(appInfo)
-                appMap.putString("name", label?.toString() ?: "")
-                // Optionally include the last update timestamp (in milliseconds)
-                appMap.putDouble("lastUpdateTime", lastUpdateTime.toDouble())
+                    val appMap: WritableMap = Arguments.createMap()
+                    appMap.putString("packageName", appInfo.packageName)
+                    val label = pm.getApplicationLabel(appInfo)
+                    appMap.putString("name", label?.toString() ?: "")
+                    appMap.putDouble("lastUpdateTime", lastUpdateTime.toDouble())
 
-                // Categorize the app based on how long ago it was updated.
-                // The highest threshold met is used (mutually exclusive categorization).
-                when {
-                    diff > sixMonthMillis -> past6Month.pushMap(appMap)
-                    diff > threeMonthMillis -> past3Month.pushMap(appMap)
-                    diff > oneMonthMillis -> past1Month.pushMap(appMap)
-                    // Apps updated within the past month are assumed to be up-to-date and are not added.
+                    when {
+                        diff > sixMonthMillis -> past6Month.pushMap(appMap)
+                        diff > threeMonthMillis -> past3Month.pushMap(appMap)
+                        diff > oneMonthMillis -> past1Month.pushMap(appMap)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                // Continue processing other apps if one fails
             }
+
+            val resultMap: WritableMap = Arguments.createMap()
+            resultMap.putArray("past1Month", past1Month)
+            resultMap.putArray("past3Month", past3Month)
+            resultMap.putArray("past6Month", past6Month)
+
+            promise.resolve(resultMap)
+        } catch (e: Exception) {
+            promise.reject("ERROR", e)
         }
-
-        // Build a result map containing all three arrays.
-        val resultMap: WritableMap = Arguments.createMap()
-        resultMap.putArray("past1Month", past1Month)
-        resultMap.putArray("past3Month", past3Month)
-        resultMap.putArray("past6Month", past6Month)
-
-        promise.resolve(resultMap)
-    } catch (e: Exception) {
-        promise.reject("ERROR", e)
     }
-}
 
     @ReactMethod
     fun getInstalledApps(promise: Promise) {
         try {
-            // Check if the app has usage stats permission
             if (!hasUsageStatsPermission(reactContext)) {
                 promise.reject("PERMISSION_DENIED", "Usage stats permission not granted. Please enable it in settings.")
                 return
@@ -363,11 +355,10 @@ fun getAppUpdates(promise: Promise) {
                 appMap.putString("version", pkgInfo.versionName)
 
                 val now = System.currentTimeMillis()
-                val oneMonthMillis = 30L * 24 * 60 * 60 * 1000  // Approximation for one month in milliseconds
+                val oneMonthMillis = 30L * 24 * 60 * 60 * 1000
                 val isUpToDate = (now - pkgInfo.lastUpdateTime) < oneMonthMillis
                 appMap.putBoolean("isUpToDate", isUpToDate)
 
-                // val now = System.currentTimeMillis()
                 val oneDayAgo = now - 24 * 60 * 60 * 1000L
                 val sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000L
                 val thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000L
@@ -382,15 +373,29 @@ fun getAppUpdates(promise: Promise) {
                 appMap.putDouble("weeklyUsage", weeklyUsage.toDouble())
                 appMap.putDouble("monthlyUsage", monthlyUsage.toDouble())
 
-                // Add data usage using TrafficStats API
-                // val txBytes = TrafficStats.getUidTxBytes(appInfo.uid)
-                // val rxBytes = TrafficStats.getUidRxBytes(appInfo.uid)
-                // appMap.putDouble("transmittedBytes", if (txBytes < 0) 0.0 else txBytes.toDouble() / (1024 * 1024))
-                // appMap.putDouble("receivedBytes", if (rxBytes < 0) 0.0 else rxBytes.toDouble() / (1024 * 1024))
-
-                val (transmitted, received) = getDataUsageForUid(reactContext, appInfo.uid)
-                appMap.putDouble("transmittedBytes", transmitted)
-                appMap.putDouble("receivedBytes", received)
+                // Get periodic data usage (daily, weekly, monthly)
+                val dataUsage = getPeriodicDataUsage(reactContext, appInfo.uid)
+                
+                // Create maps for each period's data usage
+                val dailyDataMap = Arguments.createMap().apply {
+                    putDouble("transmitted", dataUsage["daily"]?.first ?: 0.0)
+                    putDouble("received", dataUsage["daily"]?.second ?: 0.0)
+                }
+                
+                val weeklyDataMap = Arguments.createMap().apply {
+                    putDouble("transmitted", dataUsage["weekly"]?.first ?: 0.0)
+                    putDouble("received", dataUsage["weekly"]?.second ?: 0.0)
+                }
+                
+                val monthlyDataMap = Arguments.createMap().apply {
+                    putDouble("transmitted", dataUsage["monthly"]?.first ?: 0.0)
+                    putDouble("received", dataUsage["monthly"]?.second ?: 0.0)
+                }
+                
+                // Add the data usage maps to the app map
+                appMap.putMap("dailyDataUsage", dailyDataMap)
+                appMap.putMap("weeklyDataUsage", weeklyDataMap)
+                appMap.putMap("monthlyDataUsage", monthlyDataMap)
 
                 resultArray.pushMap(appMap)
             }
