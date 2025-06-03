@@ -5,6 +5,7 @@ import {
   StyleSheet,
   NativeModules,
   FlatList,
+  TouchableOpacity,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {RootScreenProps} from '../../navigation/types';
@@ -14,31 +15,10 @@ import ScreenHeader from '@components/screen-header';
 import Loader from '@components/loader';
 import CustomText from '@components/ui/custom-text';
 import BackBtn from '@components/back-btn';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {Paths} from '@navigation/paths';
 
 const {InstalledAppsStatistics} = NativeModules;
-
-// const msToHoursMinutes = (ms: number) => {
-//   const hours = Math.floor(ms / 3600000);
-//   const minutes = Math.floor((ms % 3600000) / 60000);
-//   if (hours === 0 && minutes > 0) {
-//     return `${minutes} Mins`;
-//   }
-//   return `${hours} Hrs ${minutes} Mins`;
-// };
-
-const msToHoursMinutes = (ms: number) => {
-  const hours = Math.floor(ms / 3600000);
-  const minutes = Math.floor((ms % 3600000) / 60000);
-  const seconds = Math.floor((ms % 60000) / 1000);
-
-  if (hours > 0) {
-    return `${hours} Hrs ${minutes} Mins`;
-  } else if (minutes > 0) {
-    return `${minutes} Mins ${seconds} Secs`;
-  } else {
-    return `${seconds} Secs`;
-  }
-};
 
 const AppUsageStats: React.FC<RootScreenProps> = ({route, navigation}) => {
   const [apps, setApps] = useState<InstalledAppStats[]>([]);
@@ -62,6 +42,10 @@ const AppUsageStats: React.FC<RootScreenProps> = ({route, navigation}) => {
     init();
   }, []);
 
+  const handleAppPress = (selectedApp: InstalledAppStats) => {
+    navigation.navigate(Paths.ActiveTimeDetails, {app: selectedApp});
+  };
+
   return (
     <ScreenLayout>
       <ScreenHeader name="Active Time Statistics" />
@@ -73,38 +57,39 @@ const AppUsageStats: React.FC<RootScreenProps> = ({route, navigation}) => {
           data={apps}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item}) => (
-            <View style={styles.appContainer}>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                {item.icon ? (
-                  <Image
-                    source={{uri: `data:image/png;base64,${item.icon}`}}
-                    style={styles.appIcon}
+            <TouchableOpacity onPress={() => handleAppPress(item)}>
+              <View style={styles.appContainer}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  {item.icon ? (
+                    <Image
+                      source={{uri: `data:image/png;base64,${item.icon}`}}
+                      style={styles.appIcon}
+                    />
+                  ) : (
+                    <Text style={styles.noIcon}>No Icon</Text>
+                  )}
+                  <CustomText
+                    variant="h6"
+                    fontFamily="Montserrat-Medium"
+                    color="#fff">
+                    {item.name}
+                  </CustomText>
+                </View>
+                <View>
+                  <Ionicons
+                    name="chevron-forward-sharp"
+                    size={30}
+                    color="#FFF"
                   />
-                ) : (
-                  <Text style={styles.noIcon}>No Icon</Text>
-                )}
-                <CustomText
-                  variant="h6"
-                  fontFamily="Montserrat-Medium"
-                  color="#fff">
-                  {item.name}
-                </CustomText>
+                </View>
               </View>
-              <View>
-                <CustomText
-                  variant="h6"
-                  color="#fff"
-                  fontFamily="Montserrat-Medium">
-                  {msToHoursMinutes(item.dailyUsage)}
-                </CustomText>
-              </View>
-            </View>
+            </TouchableOpacity>
           )}
           ItemSeparatorComponent={() => <View style={styles.divider} />}
           contentContainerStyle={styles.listContentContainer}
         />
       )}
-       <BackBtn />
+      <BackBtn />
     </ScreenLayout>
   );
 };
