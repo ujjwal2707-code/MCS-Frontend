@@ -6,8 +6,19 @@ import {
   FlatList,
   TouchableOpacity,
   Alert,
+  Modal,
+  Linking,
+  ActivityIndicator,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import {NativeModules} from 'react-native';
 import {WifiNetwork} from '../../../types/types';
@@ -22,6 +33,9 @@ import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
 import {AlertContext} from '@context/alert-context';
 import {CustomToast} from '@components/ui/custom-toast';
+import CustomButton from '@components/ui/custom-button';
+import {useFocusEffect} from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const {WifiModule} = NativeModules;
 
@@ -31,21 +45,8 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
   const [loading, setLoading] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState<WifiNetwork>();
   const [openWifiDetails, setOpenWifiDetails] = useState(false);
-
-  // Alert Box
-  const {alertSettings, setAlertSetting} = useContext(AlertContext);
-  const alertKey = 'wifiSecurity';
-  const [modalVisible, setModalVisible] = useState(true);
-  const closeModal = () => {
-    setModalVisible(false);
-  };
-  const handleDontShowAgain = () => {
-    setAlertSetting(alertKey, true);
-    closeModal();
-  };
-  useEffect(() => {
-    setModalVisible(!alertSettings[alertKey]);
-  }, [alertSettings[alertKey]]);
+  const [openWifiSetting, setOpenWifiSetting] = useState(false);
+  const appState = useRef(AppState.currentState);
 
   const requestLocationPermission = async (): Promise<boolean> => {
     if (Platform.OS !== 'android') {
@@ -71,10 +72,9 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
     }
   };
 
-  const fetchWifiData = async () => {
+  const fetchWifiData = useCallback(async () => {
     try {
       setLoading(true);
-
       const hasPermission = await requestLocationPermission();
       if (!hasPermission) {
         CustomToast.showError('Location permission denied');
@@ -83,183 +83,252 @@ const WifiSecurity = ({navigation}: RootScreenProps<Paths.WifiSecurity>) => {
         return;
       }
 
-      const wifiNetworks: WifiNetwork[] = await WifiModule.scanWifiNetworks();
-      setNetworks(wifiNetworks);
-
       const connectedWifiInfo = await WifiModule.getCurrentWifiInfo();
 
       if (connectedWifiInfo?.SSID) {
         setConnectedNetwork(connectedWifiInfo);
+        setOpenWifiSetting(false); // Close modal if connected
+
+        try {
+          const wifiNetworks: WifiNetwork[] =
+            await WifiModule.scanWifiNetworks();
+          setNetworks(wifiNetworks);
+        } catch (scanError) {
+          console.error('Scan error:', scanError);
+          CustomToast.showError('Failed to scan networks');
+        }
       } else {
         setConnectedNetwork(null);
+        setNetworks([]);
+        setOpenWifiSetting(true);
       }
     } catch (error: any) {
-      console.error('WiFi fetching error:', error);
       CustomToast.showError('Error fetching WiFi networks');
       setNetworks([]);
       setConnectedNetwork(null);
+      setOpenWifiSetting(true);
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchWifiData();
   }, []);
+
+  // Handle app state changes to detect when user returns from settings
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        // User returned to app - check connection status
+        fetchWifiData();
+      }
+      appState.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange,
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [fetchWifiData]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchWifiData();
+    }, [fetchWifiData]),
+  );
 
   const handleNetworkPress = (selectedNetwork: WifiNetwork) => {
     setSelectedNetwork(selectedNetwork);
     setOpenWifiDetails(true);
   };
 
+  const handleOpenSetting = useCallback(() => {
+    if (Platform.OS === 'ios') {
+      Linking.openURL('App-Prefs:WIFI');
+    } else {
+      Linking.sendIntent('android.settings.WIFI_SETTINGS');
+    }
+
+    // Set timeout to check connection status after user returns
+    setTimeout(fetchWifiData, 1000);
+  }, [fetchWifiData]);
+
+  // Close modal automatically when network connects
+  useEffect(() => {
+    if (connectedNetwork && openWifiSetting) {
+      setOpenWifiSetting(false);
+    }
+  }, [connectedNetwork, openWifiSetting]);
+
   return (
     <ScreenLayout style={{flex: 1}}>
       <ScreenHeader name="Wifi Security" />
-      <View style={{paddingVertical: 5, marginTop: 10}}>
-        <CustomText
-          variant="h6"
-          color="#fff"
-          fontFamily="Montserrat-Medium"
-          style={{textAlign: 'center'}}>
-          Connected To
-        </CustomText>
-      </View>
-      <View
-        style={{
-          height: 1,
-          backgroundColor: '#333',
-          marginVertical: 10,
-          marginHorizontal: 20,
-        }}
-      />
 
-      {connectedNetwork ? (
-        <TouchableOpacity
-          onPress={() => handleNetworkPress(connectedNetwork)}
-          style={{paddingHorizontal: 15}}>
-          <View style={styles.wifiItem}>
-            <View style={styles.wifiItemRow}>
-              <CustomText variant="h6" color="#fff">
-                {connectedNetwork?.SSID || 'N/A'}
-              </CustomText>
-              <View
-                style={[
-                  styles.badge,
-                  connectedNetwork.isSecure ? styles.secure : styles.unsecure,
-                ]}>
-                <CustomText style={styles.badgeText}>
-                  {connectedNetwork.isSecure ? 'Secure' : 'Unsecure'}
-                </CustomText>
-              </View>
-            </View>
-          </View>
-        </TouchableOpacity>
-      ) : (
-        <View style={{paddingHorizontal: 15, marginTop: 10}}>
-          <View
-            style={{
-              backgroundColor: '#1e1e1e',
-              borderRadius: 12,
-              padding: 15,
-              alignItems: 'center',
-              shadowColor: '#000',
-              shadowOffset: {width: 0, height: 4},
-              shadowOpacity: 0.2,
-              shadowRadius: 6,
-              elevation: 5,
-            }}>
-            <CustomText variant="h6" color="#ccc" style={{textAlign: 'center'}}>
-              Not connected to any WiFi network
+      {/* <TouchableOpacity
+        style={styles.refreshButton}
+        onPress={fetchWifiData}
+        disabled={loading}>
+        <Ionicons name="refresh" size={24} color="white" />
+      </TouchableOpacity> */}
+
+      {connectedNetwork && (
+        <>
+          <View style={{paddingVertical: 5, marginTop: 10}}>
+            <CustomText
+              variant="h5"
+              color="#fff"
+              fontFamily="Montserrat-Medium"
+              style={{textAlign: 'center'}}>
+              Connected To
             </CustomText>
           </View>
-        </View>
-      )}
-
-      <View style={{paddingVertical: 5}}>
-        <CustomText
-          variant="h6"
-          color="#fff"
-          fontFamily="Montserrat-Medium"
-          style={{textAlign: 'center'}}>
-          Available Networks
-        </CustomText>
-      </View>
-      <View
-        style={{
-          height: 1,
-          backgroundColor: '#333',
-          marginVertical: 10,
-          marginHorizontal: 20,
-        }}
-      />
-
-      {loading ? (
-        <Loader />
-      ) : (
-        <FlatList
-          data={networks}
-          keyExtractor={item => item.BSSID}
-          contentContainerStyle={{paddingHorizontal: 15}}
-          renderItem={({item}) => (
-            <TouchableOpacity onPress={() => handleNetworkPress(item)}>
-              <View style={styles.wifiItem}>
-                <View style={styles.wifiItemRow}>
-                  {item.SSID ? (
-                    <CustomText variant="h6" color="#fff">
-                      {item.SSID}
-                    </CustomText>
-                  ) : (
-                    <CustomText variant="h6" color="#fff">
-                      N/A
-                    </CustomText>
-                  )}
-                  <View
-                    style={[
-                      styles.badge,
-                      item.isSecure ? styles.secure : styles.unsecure,
-                    ]}>
-                    <CustomText style={styles.badgeText}>
-                      {item.isSecure ? 'Secure' : 'Unsecure'}
-                    </CustomText>
-                  </View>
+          <View
+            style={{
+              height: 1,
+              backgroundColor: '#333',
+              marginVertical: 5,
+              marginHorizontal: 20,
+            }}
+          />
+          <TouchableOpacity
+            onPress={() => handleNetworkPress(connectedNetwork)}
+            style={{paddingHorizontal: 15}}>
+            <View style={styles.wifiItem}>
+              <View style={styles.wifiItemRow}>
+                <CustomText variant="h6" color="#fff">
+                  {connectedNetwork?.SSID || 'N/A'}
+                </CustomText>
+                <View
+                  style={[
+                    styles.badge,
+                    connectedNetwork.isSecure ? styles.secure : styles.unsecure,
+                  ]}>
+                  <CustomText style={styles.badgeText}>
+                    {connectedNetwork.isSecure ? 'Secure' : 'Unsecure'}
+                  </CustomText>
                 </View>
               </View>
-            </TouchableOpacity>
-          )}
-        />
+            </View>
+          </TouchableOpacity>
+        </>
       )}
 
-      <WifiDetails
-        isOpen={openWifiDetails}
-        onClose={() => setOpenWifiDetails(false)}
-        network={selectedNetwork!}
-      />
-
-      {modalVisible && (
-        <AlertBox
-          isOpen={modalVisible}
-          onClose={closeModal}
-          onDontShowAgain={handleDontShowAgain}>
-          <CustomText
-            fontFamily="Montserrat-Medium"
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FFFFFF" />
+        </View>
+      ) : networks.length > 0 ? (
+        <>
+          <View style={{paddingVertical: 5}}>
+            <CustomText
+              variant="h5"
+              color="#fff"
+              fontFamily="Montserrat-Medium"
+              style={{textAlign: 'center'}}>
+              Available Networks
+            </CustomText>
+          </View>
+          <View
             style={{
-              color: '#FFFFFF',
-              fontSize: 16,
-              textAlign: 'center',
-              marginBottom: 20,
-            }}>
-            Unsecured WiFi networks expose your data to cybercriminals. Checking
-            for vulnerabilities in networks helps detect fake hotspots and
-            insecure connections, keeping your online activity private.
-          </CustomText>
-        </AlertBox>
+              height: 1,
+              backgroundColor: '#333',
+              marginVertical: 5,
+              marginHorizontal: 20,
+            }}
+          />
+
+          <FlatList
+            data={networks}
+            keyExtractor={item => item.BSSID}
+            contentContainerStyle={{paddingHorizontal: 15}}
+            renderItem={({item}) => (
+              <TouchableOpacity onPress={() => handleNetworkPress(item)}>
+                <View style={styles.wifiItem}>
+                  <View style={styles.wifiItemRow}>
+                    {item.SSID ? (
+                      <CustomText variant="h6" color="#fff">
+                        {item.SSID}
+                      </CustomText>
+                    ) : (
+                      <CustomText variant="h6" color="#fff">
+                        N/A
+                      </CustomText>
+                    )}
+                    <View
+                      style={[
+                        styles.badge,
+                        item.isSecure ? styles.secure : styles.unsecure,
+                      ]}>
+                      <CustomText style={styles.badgeText}>
+                        {item.isSecure ? 'Secure' : 'Unsecure'}
+                      </CustomText>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
+
+          <WifiDetails
+            isOpen={openWifiDetails}
+            onClose={() => setOpenWifiDetails(false)}
+            network={selectedNetwork!}
+          />
+        </>
+      ) : (
+        !loading && (
+          <View style={styles.emptyContainer}>
+            <CustomText
+              variant="h5"
+              fontFamily="Montserrat-Bold"
+              style={{color: '#fff', textAlign: 'center'}}>
+              No WiFi networks found.
+            </CustomText>
+          </View>
+        )
       )}
+
+      <Modal
+        animationType="slide"
+        transparent
+        visible={openWifiSetting}
+        onRequestClose={() => setOpenWifiSetting(false)}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <CustomText
+              variant="h5"
+              style={styles.modalText}
+              fontFamily="Montserrat-SemiBold"
+              color="#fff">
+              To use this feature please connect to WiFi Network
+            </CustomText>
+            <View style={styles.modalButtonContainer}>
+              <CustomButton
+                bgVariant="primary"
+                textVariant="primary"
+                title="Go to WiFi Settings"
+                onPress={handleOpenSetting}
+              />
+              <CustomButton
+                bgVariant='danger'
+                textVariant='danger'
+                title="Close"
+                onPress={() => setOpenWifiSetting(false)}
+                style={{marginTop: 10}}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       <BackBtn />
     </ScreenLayout>
   );
 };
-
 export default WifiSecurity;
 
 const styles = StyleSheet.create({
@@ -288,6 +357,44 @@ const styles = StyleSheet.create({
   badgeText: {
     color: '#fff',
     fontSize: 14,
+  },
+  refreshButton: {
+    position: 'absolute',
+    right: 20,
+    top: 20,
+    zIndex: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: '#2337A8',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    elevation: 5,
+  },
+  modalText: {
+    fontSize: 18,
+    fontWeight: '400',
+    textAlign: 'center',
+  },
+  modalButtonContainer: {
+    padding: 2,
+    marginTop: 4,
   },
 });
 
