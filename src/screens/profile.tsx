@@ -67,30 +67,23 @@ const Profile: React.FC<ProfileProps> = ({navigation, route}) => {
   };
 
   const settings = [
-    {
-      title: 'Manage Accounts',
-      icon: <Ionicons name="chevron-forward-sharp" size={30} color="white" />,
-      onPress: () => {
-        navigation.getParent()?.navigate(Paths.ManageAccounts);
-      },
-    },
-    // {
-    //   title: 'Settings',
-    //   icon: <Ionicons name="chevron-forward-sharp" size={30} color="white" />,
-    //   onPress: () => {},
-    // },
+    ...(user?.email !== 'bigaja9282@flektel.com'
+      ? [
+          {
+            title: 'Manage Accounts',
+            icon: (
+              <Ionicons name="chevron-forward-sharp" size={30} color="white" />
+            ),
+            onPress: () =>
+              navigation.getParent()?.navigate(Paths.ManageAccounts),
+          },
+        ]
+      : []),
     {
       title: 'Privacy Policy',
       icon: <Ionicons name="chevron-forward-sharp" size={30} color="white" />,
-      onPress: () => {
-        navigation.getParent()?.navigate(Paths.PrivacyPolicy);
-      },
+      onPress: () => navigation.getParent()?.navigate(Paths.PrivacyPolicy),
     },
-    // {
-    //   title: 'Update Password',
-    //   icon: <Ionicons name="chevron-forward-sharp" size={30} color="white" />,
-    //   onPress: () => {},
-    // },
     {
       title: 'Logout',
       icon: <MaterialCommunityIcons name="logout" size={30} color="white" />,

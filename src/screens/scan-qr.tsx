@@ -448,11 +448,11 @@ const ScanQRResult = ({
                 </Card>
               ))}
 
-            <Card style={styles.chartContainer}>
+            {/* <Card style={styles.chartContainer}>
               <Card.Content>
                 <HorizontalBarsChart stats={scanUrlDetails?.stats!} />
               </Card.Content>
-            </Card>
+            </Card> */}
 
             {/** Scanners */}
 
@@ -571,13 +571,13 @@ const styles = StyleSheet.create({
   },
   harmlessCard: {
     borderRadius: 20,
-    backgroundColor: '#5DFFAE',
+    backgroundColor: '#33b5e5',
     marginTop: 20,
     padding: 10,
   },
   maliciousCard: {
     borderRadius: 20,
-    backgroundColor: '#FE3A39',
+    backgroundColor: '#33b5e5',
     marginTop: 20,
     padding: 10,
   },

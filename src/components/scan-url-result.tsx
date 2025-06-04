@@ -123,11 +123,11 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
             </Card>
           ))}
 
-        <Card style={styles.chartContainer}>
+        {/* <Card style={styles.chartContainer}>
           <Card.Content>
             <HorizontalBarsChart stats={scanResult.stats} />
           </Card.Content>
-        </Card>
+        </Card> */}
 
         <View style={{flex: 1, marginTop: 16, width: '100%'}}>
           <CustomText
@@ -211,13 +211,13 @@ export default ScanUrlResult;
 const styles = StyleSheet.create({
   harmlessCard: {
     borderRadius: 20,
-    backgroundColor: '#5DFFAE',
+    backgroundColor: '#33b5e5',
     marginTop: 20,
     padding: 10,
   },
   maliciousCard: {
     borderRadius: 20,
-    backgroundColor: '#FE3A39',
+    backgroundColor: '#33b5e5',
     marginTop: 20,
     padding: 10,
   },

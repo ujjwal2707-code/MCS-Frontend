@@ -114,7 +114,7 @@ const PhoneScanIos = () => {
             variant="h4"
             fontFamily="Montserrat-SemiBold"
             fontSize={18}>
-            OTP Security
+            Check Forwardings
           </CustomText>
           <Divider style={styles.divider} />
 
@@ -131,7 +131,7 @@ const PhoneScanIos = () => {
               variant="h4"
               fontFamily="Montserrat-Regular"
               fontSize={14}>
-              Stop OTP Theft.
+              Check Forwardings Theft.
             </CustomText>
 
             <TouchableOpacity

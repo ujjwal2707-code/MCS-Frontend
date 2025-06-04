@@ -113,7 +113,7 @@ export const featureTilesDataIos: FeatureTileType[] = [
   {
     id: '9',
     image: otpSecurity,
-    label: 'OTP Security',
+    label: 'Check Forwardings',
     route: Paths.OtpSecurity,
   },
   {
