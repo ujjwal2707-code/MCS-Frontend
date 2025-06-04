@@ -407,12 +407,213 @@ const PhoneSecurityScan = () => {
   //   riskyApps.length,
   // ]);
 
-  type ScoreCategory =
-    | 'securityIssues'
-    | 'riskyApps'
-    | 'hiddenApps'
-    | 'appsWithAds'
-    | 'riskyConnection';
+  // type ScoreCategory =
+  //   | 'securityIssues'
+  //   | 'riskyApps'
+  //   | 'hiddenApps'
+  //   | 'appsWithAds'
+  //   | 'riskyConnection';
+
+  // const averageRatingPercentage = useMemo(() => {
+  //   if (
+  //     !isAppsLoaded ||
+  //     !isSecurityLoaded ||
+  //     !isHiddenAppsLoaded ||
+  //     !isDeviceSecurityLoaded
+  //   ) {
+  //     return 0;
+  //   }
+
+  //   // Define weights for each security issue(Misconfigured settings) (total = 100)
+  //   const SECURITY_ISSUE_WEIGHTS: Record<string, number> = {
+  //     rootStatus: 20, // Highest weight - root access is a major security risk
+  //     encryption: 15, // Device encryption is critical for data protection
+  //     lockScreen: 15, // Lock screen is essential for physical security
+  //     playProtect: 12, // Google Play Protect helps prevent malicious apps
+  //     usbDebugging: 10, // USB debugging can be exploited
+  //     devMode: 8, // Developer mode can expose additional vulnerabilities
+  //     bluetooth: 6, // Bluetooth vulnerabilities are less critical but still important
+  //     showPassword: 6, // Showing passwords is a security risk
+  //     nfc: 4, // NFC is less commonly exploited
+  //     lockScreenNotifications: 4, // Sensitive info in notifications is a minor risk
+  //   };
+
+  //   const CATEGORY_WEIGHTS: Record<ScoreCategory, number> = {
+  //     securityIssues: 50, // Security settings(Misconfigured settings) are most critical
+  //     riskyApps: 25, // Risky apps are very important
+  //     hiddenApps: 15, // Hidden apps are concerning
+  //     appsWithAds: 5, // Apps with ads are least concerning
+  //     riskyConnection: 5, // Network connection security
+  //   };
+
+  //   // Define thresholds for other security aspects
+  //   const THRESHOLDS = {
+  //     appsWithAds: 10,
+  //     hiddenApps: 10,
+  //     riskyApps: 5,
+  //   };
+
+  //   const calculateSecurityScore = (data: typeof securityData) => {
+  //     let score = 100;
+  //     if (!data) return score;
+
+  //     Object.entries(SECURITY_ISSUE_WEIGHTS).forEach(([key, weight]) => {
+  //       const isNegativeSetting =
+  //         key === 'encryption' || key === 'lockScreen' || key === 'playProtect'
+  //           ? !data[key as keyof typeof data]
+  //           : data[key as keyof typeof data];
+  //       if (isNegativeSetting) {
+  //         score -= weight;
+  //       }
+  //     });
+
+  //     return score;
+  //   };
+
+  //   const calculateAspectScore = (count: number, threshold: number): number => {
+  //     return Math.max(0, 100 * (1 - count / threshold));
+  //   };
+
+  //   const securityScore = calculateSecurityScore(securityData);
+
+  //   const scores: Record<ScoreCategory, number> = {
+  //     securityIssues: securityScore,
+  //     riskyApps: calculateAspectScore(riskyApps.length, THRESHOLDS.riskyApps),
+  //     hiddenApps: calculateAspectScore(
+  //       hiddenApps.length,
+  //       THRESHOLDS.hiddenApps,
+  //     ),
+  //     appsWithAds: calculateAspectScore(
+  //       appsWithAds.length,
+  //       THRESHOLDS.appsWithAds,
+  //     ),
+  //     riskyConnection: riskyConnection ? 0 : 100,
+  //   };
+
+  //   const finalScore =
+  //     (Object.keys(scores) as ScoreCategory[]).reduce((total, key) => {
+  //       return total + scores[key] * CATEGORY_WEIGHTS[key];
+  //     }, 0) / 100;
+
+  //   return Math.max(finalScore, 20);
+  // }, [
+  //   securityData,
+  //   appsWithAds.length,
+  //   hiddenApps.length,
+  //   riskyConnection,
+  //   riskyApps.length,
+  //   isAppsLoaded,
+  //   isSecurityLoaded,
+  //   isHiddenAppsLoaded,
+  //   isDeviceSecurityLoaded,
+  // ]);
+
+  // const averageRatingPercentage = useMemo(() => {
+  //   if (
+  //     !isAppsLoaded ||
+  //     !isSecurityLoaded ||
+  //     !isHiddenAppsLoaded ||
+  //     !isDeviceSecurityLoaded
+  //   ) {
+  //     return 0;
+  //   }
+
+  //   // Adjusted weights for security issues
+  //   const SECURITY_ISSUE_WEIGHTS: Record<string, number> = {
+  //     rootStatus: 15, // Reduced weight
+  //     encryption: 12, // Reduced weight
+  //     lockScreen: 12, // Reduced weight
+  //     playProtect: 10, // Reduced weight
+  //     usbDebugging: 8, // Reduced weight
+  //     devMode: 6, // Reduced weight
+  //     bluetooth: 4, // Reduced weight
+  //     showPassword: 4, // Reduced weight
+  //     nfc: 2, // Reduced weight
+  //     lockScreenNotifications: 2, // Reduced weight
+  //   };
+
+  //   // Adjusted category weights
+  //   const CATEGORY_WEIGHTS: Record<ScoreCategory, number> = {
+  //     securityIssues: 35, // Reduced weight
+  //     riskyApps: 30, // Increased weight
+  //     hiddenApps: 15, // Same
+  //     appsWithAds: 10, // Increased weight
+  //     riskyConnection: 10, // Same
+  //   };
+
+  //   // More lenient thresholds
+  //   const THRESHOLDS = {
+  //     appsWithAds: 20, // Increased threshold
+  //     hiddenApps: 15, // Increased threshold
+  //     riskyApps: 10, // Increased threshold
+  //   };
+
+  //   const calculateSecurityScore = (data: typeof securityData) => {
+  //     let score = 100;
+  //     if (!data) return score;
+
+  //     // Only deduct for truly critical security issues
+  //     const CRITICAL_ISSUES = [
+  //       'rootStatus',
+  //       'encryption',
+  //       'lockScreen',
+  //       'playProtect',
+  //     ];
+
+  //     Object.entries(SECURITY_ISSUE_WEIGHTS).forEach(([key, weight]) => {
+  //       const isNegativeSetting =
+  //         key === 'encryption' || key === 'lockScreen' || key === 'playProtect'
+  //           ? !data[key as keyof typeof data]
+  //           : data[key as keyof typeof data];
+
+  //       // Only deduct for critical issues
+  //       if (isNegativeSetting && CRITICAL_ISSUES.includes(key)) {
+  //         score -= weight;
+  //       }
+  //     });
+
+  //     return score;
+  //   };
+
+  //   const calculateAspectScore = (count: number, threshold: number): number => {
+  //     // More forgiving calculation - only start deducting after threshold/2
+  //     if (count <= threshold / 2) return 100;
+  //     return Math.max(0, 100 * (1 - (count - threshold / 2) / (threshold / 2)));
+  //   };
+
+  //   const securityScore = calculateSecurityScore(securityData);
+
+  //   const scores: Record<ScoreCategory, number> = {
+  //     securityIssues: securityScore,
+  //     riskyApps: calculateAspectScore(riskyApps.length, THRESHOLDS.riskyApps),
+  //     hiddenApps: calculateAspectScore(
+  //       hiddenApps.length,
+  //       THRESHOLDS.hiddenApps,
+  //     ),
+  //     appsWithAds: calculateAspectScore(
+  //       appsWithAds.length,
+  //       THRESHOLDS.appsWithAds,
+  //     ),
+  //     riskyConnection: riskyConnection ? 70 : 100, // Less severe penalty
+  //   };
+
+  //   const finalScore =
+  //     (Object.keys(scores) as ScoreCategory[]).reduce((total, key) => {
+  //       return total + scores[key] * CATEGORY_WEIGHTS[key];
+  //     }, 0) / 100;
+
+  //   return Math.max(finalScore, 30); // Higher minimum score
+  // }, [
+  //   securityData,
+  //   appsWithAds.length,
+  //   hiddenApps.length,
+  //   riskyConnection,
+  //   riskyApps.length,
+  //   isAppsLoaded,
+  //   isSecurityLoaded,
+  //   isHiddenAppsLoaded,
+  //   isDeviceSecurityLoaded,
+  // ]);
 
   const averageRatingPercentage = useMemo(() => {
     if (
@@ -424,78 +625,94 @@ const PhoneSecurityScan = () => {
       return 0;
     }
 
-    // Define weights for each security issue(Misconfigured settings) (total = 100)
-    const SECURITY_ISSUE_WEIGHTS: Record<string, number> = {
-      rootStatus: 20, // Highest weight - root access is a major security risk
-      encryption: 15, // Device encryption is critical for data protection
-      lockScreen: 15, // Lock screen is essential for physical security
-      playProtect: 12, // Google Play Protect helps prevent malicious apps
-      usbDebugging: 10, // USB debugging can be exploited
-      devMode: 8, // Developer mode can expose additional vulnerabilities
-      bluetooth: 6, // Bluetooth vulnerabilities are less critical but still important
-      showPassword: 6, // Showing passwords is a security risk
-      nfc: 4, // NFC is less commonly exploited
-      lockScreenNotifications: 4, // Sensitive info in notifications is a minor risk
+    // Define weights for each security category
+    const CATEGORY_WEIGHTS = {
+      securityIssues: 35, // Security settings
+      riskyApps: 30, // Actually malicious apps
+      hiddenApps: 15, // Hidden apps
+      appsWithAds: 10, // Apps with ads
+      riskyConnection: 10, // Network security
     };
 
-    const CATEGORY_WEIGHTS: Record<ScoreCategory, number> = {
-      securityIssues: 50, // Security settings(Misconfigured settings) are most critical
-      riskyApps: 25, // Risky apps are very important
-      hiddenApps: 15, // Hidden apps are concerning
-      appsWithAds: 5, // Apps with ads are least concerning
-      riskyConnection: 5, // Network connection security
-    };
-
-    // Define thresholds for other security aspects
+    // Define thresholds where we start deducting points
     const THRESHOLDS = {
       appsWithAds: 10,
-      hiddenApps: 10,
-      riskyApps: 5,
+      hiddenApps: 5,
+      riskyApps: 3,
     };
 
-    const calculateSecurityScore = (data: typeof securityData) => {
-      let score = 100;
-      if (!data) return score;
+    // Calculate security score for settings
+    const calculateSecurityScore = () => {
+      if (!securityData) return 100;
 
-      Object.entries(SECURITY_ISSUE_WEIGHTS).forEach(([key, weight]) => {
-        const isNegativeSetting =
-          key === 'encryption' || key === 'lockScreen' || key === 'playProtect'
-            ? !data[key as keyof typeof data]
-            : data[key as keyof typeof data];
-        if (isNegativeSetting) {
-          score -= weight;
+      // Only consider truly critical security settings
+      const CRITICAL_ISSUES = [
+        'rootStatus',
+        'encryption',
+        'lockScreen',
+        'playProtect',
+      ];
+
+      let insecureCount = 0;
+      CRITICAL_ISSUES.forEach(key => {
+        const value = securityData[key as keyof SecurityData];
+
+        // Conditions where we consider it insecure
+        if (
+          (key === 'rootStatus' && value) ||
+          (key === 'encryption' && !value) ||
+          (key === 'lockScreen' && !value) ||
+          (key === 'playProtect' && !value)
+        ) {
+          insecureCount++;
         }
       });
 
-      return score;
+      // Deduct 20% for each critical issue found
+      return Math.max(0, 100 - insecureCount * 20);
     };
 
-    const calculateAspectScore = (count: number, threshold: number): number => {
-      return Math.max(0, 100 * (1 - count / threshold));
+    // Calculate score for quantitative aspects
+    const calculateAspectScore = (count: number, threshold: number) => {
+      if (count === 0) return 100;
+
+      // Only start deducting after crossing the threshold
+      if (count <= threshold) return 100;
+
+      // Deduct 10% for each item over the threshold
+      const overThreshold = count - threshold;
+      return Math.max(50, 100 - overThreshold * 10);
     };
 
-    const securityScore = calculateSecurityScore(securityData);
+    const securityScore = calculateSecurityScore();
+    const riskyAppsScore = calculateAspectScore(
+      riskyApps.length,
+      THRESHOLDS.riskyApps,
+    );
+    const hiddenAppsScore = calculateAspectScore(
+      hiddenApps.length,
+      THRESHOLDS.hiddenApps,
+    );
+    const appsWithAdsScore = calculateAspectScore(
+      appsWithAds.length,
+      THRESHOLDS.appsWithAds,
+    );
+    const connectionScore = riskyConnection ? 70 : 100; // 30% penalty for risky connection
 
-    const scores: Record<ScoreCategory, number> = {
-      securityIssues: securityScore,
-      riskyApps: calculateAspectScore(riskyApps.length, THRESHOLDS.riskyApps),
-      hiddenApps: calculateAspectScore(
-        hiddenApps.length,
-        THRESHOLDS.hiddenApps,
-      ),
-      appsWithAds: calculateAspectScore(
-        appsWithAds.length,
-        THRESHOLDS.appsWithAds,
-      ),
-      riskyConnection: riskyConnection ? 0 : 100,
-    };
+    // Calculate weighted average
+    const totalWeight = Object.values(CATEGORY_WEIGHTS).reduce(
+      (sum, w) => sum + w,
+      0,
+    );
+    const weightedScore =
+      (securityScore * CATEGORY_WEIGHTS.securityIssues +
+        riskyAppsScore * CATEGORY_WEIGHTS.riskyApps +
+        hiddenAppsScore * CATEGORY_WEIGHTS.hiddenApps +
+        appsWithAdsScore * CATEGORY_WEIGHTS.appsWithAds +
+        connectionScore * CATEGORY_WEIGHTS.riskyConnection) /
+      totalWeight;
 
-    const finalScore =
-      (Object.keys(scores) as ScoreCategory[]).reduce((total, key) => {
-        return total + scores[key] * CATEGORY_WEIGHTS[key];
-      }, 0) / 100;
-
-    return Math.max(finalScore, 20);
+    return weightedScore;
   }, [
     securityData,
     appsWithAds.length,
