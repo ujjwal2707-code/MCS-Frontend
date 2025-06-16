@@ -123,6 +123,90 @@ export interface VirusTotalResponse {
   };
 }
 
+// Domain reputation
+interface BlacklistEngine {
+  name: string;
+  detected: boolean;
+  reference: string;
+  confidence: 'low' | 'high';
+  elapsed_ms: number;
+}
+
+interface Blacklists {
+  engines: Record<string, BlacklistEngine>;
+  detections: number;
+  engines_count: number;
+  detection_rate: string;
+  scan_time_ms: number;
+}
+
+interface ServerDetails {
+  ip: string;
+  reverse_dns: string;
+  continent_code: string;
+  continent_name: string;
+  country_code: string;
+  country_name: string;
+  region_name: string;
+  city_name: string;
+  latitude: number;
+  longitude: number;
+  isp: string;
+  asn: string;
+}
+
+interface SecurityChecks {
+  is_most_abused_tld: boolean;
+  is_domain_ipv4_assigned: boolean;
+  is_domain_ipv4_private: boolean;
+  is_domain_ipv4_loopback: boolean;
+  is_domain_ipv4_reserved: boolean;
+  is_domain_ipv4_valid: boolean;
+  is_domain_blacklisted: boolean;
+  is_uncommon_host_length: boolean;
+  is_uncommon_dash_char_count: boolean;
+  is_uncommon_dot_char_count: boolean;
+  website_popularity: 'low' | 'medium' | 'high' | string;
+  is_uncommon_clickable_domain: boolean;
+  is_risky_category: boolean;
+}
+
+interface RiskScore {
+  result: number;
+}
+
+interface Nameserver {
+  name: string;
+  ipv4: string;
+  ipv6: string;
+}
+
+interface DomainInfo {
+  domain_creation_date: string;
+  domain_age_in_days: number;
+  domain_age_in_months: number;
+  domain_age_in_years: number;
+  owner_organization: string;
+  owner_country: string;
+  owner_state_province: string;
+  registrar: string;
+  registrar_abuse_email: string;
+  dnssec: string;
+  nameservers: Nameserver[];
+}
+
+export interface DomainReputationResponse {
+  host: string;
+  blacklists: Blacklists;
+  server_details: ServerDetails;
+  security_checks: SecurityChecks;
+  risk_score: RiskScore;
+  domain_info: DomainInfo;
+  timestamp: string;
+}
+
+
+// Text Input
 declare interface InputFieldProps extends TextInputProps {
   label: string;
   icon?: any;
@@ -134,6 +218,7 @@ declare interface InputFieldProps extends TextInputProps {
   className?: string;
 }
 
+// Button
 declare interface ButtonProps extends TouchableOpacityProps {
   title: string;
   bgVariant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'success';
@@ -144,3 +229,4 @@ declare interface ButtonProps extends TouchableOpacityProps {
   isLoading?: boolean;
   isDisabled?: boolean;
 }
+
