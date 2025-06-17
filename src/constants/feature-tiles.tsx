@@ -43,7 +43,7 @@ export const featureTilesDataAndroid: FeatureTileType[] = [
   {
     id: '9',
     image: otpSecurity,
-    label: 'OTP Security',
+    label: 'Check Forwardings',
     route: Paths.OtpSecurity,
   },
   {
@@ -88,6 +88,25 @@ export const featureTilesDataAndroid: FeatureTileType[] = [
     label: 'Threat Analyzer',
     route: Paths.ThreatAdvisor,
   },
+
+  // {
+  //   id: '7677',
+  //   image: adwareScan,
+  //   label: 'Adware Scan',
+  //   route: Paths.AdwareScan,
+  // },
+  // {
+  //   id: '1166778',
+  //   image: appStats,
+  //   label: 'App Statistics',
+  //   route: Paths.AppStatistics,
+  // },
+  // {
+  //   id: '656778',
+  //   image: threatAnalyzer,
+  //   label: 'Threat Analyzer',
+  //   route: Paths.ThreatAdvisor,
+  // },
 ];
 
 

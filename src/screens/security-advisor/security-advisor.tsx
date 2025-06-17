@@ -151,11 +151,11 @@ const SecurityAdvisor = ({
           label: 'Developer Mode',
           enabled: securityData.devMode,
         },
-        {
-          key: 'showPassword',
-          label: 'Show Password',
-          enabled: securityData.showPassword,
-        },
+        // {
+        //   key: 'showPassword',
+        //   label: 'Show Password',
+        //   enabled: securityData.showPassword,
+        // },
         {
           key: 'lockScreenNotifications',
           label: 'Lock Screen Notify',
@@ -164,33 +164,76 @@ const SecurityAdvisor = ({
       ]
     : [];
 
-  const renderItem: ListRenderItem<SecurityItem> = ({item}) => (
-    <TouchableOpacity
-      onPress={() => navigation.navigate(Paths.SecurityDetails, {id: item.key})}
-      style={styles.touchable}>
-      <View style={styles.itemContainer}>
-        <Ionicons
-          name={item.enabled ? 'checkmark-circle' : 'close-circle'}
-          size={24}
-          color={item.enabled ? 'green' : 'red'}
-        />
-        <CustomText variant="h5" color="#fff">
-          {item.label}
-        </CustomText>
-        <CustomText
-          fontFamily="Montserrat-Bold"
-          variant="h5"
-          style={[
-            styles.statusText,
-            item.enabled ? styles.greenStatus : styles.redStatus,
-          ]}>
-          {item.enabled ? 'Enabled' : 'Disabled'}
-        </CustomText>
-      </View>
+  // const renderItem: ListRenderItem<SecurityItem> = ({item}) => (
+  //   <TouchableOpacity
+  //     onPress={() => navigation.navigate(Paths.SecurityDetails, {id: item.key})}
+  //     style={styles.touchable}>
+  //     <View style={styles.itemContainer}>
+  //       <Ionicons
+  //         name={item.enabled ? 'checkmark-circle' : 'close-circle'}
+  //         size={24}
+  //         color={item.enabled ? 'green' : 'red'}
+  //       />
+  //       <CustomText variant="h5" color="#fff">
+  //         {item.label}
+  //       </CustomText>
+  //       <CustomText
+  //         fontFamily="Montserrat-Bold"
+  //         variant="h5"
+  //         style={[
+  //           styles.statusText,
+  //           item.enabled ? styles.greenStatus : styles.redStatus,
+  //         ]}>
+  //         {item.enabled ? 'Enabled' : 'Disabled'}
+  //       </CustomText>
+  //     </View>
 
-      <Ionicons name="chevron-forward-sharp" size={30} color="white" />
-    </TouchableOpacity>
-  );
+  //     <Ionicons name="chevron-forward-sharp" size={30} color="white" />
+  //   </TouchableOpacity>
+  // );
+
+  const renderItem: ListRenderItem<SecurityItem> = ({item}) => {
+    const invertedKeys = [
+      'rootStatus',
+      'usbDebugging',
+      'nfc',
+      'lockScreenNotifications',
+      'bluetooth',
+      'devMode',
+    ];
+    const isInverted = invertedKeys.includes(item.key);
+
+    // Logic to determine icon and color
+    const showCheckmark = isInverted ? !item.enabled : item.enabled;
+    const iconColor = showCheckmark ? 'green' : 'red';
+    const iconName = showCheckmark ? 'checkmark-circle' : 'close-circle';
+    const textColorStyle = showCheckmark
+      ? styles.greenStatus
+      : styles.redStatus;
+
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate(Paths.SecurityDetails, {id: item.key})
+        }
+        style={styles.touchable}>
+        <View style={styles.itemContainer}>
+          <Ionicons name={iconName} size={24} color={iconColor} />
+          <CustomText variant="h5" color="#fff">
+            {item.label}
+          </CustomText>
+          <CustomText
+            fontFamily="Montserrat-Bold"
+            variant="h5"
+            style={[styles.statusText, textColorStyle]}>
+            {item.enabled ? 'Enabled' : 'Disabled'}
+          </CustomText>
+        </View>
+
+        <Ionicons name="chevron-forward-sharp" size={30} color="white" />
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <ScreenLayout>

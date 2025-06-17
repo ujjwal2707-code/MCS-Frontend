@@ -3,13 +3,11 @@ import {
   View,
   Text,
   Image,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   FlatList,
 } from 'react-native';
 import {NativeModules, Platform} from 'react-native';
-import FullScreenLoader from '../../components/full-screen-loader';
 import {InstalledApp} from '../../../types/types';
 import {RootScreenProps} from '../../navigation/types';
 import {Paths} from '../../navigation/paths';
@@ -54,7 +52,17 @@ const AppPermissions = ({navigation}: RootScreenProps<Paths.AppPermission>) => {
         try {
           setLoading(true);
           const installedApps = await InstalledApps.getInstalledApps();
-          setApps(installedApps);
+          const filteredApps = installedApps
+            .filter(app => {
+              return (
+                Array.isArray(app.controllablePermissions) &&
+                app.controllablePermissions.some(
+                  permission => permission.granted === true,
+                )
+              );
+            })
+            .sort((a, b) => a.name.localeCompare(b.name));
+          setApps(filteredApps);
         } catch (error) {
           console.error('Error fetching apps:', error);
         } finally {

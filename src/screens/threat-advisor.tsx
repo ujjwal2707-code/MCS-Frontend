@@ -6,15 +6,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  FlatList,
 } from 'react-native';
 import {NativeModules} from 'react-native';
-import FullScreenLoader from '../components/full-screen-loader';
-import CustomText from '@components/ui/custom-text';
 import ScreenLayout from '@components/screen-layout';
 import ScreenHeader from '@components/screen-header';
-import Loader from '@components/loader';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import CustomText from '@components/ui/custom-text';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
 import {AlertContext} from '@context/alert-context';
@@ -22,10 +18,12 @@ import {AlertContext} from '@context/alert-context';
 interface InstalledApp {
   packageName: string;
   name: string;
-  permissions: string[];
-  sha256: string;
-  isRisky: boolean;
+  versionName: string;
+  versionCode: string;
   icon: string;
+  isMalicious: boolean;
+  reasons: string[];
+  installer: string;
 }
 
 interface InstalledAppsModule {
@@ -40,19 +38,22 @@ const ThreatAdvisor = () => {
   const [apps, setApps] = useState<InstalledApp[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
-  const [selectedTab, setSelectedTab] = useState<'risky' | 'nonRisky'>('risky');
+  const [selectedTab, setSelectedTab] = useState<'suspicious' | 'safe'>('suspicious');
 
   // Alert Box
   const {alertSettings, setAlertSetting} = useContext(AlertContext);
   const alertKey = 'threatAdvisor';
   const [modalVisible, setModalVisible] = useState(true);
+
   const closeModal = () => {
     setModalVisible(false);
   };
+
   const handleDontShowAgain = () => {
     setAlertSetting(alertKey, true);
     closeModal();
   };
+
   useEffect(() => {
     setModalVisible(!alertSettings[alertKey]);
   }, [alertSettings[alertKey]]);
@@ -60,8 +61,7 @@ const ThreatAdvisor = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        const installedApps =
-          await InstalledAppsThreatAnalysis.getInstalledApps(true);
+        const installedApps = await InstalledAppsThreatAnalysis.getInstalledApps(true);
         setApps(installedApps);
       } catch (err) {
         console.error('Error fetching apps:', err);
@@ -73,23 +73,42 @@ const ThreatAdvisor = () => {
     init();
   }, []);
 
-  const riskyApps = apps.filter(app => app.isRisky);
-  const nonRiskyApps = apps.filter(app => !app.isRisky);
+  const suspiciousApps = apps.filter(app => app.isMalicious);
+  const safeApps = apps.filter(app => !app.isMalicious);
 
   const renderAppItem = (app: InstalledApp) => (
     <View key={app.packageName} style={styles.appItem}>
-      {app.icon ? (
-        <Image
-          source={{uri: `data:image/webp;base64,${app.icon}`}}
-          style={styles.appIcon}
-          resizeMode="contain"
-        />
-      ) : (
-        <View style={[styles.appIcon, styles.noIcon]} />
+      <View style={styles.appHeader}>
+        {app.icon ? (
+          <Image
+            source={{uri: `data:image/webp;base64,${app.icon}`}}
+            style={styles.appIcon}
+            resizeMode="contain"
+          />
+        ) : (
+          <View style={[styles.appIcon, styles.noIcon]} />
+        )}
+        <View style={styles.appInfo}>
+          <CustomText style={styles.appName} color="#fff">
+            {app.name}
+          </CustomText>
+          <CustomText style={styles.appVersion} color="#ccc">
+            Version {app.versionName} ({app.versionCode})
+          </CustomText>
+        </View>
+      </View>
+      {app.isMalicious && app.reasons.length > 0 && (
+        <View style={styles.reasonsContainer}>
+          {app.reasons.map((reason, index) => (
+            <CustomText key={index} style={styles.reasonText} color="#ff6b6b">
+              • {reason}
+            </CustomText>
+          ))}
+        </View>
       )}
-      <CustomText color="#fff">{app.name}</CustomText>
     </View>
   );
+
   return (
     <ScreenLayout>
       <ScreenHeader name="Threat Analyzer" />
@@ -98,65 +117,57 @@ const ThreatAdvisor = () => {
         <TouchableOpacity
           style={[
             styles.tabButton,
-            selectedTab === 'risky' && styles.activeTabButton,
+            selectedTab === 'suspicious' && styles.activeTabButton,
           ]}
-          onPress={() => setSelectedTab('risky')}>
+          onPress={() => setSelectedTab('suspicious')}>
           <Text
             style={[
               styles.tabButtonText,
-              selectedTab === 'risky' && styles.activeTabText,
+              selectedTab === 'suspicious' && styles.activeTabText,
             ]}>
-            Risky Apps ({riskyApps.length})
+            Risky Apps ({suspiciousApps.length})
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.tabButton,
-            selectedTab === 'nonRisky' && styles.activeTabButton,
+            selectedTab === 'safe' && styles.activeTabButton,
           ]}
-          onPress={() => setSelectedTab('nonRisky')}>
+          onPress={() => setSelectedTab('safe')}>
           <Text
             style={[
               styles.tabButtonText,
-              selectedTab === 'nonRisky' && styles.activeTabText,
+              selectedTab === 'safe' && styles.activeTabText,
             ]}>
-            Non-Risky Apps ({nonRiskyApps.length})
+            Non Risky Apps ({safeApps.length})
           </Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {selectedTab === 'risky' && (
-          <View style={styles.tabContent}>
-            {riskyApps.length > 0 ? (
-              riskyApps.map(renderAppItem)
+        <View style={styles.tabContent}>
+          {selectedTab === 'suspicious' ? (
+            suspiciousApps.length > 0 ? (
+              suspiciousApps.map(renderAppItem)
             ) : (
               <CustomText
                 color="#fff"
                 variant="h5"
                 fontFamily="Montserrat-SemiBold">
-                No Risky Apps found.
+                No suspicious apps found.
               </CustomText>
-            )}
-          </View>
-        )}
-      </ScrollView>
-
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {selectedTab === 'nonRisky' && (
-          <View style={styles.tabContent}>
-            {nonRiskyApps.length > 0 ? (
-              nonRiskyApps.map(renderAppItem)
-            ) : (
-              <CustomText
-                color="#fff"
-                variant="h5"
-                fontFamily="Montserrat-SemiBold">
-                No Non-Risky Apps found.
-              </CustomText>
-            )}
-          </View>
-        )}
+            )
+          ) : safeApps.length > 0 ? (
+            safeApps.map(renderAppItem)
+          ) : (
+            <CustomText
+              color="#fff"
+              variant="h5"
+              fontFamily="Montserrat-SemiBold">
+              No safe apps found.
+            </CustomText>
+          )}
+        </View>
       </ScrollView>
 
       {modalVisible && (
@@ -166,15 +177,10 @@ const ThreatAdvisor = () => {
           onDontShowAgain={handleDontShowAgain}>
           <CustomText
             fontFamily="Montserrat-Medium"
-            style={{
-              color: '#FFFFFF',
-              fontSize: 16,
-              textAlign: 'center',
-              marginBottom: 20,
-            }}>
-            Keyloggers, spyware, and trojans often operate undetected in the
-            background. Analyzing device behavior helps uncover hidden threats,
-            allowing users to take preventive measures before damage occurs.
+            style={styles.alertText}>
+            This analyzer checks for potentially malicious apps by detecting signs of tampering,
+            unofficial sources, and suspicious modifications. Apps flagged as suspicious may have
+            been cracked, modified, or installed from untrusted sources.
           </CustomText>
         </AlertBox>
       )}
@@ -216,20 +222,53 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   appItem: {
+    marginVertical: 8,
+    padding: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    borderRadius: 8,
+  },
+  appHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 6,
   },
   appIcon: {
     width: 40,
     height: 40,
     marginRight: 12,
+    borderRadius: 8,
   },
   noIcon: {
     backgroundColor: '#ccc',
   },
+  appInfo: {
+    flex: 1,
+  },
+  appName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  appVersion: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  reasonsContainer: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  reasonText: {
+    fontSize: 14,
+    marginVertical: 2,
+  },
   scrollContainer: {
     paddingBottom: 10,
+  },
+  alertText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
   },
 });
 

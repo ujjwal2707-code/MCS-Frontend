@@ -66,7 +66,28 @@ interface SecurityCheckModuleType {
   isLockScreenNotificationsEnabled: () => Promise<boolean>;
 }
 
-const {AdsServices, SecurityCheckModule, HiddenAppsModule} = NativeModules as {
+interface InstalledAppData {
+  packageName: string;
+  name: string;
+  versionName: string;
+  versionCode: string;
+  icon: string;
+  isMalicious: boolean;
+  reasons: string[];
+  installer: string;
+}
+
+interface InstalledAppsModule {
+  getInstalledApps: (includeIcons: boolean) => Promise<InstalledAppData[]>;
+}
+
+const {
+  AdsServices,
+  SecurityCheckModule,
+  HiddenAppsModule,
+  DeviceSecurityModule,
+  InstalledAppsThreatAnalysis,
+} = NativeModules as {
   AdsServices: {
     getInstalledApps: () => Promise<InstalledApp[]>;
     getAdsServices: () => Promise<AdsServiceInfo[]>;
@@ -75,6 +96,19 @@ const {AdsServices, SecurityCheckModule, HiddenAppsModule} = NativeModules as {
   HiddenAppsModule: {
     getHiddenApps: () => Promise<AppInfo[]>;
   };
+  DeviceSecurityModule: {
+    checkRiskyConnection: () => Promise<boolean>;
+    getPermissionMisuseList: () => Promise<
+      Array<{
+        appName: string;
+        packageName: string;
+        permissions: string[];
+      }>
+    >;
+    getPermissionMisuseCount: () => Promise<number>;
+    getOutdatedAppsCount: () => Promise<number>;
+  };
+  InstalledAppsThreatAnalysis: InstalledAppsModule;
 };
 
 type NavigationProps = NativeStackNavigationProp<
@@ -85,6 +119,8 @@ type NavigationProps = NativeStackNavigationProp<
 const PhoneSecurityScan = () => {
   const navigation = useNavigation<NavigationProps>();
   const [apps, setApps] = useState<InstalledApp[]>([]);
+  const [riskyApps, setRiskyApps] = useState<InstalledAppData[]>([]);
+  const [nonRiskyApps, setNonRiskyApps] = useState<InstalledAppData[]>([]);
   const [adsServices, setAdsServices] = useState<AdsServiceInfo[]>([]);
   const [appsWithAds, setAppsWithAds] = useState<AppWithAds[]>([]);
   const [securityData, setSecurityData] = useState<SecurityData | null>(null);
@@ -102,6 +138,18 @@ const PhoneSecurityScan = () => {
   const [isHiddenAppsLoaded, setIsHiddenAppsLoaded] = useState(false);
 
   const [animationResetTrigger, setAnimationResetTrigger] = useState(0);
+
+  const [riskyConnection, setRiskyConnection] = useState(false);
+  const [permissionMisuse, setPermissionMisuse] = useState<
+    Array<{
+      appName: string;
+      packageName: string;
+      permissions: string[];
+    }>
+  >([]);
+  const [permissionMisuseCount, setPermissionMisuseCount] = useState(0);
+  const [outdatedAppsCount, setOutdatedAppsCount] = useState(0);
+  const [isDeviceSecurityLoaded, setIsDeviceSecurityLoaded] = useState(false);
 
   useEffect(() => {
     Animated.loop(
@@ -211,14 +259,35 @@ const PhoneSecurityScan = () => {
     checkSecurity();
   }, [checkSecurity]);
 
-  // Count number of true security flags
+  // Count number of Misconfigured settings.
   useEffect(() => {
     if (securityData) {
-      const count = Object.values(securityData).filter(
-        value => value === true,
-      ).length;
-      setSecurityDataCount(count);
-      console.log(`Number of true properties: ${count}`);
+      const insecureWhenTrue = [
+        'rootStatus',
+        'usbDebugging',
+        'nfc',
+        'lockScreenNotifications',
+        'bluetooth',
+        'devMode',
+      ];
+
+      const insecureWhenFalse = [
+        'playProtect',
+        'lockScreen',
+        'encryption',
+        'showPassword',
+      ];
+
+      const insecureCount = [
+        ...insecureWhenTrue.filter(
+          key => securityData[key as keyof SecurityData] === true,
+        ),
+        ...insecureWhenFalse.filter(
+          key => securityData[key as keyof SecurityData] === false,
+        ),
+      ].length;
+
+      setSecurityDataCount(insecureCount);
     }
   }, [securityData]);
 
@@ -236,70 +305,443 @@ const PhoneSecurityScan = () => {
     fetchHiddenApps();
   }, []);
 
+  // Fetch Device Security Data
+  useEffect(() => {
+    const fetchDeviceSecurityData = async () => {
+      try {
+        const [isRisky, misuseCount, outdatedCount, misuseList] =
+          await Promise.all([
+            DeviceSecurityModule.checkRiskyConnection(),
+            DeviceSecurityModule.getPermissionMisuseCount(),
+            DeviceSecurityModule.getOutdatedAppsCount(),
+            DeviceSecurityModule.getPermissionMisuseList(),
+          ]);
+
+        // console.log(
+        //   isRisky,
+        //   misuseCount,
+        //   outdatedCount,
+        //   misuseList,
+        //   'riskyConnection,permissionMisuseCount,outdatedAppsCount,misuseList',
+        // );
+
+        setRiskyConnection(isRisky);
+        setPermissionMisuse(misuseList);
+        setPermissionMisuseCount(misuseCount);
+        setOutdatedAppsCount(outdatedCount);
+        setIsDeviceSecurityLoaded(true);
+      } catch (error) {
+        console.error('Error fetching device security data:', error);
+      }
+    };
+    fetchDeviceSecurityData();
+  }, []);
+
+  // Fetch Risky & non-risky apps
+  useEffect(() => {
+    const fetchRiskyApps = async () => {
+      try {
+        const apps = await InstalledAppsThreatAnalysis.getInstalledApps(true);
+        const riskyApps = apps.filter(app => app.isMalicious);
+        setRiskyApps(riskyApps);
+
+        const safeApps = apps.filter(app => !app.isMalicious);
+        setNonRiskyApps(safeApps);
+      } catch (err) {}
+    };
+    fetchRiskyApps();
+  }, []);
+
   // Compute the normalized scores and average rating in percentage
+  // const averageRatingPercentage = useMemo(() => {
+  //   if (
+  //     !isAppsLoaded ||
+  //     !isSecurityLoaded ||
+  //     !isHiddenAppsLoaded ||
+  //     !isDeviceSecurityLoaded
+  //   ) {
+  //     return 0;
+  //   }
+  //   const maxAppsWithAds = 10;
+  //   const maxSecurityIssues = 10;
+  //   const maxHiddenApps = 10;
+  //   const maxRiskyApps = 5;
+  //   const scoreAppsWithAds = Math.max(
+  //     0,
+  //     5 - (appsWithAds.length / maxAppsWithAds) * 5,
+  //   );
+  //   const scoreSecurity = Math.max(
+  //     0,
+  //     5 * ((maxSecurityIssues - securityDataCount) / maxSecurityIssues),
+  //   );
+  //   const scoreHiddenApps = Math.max(
+  //     0,
+  //     5 - (hiddenApps.length / maxHiddenApps) * 5,
+  //   );
+  //   const scoreRisky = riskyConnection ? 0 : 5;
+  //   // New score for risky apps
+  //   const scoreRiskyApps = Math.max(
+  //     0,
+  //     5 - (riskyApps.length / maxRiskyApps) * 5,
+  //   );
+
+  //   const weightedScore =
+  //     (scoreAppsWithAds * 1 +
+  //       scoreSecurity * 3 +
+  //       scoreHiddenApps * 3 +
+  //       scoreRisky * 2 +
+  //       scoreRiskyApps * 2) /
+  //     (1 + 3 + 3 + 2 + 2); // Total weight 11
+
+  //   const percentage = (weightedScore / 5) * 100;
+  //   return Math.max(percentage, 20);
+  // }, [
+  //   appsWithAds.length,
+  //   securityDataCount,
+  //   hiddenApps.length,
+  //   riskyConnection,
+  //   isAppsLoaded,
+  //   isSecurityLoaded,
+  //   isHiddenAppsLoaded,
+  //   isDeviceSecurityLoaded,
+  //   riskyApps.length,
+  // ]);
+
+  // type ScoreCategory =
+  //   | 'securityIssues'
+  //   | 'riskyApps'
+  //   | 'hiddenApps'
+  //   | 'appsWithAds'
+  //   | 'riskyConnection';
+
+  // const averageRatingPercentage = useMemo(() => {
+  //   if (
+  //     !isAppsLoaded ||
+  //     !isSecurityLoaded ||
+  //     !isHiddenAppsLoaded ||
+  //     !isDeviceSecurityLoaded
+  //   ) {
+  //     return 0;
+  //   }
+
+  //   // Define weights for each security issue(Misconfigured settings) (total = 100)
+  //   const SECURITY_ISSUE_WEIGHTS: Record<string, number> = {
+  //     rootStatus: 20, // Highest weight - root access is a major security risk
+  //     encryption: 15, // Device encryption is critical for data protection
+  //     lockScreen: 15, // Lock screen is essential for physical security
+  //     playProtect: 12, // Google Play Protect helps prevent malicious apps
+  //     usbDebugging: 10, // USB debugging can be exploited
+  //     devMode: 8, // Developer mode can expose additional vulnerabilities
+  //     bluetooth: 6, // Bluetooth vulnerabilities are less critical but still important
+  //     showPassword: 6, // Showing passwords is a security risk
+  //     nfc: 4, // NFC is less commonly exploited
+  //     lockScreenNotifications: 4, // Sensitive info in notifications is a minor risk
+  //   };
+
+  //   const CATEGORY_WEIGHTS: Record<ScoreCategory, number> = {
+  //     securityIssues: 50, // Security settings(Misconfigured settings) are most critical
+  //     riskyApps: 25, // Risky apps are very important
+  //     hiddenApps: 15, // Hidden apps are concerning
+  //     appsWithAds: 5, // Apps with ads are least concerning
+  //     riskyConnection: 5, // Network connection security
+  //   };
+
+  //   // Define thresholds for other security aspects
+  //   const THRESHOLDS = {
+  //     appsWithAds: 10,
+  //     hiddenApps: 10,
+  //     riskyApps: 5,
+  //   };
+
+  //   const calculateSecurityScore = (data: typeof securityData) => {
+  //     let score = 100;
+  //     if (!data) return score;
+
+  //     Object.entries(SECURITY_ISSUE_WEIGHTS).forEach(([key, weight]) => {
+  //       const isNegativeSetting =
+  //         key === 'encryption' || key === 'lockScreen' || key === 'playProtect'
+  //           ? !data[key as keyof typeof data]
+  //           : data[key as keyof typeof data];
+  //       if (isNegativeSetting) {
+  //         score -= weight;
+  //       }
+  //     });
+
+  //     return score;
+  //   };
+
+  //   const calculateAspectScore = (count: number, threshold: number): number => {
+  //     return Math.max(0, 100 * (1 - count / threshold));
+  //   };
+
+  //   const securityScore = calculateSecurityScore(securityData);
+
+  //   const scores: Record<ScoreCategory, number> = {
+  //     securityIssues: securityScore,
+  //     riskyApps: calculateAspectScore(riskyApps.length, THRESHOLDS.riskyApps),
+  //     hiddenApps: calculateAspectScore(
+  //       hiddenApps.length,
+  //       THRESHOLDS.hiddenApps,
+  //     ),
+  //     appsWithAds: calculateAspectScore(
+  //       appsWithAds.length,
+  //       THRESHOLDS.appsWithAds,
+  //     ),
+  //     riskyConnection: riskyConnection ? 0 : 100,
+  //   };
+
+  //   const finalScore =
+  //     (Object.keys(scores) as ScoreCategory[]).reduce((total, key) => {
+  //       return total + scores[key] * CATEGORY_WEIGHTS[key];
+  //     }, 0) / 100;
+
+  //   return Math.max(finalScore, 20);
+  // }, [
+  //   securityData,
+  //   appsWithAds.length,
+  //   hiddenApps.length,
+  //   riskyConnection,
+  //   riskyApps.length,
+  //   isAppsLoaded,
+  //   isSecurityLoaded,
+  //   isHiddenAppsLoaded,
+  //   isDeviceSecurityLoaded,
+  // ]);
+
+  // const averageRatingPercentage = useMemo(() => {
+  //   if (
+  //     !isAppsLoaded ||
+  //     !isSecurityLoaded ||
+  //     !isHiddenAppsLoaded ||
+  //     !isDeviceSecurityLoaded
+  //   ) {
+  //     return 0;
+  //   }
+
+  //   // Adjusted weights for security issues
+  //   const SECURITY_ISSUE_WEIGHTS: Record<string, number> = {
+  //     rootStatus: 15, // Reduced weight
+  //     encryption: 12, // Reduced weight
+  //     lockScreen: 12, // Reduced weight
+  //     playProtect: 10, // Reduced weight
+  //     usbDebugging: 8, // Reduced weight
+  //     devMode: 6, // Reduced weight
+  //     bluetooth: 4, // Reduced weight
+  //     showPassword: 4, // Reduced weight
+  //     nfc: 2, // Reduced weight
+  //     lockScreenNotifications: 2, // Reduced weight
+  //   };
+
+  //   // Adjusted category weights
+  //   const CATEGORY_WEIGHTS: Record<ScoreCategory, number> = {
+  //     securityIssues: 35, // Reduced weight
+  //     riskyApps: 30, // Increased weight
+  //     hiddenApps: 15, // Same
+  //     appsWithAds: 10, // Increased weight
+  //     riskyConnection: 10, // Same
+  //   };
+
+  //   // More lenient thresholds
+  //   const THRESHOLDS = {
+  //     appsWithAds: 20, // Increased threshold
+  //     hiddenApps: 15, // Increased threshold
+  //     riskyApps: 10, // Increased threshold
+  //   };
+
+  //   const calculateSecurityScore = (data: typeof securityData) => {
+  //     let score = 100;
+  //     if (!data) return score;
+
+  //     // Only deduct for truly critical security issues
+  //     const CRITICAL_ISSUES = [
+  //       'rootStatus',
+  //       'encryption',
+  //       'lockScreen',
+  //       'playProtect',
+  //     ];
+
+  //     Object.entries(SECURITY_ISSUE_WEIGHTS).forEach(([key, weight]) => {
+  //       const isNegativeSetting =
+  //         key === 'encryption' || key === 'lockScreen' || key === 'playProtect'
+  //           ? !data[key as keyof typeof data]
+  //           : data[key as keyof typeof data];
+
+  //       // Only deduct for critical issues
+  //       if (isNegativeSetting && CRITICAL_ISSUES.includes(key)) {
+  //         score -= weight;
+  //       }
+  //     });
+
+  //     return score;
+  //   };
+
+  //   const calculateAspectScore = (count: number, threshold: number): number => {
+  //     // More forgiving calculation - only start deducting after threshold/2
+  //     if (count <= threshold / 2) return 100;
+  //     return Math.max(0, 100 * (1 - (count - threshold / 2) / (threshold / 2)));
+  //   };
+
+  //   const securityScore = calculateSecurityScore(securityData);
+
+  //   const scores: Record<ScoreCategory, number> = {
+  //     securityIssues: securityScore,
+  //     riskyApps: calculateAspectScore(riskyApps.length, THRESHOLDS.riskyApps),
+  //     hiddenApps: calculateAspectScore(
+  //       hiddenApps.length,
+  //       THRESHOLDS.hiddenApps,
+  //     ),
+  //     appsWithAds: calculateAspectScore(
+  //       appsWithAds.length,
+  //       THRESHOLDS.appsWithAds,
+  //     ),
+  //     riskyConnection: riskyConnection ? 70 : 100, // Less severe penalty
+  //   };
+
+  //   const finalScore =
+  //     (Object.keys(scores) as ScoreCategory[]).reduce((total, key) => {
+  //       return total + scores[key] * CATEGORY_WEIGHTS[key];
+  //     }, 0) / 100;
+
+  //   return Math.max(finalScore, 30); // Higher minimum score
+  // }, [
+  //   securityData,
+  //   appsWithAds.length,
+  //   hiddenApps.length,
+  //   riskyConnection,
+  //   riskyApps.length,
+  //   isAppsLoaded,
+  //   isSecurityLoaded,
+  //   isHiddenAppsLoaded,
+  //   isDeviceSecurityLoaded,
+  // ]);
+
   const averageRatingPercentage = useMemo(() => {
-    if (!isAppsLoaded || !isSecurityLoaded || !isHiddenAppsLoaded) {
+    if (
+      !isAppsLoaded ||
+      !isSecurityLoaded ||
+      !isHiddenAppsLoaded ||
+      !isDeviceSecurityLoaded
+    ) {
       return 0;
     }
-    const maxAppsWithAds = 10;
-    const maxSecurityIssues = 10;
-    const maxHiddenApps = 10;
 
-    const scoreAppsWithAds = Math.max(
-      0,
-      5 - (appsWithAds.length / maxAppsWithAds) * 5,
+    // Define weights for each security category
+    const CATEGORY_WEIGHTS = {
+      securityIssues: 35, // Security settings
+      riskyApps: 30, // Actually malicious apps
+      hiddenApps: 15, // Hidden apps
+      appsWithAds: 10, // Apps with ads
+      riskyConnection: 10, // Network security
+    };
+
+    // Define thresholds where we start deducting points
+    const THRESHOLDS = {
+      appsWithAds: 10,
+      hiddenApps: 5,
+      riskyApps: 3,
+    };
+
+    // Calculate security score for settings
+    const calculateSecurityScore = () => {
+      if (!securityData) return 100;
+
+      // Only consider truly critical security settings
+      const CRITICAL_ISSUES = [
+        'rootStatus',
+        'encryption',
+        'lockScreen',
+        'playProtect',
+      ];
+
+      let insecureCount = 0;
+      CRITICAL_ISSUES.forEach(key => {
+        const value = securityData[key as keyof SecurityData];
+
+        // Conditions where we consider it insecure
+        if (
+          (key === 'rootStatus' && value) ||
+          (key === 'encryption' && !value) ||
+          (key === 'lockScreen' && !value) ||
+          (key === 'playProtect' && !value)
+        ) {
+          insecureCount++;
+        }
+      });
+
+      // Deduct 20% for each critical issue found
+      return Math.max(0, 100 - insecureCount * 20);
+    };
+
+    // Calculate score for quantitative aspects
+    const calculateAspectScore = (count: number, threshold: number) => {
+      if (count === 0) return 100;
+
+      // Only start deducting after crossing the threshold
+      if (count <= threshold) return 100;
+
+      // Deduct 10% for each item over the threshold
+      const overThreshold = count - threshold;
+      return Math.max(50, 100 - overThreshold * 10);
+    };
+
+    const securityScore = calculateSecurityScore();
+    const riskyAppsScore = calculateAspectScore(
+      riskyApps.length,
+      THRESHOLDS.riskyApps,
     );
-
-    const scoreSecurity = Math.max(
-      0,
-      5 * ((maxSecurityIssues - securityDataCount) / maxSecurityIssues),
+    const hiddenAppsScore = calculateAspectScore(
+      hiddenApps.length,
+      THRESHOLDS.hiddenApps,
     );
-
-    const scoreHiddenApps = Math.max(
-      0,
-      5 - (hiddenApps.length / maxHiddenApps) * 5,
+    const appsWithAdsScore = calculateAspectScore(
+      appsWithAds.length,
+      THRESHOLDS.appsWithAds,
     );
+    const connectionScore = riskyConnection ? 70 : 100; // 30% penalty for risky connection
 
+    // Calculate weighted average
+    const totalWeight = Object.values(CATEGORY_WEIGHTS).reduce(
+      (sum, w) => sum + w,
+      0,
+    );
     const weightedScore =
-      (scoreAppsWithAds * 1 + scoreSecurity * 3 + scoreHiddenApps * 3) / 7;
+      (securityScore * CATEGORY_WEIGHTS.securityIssues +
+        riskyAppsScore * CATEGORY_WEIGHTS.riskyApps +
+        hiddenAppsScore * CATEGORY_WEIGHTS.hiddenApps +
+        appsWithAdsScore * CATEGORY_WEIGHTS.appsWithAds +
+        connectionScore * CATEGORY_WEIGHTS.riskyConnection) /
+      totalWeight;
 
-    // Convert the weighted score (range 0 to 5) into a percentage (0 to 100)
-    const percentage = (weightedScore / 5) * 100;
-    return Math.max(percentage, 20);
+    return weightedScore;
   }, [
+    securityData,
     appsWithAds.length,
-    securityDataCount,
     hiddenApps.length,
+    riskyConnection,
+    riskyApps.length,
     isAppsLoaded,
     isSecurityLoaded,
     isHiddenAppsLoaded,
+    isDeviceSecurityLoaded,
   ]);
 
-  // const handleSecurePhonePress = async () => {
-  //   setIsScanning(true);
-  //   setTimeout(async () => {
-  //     setIsScanning(false);
-  //     setModalVisible(true);
-  //   }, 3000);
-  // };
   const handleSecurePhonePress = async () => {
     setIsScanning(true);
     try {
       // Re-fetch all data sources
-      const [installedApps, adsData, hiddenAppsData] = await Promise.all([
-        AdsServices.getInstalledApps(),
-        AdsServices.getAdsServices(),
-        HiddenAppsModule.getHiddenApps(),
-      ]);
+      const [installedApps, adsData, hiddenAppsData, isRisky] =
+        await Promise.all([
+          AdsServices.getInstalledApps(),
+          AdsServices.getAdsServices(),
+          HiddenAppsModule.getHiddenApps(),
+          DeviceSecurityModule.checkRiskyConnection(),
+        ]);
 
       // Update apps and ads services state
       setApps(installedApps);
       setAdsServices(adsData);
-      setIsAppsLoaded(true);
-
-      // Update hidden apps state
       setHiddenApps(hiddenAppsData);
-      setIsHiddenAppsLoaded(true);
+      setRiskyConnection(isRisky);
 
       // Re-check security settings
       const securityResults = await Promise.all([
@@ -328,7 +770,10 @@ const PhoneSecurityScan = () => {
         showPassword: securityResults[8],
         lockScreenNotifications: securityResults[9],
       });
+      setIsAppsLoaded(true);
+      setIsHiddenAppsLoaded(true);
       setIsSecurityLoaded(true);
+      setIsDeviceSecurityLoaded(true);
 
       // Trigger animations by resetting and updating rating
       ratingAnim.setValue(0);
@@ -433,7 +878,7 @@ const PhoneSecurityScan = () => {
                     alignItems: 'center',
                   }}>
                   <Image
-                    source={require('@assets/icons/adwarescan.png')}
+                    source={require('@assets/icons/threat.png')}
                     style={styles.icon}
                   />
                   <CustomText
@@ -441,12 +886,12 @@ const PhoneSecurityScan = () => {
                     color="#fff"
                     fontSize={16}
                     fontFamily="Montserrat-Bold">
-                    Apps with Ads: {appsWithAds.length}
+                    Non-Risky Apps: {nonRiskyApps.length}
                   </CustomText>
                 </View>
 
                 <TouchableOpacity
-                  onPress={() => navigation.navigate(Paths.AdwareScan)}>
+                  onPress={() => navigation.navigate(Paths.ThreatAdvisor)}>
                   <Ionicons name="arrow-redo-sharp" size={30} color="white" />
                 </TouchableOpacity>
               </View>
@@ -460,6 +905,40 @@ const PhoneSecurityScan = () => {
                 }}>
                 <View
                   style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 8,
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={require('@assets/icons/threat.png')}
+                    style={styles.icon}
+                  />
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontSize={16}
+                    fontFamily="Montserrat-Bold">
+                    Risky Apps: {riskyApps.length}
+                  </CustomText>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate(Paths.ThreatAdvisor)}>
+                  <Ionicons name="arrow-redo-sharp" size={30} color="white" />
+                </TouchableOpacity>
+              </View>
+
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <View
+                  style={{
+                    width: '90%',
                     display: 'flex',
                     flexDirection: 'row',
                     gap: 8,
@@ -505,7 +984,7 @@ const PhoneSecurityScan = () => {
                   <CustomText
                     variant="h5"
                     color="#fff"
-                    fontSize={18}
+                    fontSize={16}
                     fontFamily="Montserrat-Bold">
                     Hidden Apps: {hiddenApps.length}
                   </CustomText>
@@ -513,6 +992,91 @@ const PhoneSecurityScan = () => {
 
                 <TouchableOpacity
                   onPress={() => navigation.navigate(Paths.HiddenApps)}>
+                  <Ionicons name="arrow-redo-sharp" size={30} color="white" />
+                </TouchableOpacity>
+              </View>
+
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 8,
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={require('@assets/icons/adwarescan.png')}
+                    style={styles.icon}
+                  />
+                  <CustomText
+                    variant="h5"
+                    color="#fff"
+                    fontSize={16}
+                    fontFamily="Montserrat-Bold">
+                    Apps with Ads: {appsWithAds.length}
+                  </CustomText>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate(Paths.AdwareScan)}>
+                  <Ionicons name="arrow-redo-sharp" size={30} color="white" />
+                </TouchableOpacity>
+              </View>
+
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingVertical: 10,
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: 8,
+                  padding: 6,
+                  marginTop: 10,
+                }}>
+                <View
+                  style={{
+                    width: '90%',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 8,
+                    alignItems: 'center',
+                  }}>
+                  <Ionicons
+                    name={riskyConnection ? 'warning' : 'shield-checkmark'}
+                    size={30}
+                    color={riskyConnection ? '#ff4444' : '#21e6c1'}
+                  />
+                  {riskyConnection ? (
+                    <CustomText
+                      variant="h5"
+                      color="#fff"
+                      fontSize={16}
+                      numberOfLine={2}
+                      fontFamily="Montserrat-Bold">
+                      Risky Network Connection
+                    </CustomText>
+                  ) : (
+                    <CustomText
+                      variant="h5"
+                      color="#fff"
+                      fontSize={16}
+                      numberOfLine={2}
+                      fontFamily="Montserrat-Bold">
+                      Secure Wifi Connection
+                    </CustomText>
+                  )}
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate(Paths.WifiSecurity)}>
                   <Ionicons name="arrow-redo-sharp" size={30} color="white" />
                 </TouchableOpacity>
               </View>

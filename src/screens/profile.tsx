@@ -30,7 +30,6 @@ function getInitials(name: string): string {
   return firstInitial + lastInitial;
 }
 
-
 const Profile: React.FC<ProfileProps> = ({navigation, route}) => {
   const {token, logout} = useAuth();
 
@@ -66,6 +65,38 @@ const Profile: React.FC<ProfileProps> = ({navigation, route}) => {
     await logout();
   };
 
+  // const settings = [
+  //   {
+  //     title: 'Manage Accounts',
+  //     icon: <Ionicons name="chevron-forward-sharp" size={30} color="white" />,
+  //     onPress: () => {
+  //       navigation.getParent()?.navigate(Paths.ManageAccounts);
+  //     },
+  //   },
+  //   // {
+  //   //   title: 'Settings',
+  //   //   icon: <Ionicons name="chevron-forward-sharp" size={30} color="white" />,
+  //   //   onPress: () => {},
+  //   // },
+  //   {
+  //     title: 'Privacy Policy',
+  //     icon: <Ionicons name="chevron-forward-sharp" size={30} color="white" />,
+  //     onPress: () => {
+  //       navigation.getParent()?.navigate(Paths.PrivacyPolicy);
+  //     },
+  //   },
+  //   // {
+  //   //   title: 'Update Password',
+  //   //   icon: <Ionicons name="chevron-forward-sharp" size={30} color="white" />,
+  //   //   onPress: () => {},
+  //   // },
+  //   {
+  //     title: 'Logout',
+  //     icon: <MaterialCommunityIcons name="logout" size={30} color="white" />,
+  //     onPress: handleLogout,
+  //   },
+  // ];
+
   const settings = [
     ...(user?.email !== 'bigaja9282@flektel.com'
       ? [
@@ -86,7 +117,7 @@ const Profile: React.FC<ProfileProps> = ({navigation, route}) => {
     },
     {
       title: 'Logout',
-      icon: <MaterialCommunityIcons name="logout" size={30} color="white" />,
+      icon: <MaterialCommunityIcons name="logout" size={30} color="red" />,
       onPress: handleLogout,
     },
   ];

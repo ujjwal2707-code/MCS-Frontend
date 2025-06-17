@@ -31,6 +31,7 @@ import {
   AppUsageStats,
   ActiveTimeDetails,
   DataUsageStats,
+  DataUsageDetails,
   AppUpdates,
   AppUpdatesDetails,
   HiddenApps,
@@ -121,6 +122,10 @@ const ApplicationNavigator = () => {
               <Stack.Screen
                 component={DataUsageStats}
                 name={Paths.DataUsageStats}
+              />
+              <Stack.Screen
+                component={DataUsageDetails}
+                name={Paths.DataUsageDetails}
               />
               <Stack.Screen
                 component={ActiveTimeDetails}

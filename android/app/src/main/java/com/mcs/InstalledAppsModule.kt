@@ -18,6 +18,11 @@ import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
+import android.content.pm.PackageInfo
+import android.content.pm.PermissionInfo
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 
 class InstalledAppsModule(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
@@ -95,79 +100,59 @@ class InstalledAppsModule(private val reactContext: ReactApplicationContext) :
             val resultArray: WritableArray = Arguments.createArray()
 
             for (appInfo in apps) {
-                // Include only apps that have a launch intent (i.e., are visible to the user)
-                if (pm.getLaunchIntentForPackage(appInfo.packageName) == null) {
-                    continue
+                if (pm.getLaunchIntentForPackage(appInfo.packageName) == null) continue
+
+                val appMap: WritableMap = Arguments.createMap().apply {
+                    putString("packageName", appInfo.packageName)
+                    putString("name", pm.getApplicationLabel(appInfo)?.toString() ?: "")
                 }
 
-                val appMap: WritableMap = Arguments.createMap()
-                val packageName = appInfo.packageName
-                appMap.putString("packageName", packageName)
-
-                // Get the application label (name)
-                val label = pm.getApplicationLabel(appInfo)
-                appMap.putString("name", label?.toString() ?: "")
-
-                // Convert the app icon to a Base64 string
-                val iconDrawable = pm.getApplicationIcon(appInfo)
-                val bitmap: Bitmap? = drawableToBitmap(iconDrawable)
-                if (bitmap != null) {
-                    val baos = ByteArrayOutputStream()
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
-                    val encodedIcon = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT)
-                    appMap.putString("icon", encodedIcon)
-                } else {
-                    appMap.putString("icon", "")
-                }
-
-                // Get permissions for the app and compute a numeric security rating (1 to 5)
-                var securityRating = 0
-                try {
-                    val pkgInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
-                    val permissionsArray: WritableArray = Arguments.createArray()
-                    val permissionsList = pkgInfo.requestedPermissions?.toList() ?: emptyList()
-                    permissionsList.forEach { permission ->
-                        permissionsArray.pushString(permission)
+                // App icon
+                drawableToBitmap(pm.getApplicationIcon(appInfo))?.let { bitmap ->
+                    ByteArrayOutputStream().use { baos ->
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
+                        appMap.putString("icon", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT))
                     }
-                    appMap.putArray("permissions", permissionsArray)
+                } ?: appMap.putString("icon", "")
 
-                    // Define a set of dangerous permissions for a simple heuristic.
-                    val dangerousPermissions = setOf(
-                        "android.permission.READ_SMS",
-                        "android.permission.RECEIVE_SMS",
-                        "android.permission.SEND_SMS",
-                        "android.permission.READ_CONTACTS",
-                        "android.permission.WRITE_CONTACTS",
-                        "android.permission.READ_CALL_LOG",
-                        "android.permission.WRITE_CALL_LOG",
-                        "android.permission.ACCESS_FINE_LOCATION",
-                        "android.permission.ACCESS_COARSE_LOCATION",
-                        "android.permission.RECORD_AUDIO",
-                        "android.permission.CAMERA",
-                        "android.permission.READ_EXTERNAL_STORAGE",
-                        "android.permission.WRITE_EXTERNAL_STORAGE",
-                        "android.permission.READ_PHONE_STATE",
-                        "android.permission.CALL_PHONE"
-                    )
-                    val dangerousCount = permissionsList.count { dangerousPermissions.contains(it) }
-                    // Assign a rating from 1 (worst) to 5 (best) based on the number of dangerous permissions.
-                    securityRating = when {
-                        dangerousCount >= 5 -> 1
-                        dangerousCount == 4 -> 2
-                        dangerousCount == 3 -> 3
-                        dangerousCount == 2 -> 4
-                        else -> 5
+                // Permissions
+                val controllablePermissions = Arguments.createArray().apply {
+                    try {
+                        val pkgInfo = pm.getPackageInfo(
+                            appInfo.packageName,
+                            PackageManager.GET_PERMISSIONS
+                        )
+                        pkgInfo.requestedPermissions?.forEach { permissionName: String ->
+                            try {
+                                val permissionInfo = pm.getPermissionInfo(permissionName, 0)
+                                if (permissionInfo.protectionLevel and PermissionInfo.PROTECTION_DANGEROUS != 0) {
+                                    val granted = pm.checkPermission(
+                                        permissionName,
+                                        appInfo.packageName
+                                    ) == PackageManager.PERMISSION_GRANTED
+
+                                    val permissionMap = Arguments.createMap().apply {
+                                        putString("name", permissionName)
+                                        putBoolean("granted", granted)
+                                        putString("description", permissionInfo.loadDescription(pm)?.toString() ?: "")
+                                        putBoolean("dangerous", true)
+                                    }
+
+                                    this.pushMap(permissionMap)
+                                }
+                            } catch (_: Exception) {
+                                // Skip invalid permission
+                            }
+                        }
+                    } catch (_: Exception) {
+                        // Skip if package info not found
                     }
-                } catch (e: PackageManager.NameNotFoundException) {
-                    appMap.putArray("permissions", Arguments.createArray())
-                    // Default to medium rating if permissions cannot be determined.
-                    securityRating = 3
                 }
-                appMap.putInt("securityRating", securityRating)
 
-                // Get the SHA-256 fingerprint for the app's signing certificate.
-                val sha256 = getSHA256Signature(packageName)
-                appMap.putString("sha256", sha256 ?: "")
+                appMap.putArray("controllablePermissions", controllablePermissions)
+
+                // SHA-256 fingerprint
+                appMap.putString("sha256", getSHA256Signature(appInfo.packageName) ?: "")
 
                 resultArray.pushMap(appMap)
             }
@@ -176,5 +161,14 @@ class InstalledAppsModule(private val reactContext: ReactApplicationContext) :
         } catch (e: Exception) {
             promise.reject("ERROR", e)
         }
+    }
+
+    @ReactMethod
+    fun openAppInfoForPackage(packageName: String) {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", packageName, null)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        reactContext.startActivity(intent)
     }
 }

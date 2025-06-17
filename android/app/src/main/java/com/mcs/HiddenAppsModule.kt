@@ -14,34 +14,43 @@ class HiddenAppsModule(reactContext: ReactApplicationContext) : ReactContextBase
         return "HiddenAppsModule"
     }
 
-    /**
-     * Retrieves a list of hidden user-installed apps.
-     * Hidden apps here are defined as apps that do not have a launcher intent (i.e. no icon in the launcher)
-     * and are not system apps.
-     */
     @ReactMethod
-   fun getHiddenApps(promise: Promise) {
+    fun getHiddenApps(promise: Promise) {
         try {
             val pm: PackageManager = reactApplicationContext.packageManager
-            // Retrieve all installed applications.
-            val installedApps: List<ApplicationInfo> =
-                pm.getInstalledApplications(PackageManager.GET_META_DATA)
-            // Filter apps: Only include those with no launcher intent and that are user-installed.
+            val installedApps: List<ApplicationInfo> = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+
             val hiddenApps = installedApps.filter { appInfo ->
-                // Check that there is no launch intent for the package
+                // 1. App has no launcher intent
                 val noLauncher = pm.getLaunchIntentForPackage(appInfo.packageName) == null
-                // Check that the app is NOT a system app. (FLAG_SYSTEM set means system app.)
-                val isUserApp = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 0
-                noLauncher && isUserApp
+
+                // 2. Is not a system or updated system app
+                val isSystemApp = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+                val isUpdatedSystemApp = (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+                val isUserApp = !isSystemApp && !isUpdatedSystemApp
+
+                // 3. Exclude known system packages explicitly
+                val systemPrefixes = listOf(
+                    "com.android.", "com.google.android.", "android", "com.qualcomm.", "com.samsung.","com.samsung.android."
+                )
+                val isKnownSystemPackage = systemPrefixes.any { appInfo.packageName.startsWith(it) }
+
+                // 4. Extra safeguard for system partition
+                val isInSystemPartition = appInfo.sourceDir.startsWith("/system/") ||
+                                        appInfo.sourceDir.startsWith("/vendor/") ||
+                                        appInfo.sourceDir.startsWith("/product/")
+
+                noLauncher && isUserApp && !isInSystemPartition && !isKnownSystemPackage
             }
-            // Convert the filtered list into a WritableArray to return to JavaScript.
+
             val resultArray = Arguments.createArray()
-            for (app in hiddenApps) {
+            hiddenApps.forEach { app ->
                 val appMap = Arguments.createMap()
                 appMap.putString("packageName", app.packageName)
                 appMap.putString("appName", pm.getApplicationLabel(app).toString())
                 resultArray.pushMap(appMap)
             }
+
             promise.resolve(resultArray)
         } catch (e: Exception) {
             promise.reject("ERROR", e)

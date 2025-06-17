@@ -75,6 +75,11 @@ const BottomTabNavigator = () => {
         name={Paths.Share}
         component={Share}
         options={{tabBarLabel: 'Share'}}
+        listeners={{
+          tabPress: e => {
+            e.preventDefault();
+          },
+        }}
       />
     </Tab.Navigator>
   );

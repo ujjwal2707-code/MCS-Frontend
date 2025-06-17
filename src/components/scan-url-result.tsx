@@ -10,6 +10,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Clipboard from '@react-native-clipboard/clipboard';
 import {CustomToast} from './ui/custom-toast';
 import ScanAnalysis from './scan-analysis';
+import { ScannerResult } from './scanner-result';
 
 interface ScanUrlResultProps {
   isOpen: boolean;
@@ -72,135 +73,14 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
           </TouchableOpacity>
         </View>
 
-        {scanResult &&
-          (scanResult.stats.harmless + scanResult.stats.undetected >=
-          10 * (scanResult.stats.malicious + scanResult.stats.suspicious) ? (
-            <Card style={styles.harmlessCard}>
-              <Card.Content>
-                <View>
-                  <CustomText
-                    variant="h5"
-                    color="#fff"
-                    fontFamily="Montserrat-Bold"
-                    style={{textAlign: 'center'}}>
-                    Safe & Harmless Link
-                  </CustomText>
-                  <CustomText
-                    variant="h5"
-                    color="#fff"
-                    fontFamily="Montserrat-Bold"
-                    style={{textAlign: 'center'}}>
-                    {scanResult.stats.malicious} malicious threats were detected
-                    on this website. It is considered safe by most security
-                    checks.
-                  </CustomText>
-                </View>
-              </Card.Content>
-            </Card>
-          ) : (
-            <Card style={styles.maliciousCard}>
-              <Card.Content>
-                <View>
-                  <CustomText
-                    variant="h5"
-                    color="#fff"
-                    fontFamily="Montserrat-Bold"
-                    style={{textAlign: 'center'}}>
-                    Suspected Fraud or Malicious Link
-                  </CustomText>
-                  <CustomText
-                    variant="h5"
-                    color="#fff"
-                    fontFamily="Montserrat-Bold"
-                    style={{textAlign: 'center'}}>
-                    {scanResult.stats.malicious} malicious threats were detected
-                    on this website. This website has been flagged as malicious
-                    or suspicious by multiple sources. Please proceed with
-                    caution.
-                  </CustomText>
-                </View>
-              </Card.Content>
-            </Card>
-          ))}
-
-        {/* <Card style={styles.chartContainer}>
-          <Card.Content>
-            <HorizontalBarsChart stats={scanResult.stats} />
-          </Card.Content>
-        </Card> */}
-
-        <View style={{flex: 1, marginTop: 16, width: '100%'}}>
-          <CustomText
-            variant="h4"
-            style={{color: '#fff', marginBottom: 12, textAlign: 'center'}}
-            fontFamily="Montserrat-Bold">
-            Security Analysis Details
-          </CustomText>
-
-          <ScanAnalysis
-            category="Malicious"
-            engines={scanResult.scanners.malicious}
-            count={scanResult.stats.malicious}
-            color="#ff4444"
-          />
-
-          <ScanAnalysis
-            category="Suspicious"
-            engines={scanResult.scanners.suspicious}
-            count={scanResult.stats.suspicious}
-            color="#ffbb33"
-          />
-
-          <ScanAnalysis
-            category="Harmless"
-            engines={scanResult.scanners.harmless}
-            count={scanResult.stats.harmless}
-            color="#00C851"
-          />
-
-          <ScanAnalysis
-            category="Undetected"
-            engines={scanResult.scanners.undetected}
-            count={scanResult.stats.undetected}
-            color="#33b5e5"
-          />
-        </View>
-
-        {scanResult &&
-          (scanResult.stats.harmless + scanResult.stats.undetected >=
-          10 * (scanResult.stats.malicious + scanResult.stats.suspicious) ? (
-            <CustomButton
-              title="Open Link"
-              onPress={() => {
-                if (scanResult) {
-                  Linking.openURL(scanResult.meta.url_info.url);
-                }
-              }}
-              style={{
-                marginTop: 10,
-                marginBottom: 10,
-                width: '50%',
-                alignSelf: 'center',
-              }}
+        {scanResult && (
+          <>
+            <ScannerResult
+              stats={scanResult.stats}
+              meta={scanResult.meta}
             />
-          ) : (
-            <CustomButton
-              bgVariant="danger"
-              textVariant="danger"
-              title="Open Link"
-              onPress={() => {
-                if (scanResult) {
-                  Linking.openURL(scanResult.meta.url_info.url);
-                }
-              }}
-              style={{
-                marginTop: 10,
-                marginBottom: 10,
-                width: '50%',
-                alignSelf: 'center',
-              }}
-            />
-          ))}
+          </>
+        )}
       </BottomSheetScrollView>
     </BottomSheet>
   );
@@ -211,7 +91,7 @@ export default ScanUrlResult;
 const styles = StyleSheet.create({
   harmlessCard: {
     borderRadius: 20,
-    backgroundColor: '#33b5e5',
+    backgroundColor: '#33b5e5', // #eff6ff #33b5e5
     marginTop: 20,
     padding: 10,
   },
