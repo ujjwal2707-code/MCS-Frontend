@@ -24,7 +24,7 @@ import CustomText from '@components/ui/custom-text';
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import CustomButton from '@components/ui/custom-button';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {ScanURLResult} from 'types/types';
+import {DomainReputationResponse, ScanURLResult} from 'types/types';
 import {useMutation} from '@tanstack/react-query';
 import {apiService} from '@services/index';
 import {Card} from 'react-native-paper';
@@ -211,9 +211,8 @@ const ScanQRResult = ({
 }: ScanQRResultProps) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  const [scanUrlDetails, setScanUrlDetails] = useState<ScanURLResult | null>(
-    null,
-  );
+  const [scanUrlDetails, setScanUrlDetails] =
+    useState<DomainReputationResponse | null>(null);
 
   useEffect(() => {
     setScanUrlDetails(null);
@@ -221,12 +220,12 @@ const ScanQRResult = ({
 
   const {mutateAsync: scanUriMutation, isPending: scanUriMutationPending} =
     useMutation({
-      mutationFn: (values: {inputUrl: string}) => apiService.scanUri(values),
+      mutationFn: (values: {inputUrl: string}) =>
+        apiService.checkDomainReputation(values),
       onSuccess: res => {
         setScanUrlDetails(res.data);
       },
       onError: (err: any) => {
-        // Alert.alert('Error', err);
         CustomToast.showError('Error', err);
       },
     });
@@ -239,7 +238,6 @@ const ScanQRResult = ({
 
   const copyToClipboard = (text: string) => {
     Clipboard.setString(text);
-    // Alert.alert('Copied', 'The data has been copied to your clipboard!');
     CustomToast.showInfo(
       'Copied',
       'The data has been copied to your clipboard!',
@@ -395,12 +393,9 @@ const ScanQRResult = ({
 
         {scanUrlDetails && (
           <>
-           <View style={{paddingVertical:20}}>
-             <ScannerResult
-              stats={scanUrlDetails.stats}
-              meta={scanUrlDetails.meta}
-            />
-           </View>
+            <View style={{paddingVertical: 20}}>
+              <ScannerResult inputURI={scannedData} data={scanUrlDetails} />
+            </View>
             {/* {scanUrlDetails &&
               (scanUrlDetails.stats.harmless +
                 scanUrlDetails.stats.undetected >=

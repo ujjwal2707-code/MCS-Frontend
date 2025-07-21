@@ -18,7 +18,7 @@ import CustomButton from '@components/ui/custom-button';
 import {isValidUrl} from '../../../utils/is-valid-url';
 import {useMutation} from '@tanstack/react-query';
 import {apiService} from '@services/index';
-import {ScanURLResult} from 'types/types';
+import {DomainReputationResponse, ScanURLResult} from 'types/types';
 import ScanUrlResult from '@components/scan-url-result';
 import AlertBox from '@components/alert-box';
 import BackBtn from '@components/back-btn';
@@ -37,7 +37,7 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
   const [isValidPayment, setIsValidPayment] = useState(true);
 
   const [loadingScanType, setLoadingScanType] = useState<ScanType | null>(null);
-  const [scanUrlDetails, setScanUrlDetails] = useState<ScanURLResult | null>(null);
+  const [scanUrlDetails, setScanUrlDetails] = useState<DomainReputationResponse | null>(null);
   const [openScanResult, setOpenScanResult] = useState(false);
 
   // Alert Box
@@ -72,7 +72,7 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
   };
 
   const {mutateAsync: scanUriMutation} = useMutation({
-    mutationFn: (values: {inputUrl: string}) => apiService.scanUri(values),
+    mutationFn: (values: {inputUrl: string}) => apiService.checkDomainReputation(values),
     onSuccess: res => {
       setScanUrlDetails(res.data);
       setOpenScanResult(true);
@@ -208,6 +208,7 @@ const ScanUrl = ({navigation}: RootScreenProps<Paths.ScanUrl>) => {
           isOpen={openScanResult}
           onClose={() => setOpenScanResult(false)}
           scanResult={scanUrlDetails}
+          inputURI={websiteUrl}
         />
       )}
 

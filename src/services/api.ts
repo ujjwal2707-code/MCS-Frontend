@@ -99,7 +99,12 @@ export class Api {
     return this.handleRequest(() => this.instance.post('/url', data));
   }
 
-  //🔹Check Data Breach
+  // 🔹Check Domain Reputation
+  public checkDomainReputation(data: {inputUrl: string}): Promise<AxiosResponse> {
+    return this.handleRequest(() => this.instance.post('/domain-reputation', data));
+  }
+
+  // 🔹Check Data Breach
   public checkDataBreach(data: {email: string}): Promise<AxiosResponse> {
     return this.handleRequest(() => this.instance.post('/breach', data));
   }

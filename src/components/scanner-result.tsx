@@ -1,82 +1,104 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useMemo, useState} from 'react';
 import CustomText from './ui/custom-text';
 import {ActivityIndicator, Card, Divider} from 'react-native-paper';
 import {Image, Linking, StyleSheet, View} from 'react-native';
 import CustomButton from './ui/custom-button';
 import NoImage from '@assets/images/noimage.png';
-import Loader from './loader';
+import {DomainReputationResponse} from 'types/types';
 
 interface ScannerResultProps {
-  stats: {
-    malicious: number;
-    suspicious: number;
-    undetected: number;
-    harmless: number;
-    timeout: number;
-  };
-  meta: {
-    url_info: {
-      id: string;
-      url: string;
-    };
-  };
+  inputURI: string;
+  data: DomainReputationResponse;
 }
-export const ScannerResult = ({stats, meta}: ScannerResultProps) => {
-  // Calculate security score
-  const {securityScore, confidenceFlag, siteGrade} = useMemo(() => {
-    const {malicious, suspicious, undetected, harmless} = stats;
-    const confidence = harmless + undetected >= 10 * (malicious + suspicious);
-    const totalRelevant = malicious + suspicious + harmless + undetected;
 
-    if (totalRelevant === 0) {
-      return {securityScore: 0, confidenceFlag: false, siteGrade: 'F'};
+const DomainsList = [
+  'http://grabify.link',
+  'http://iplogger.org',
+  'http://blasze.com',
+  'http://yip.su',
+  'http://2no.co',
+  'http://bmw.bz',
+  'http://ip-tracker.org',
+  'http://trackurl.com',
+  'http://whatstheirip.com',
+  'http://opentracker.net',
+  'http://tracemyip.org',
+  'http://logger.com',
+  'http://ipgrabber.ru',
+  'http://ipspy.org',
+  'http://anonymz.com',
+  'http://anonysend.com',
+  'http://iplogger.co',
+  'http://xresolver.com',
+  'http://spyurl.net',
+  'http://gyazo.com',
+];
+
+// Precompute malicious hosts set for efficient lookup
+const maliciousHosts = new Set(
+  DomainsList.map(domain => {
+    try {
+      return new URL(domain).hostname;
+    } catch {
+      return domain;
     }
+  }),
+);
 
-    // Handle case where there are no threats (malicious + suspicious = 0)
-    if (malicious + suspicious === 0) {
-      return {
-        securityScore: 100,
-        confidenceFlag: confidence,
-        siteGrade: 'A',
-      };
-    }
+export const ScannerResult = ({inputURI, data}: ScannerResultProps) => {
+  const {
+    host,
+    blacklists,
+    server_details,
+    security_checks,
+    risk_score,
+    domain_info,
+  } = data;
 
-    const threatSeverity = malicious * 100 + suspicious * 50;
-    const maxThreatSeverity = (malicious + suspicious) * 100;
-    let rawScore = 100 - (threatSeverity / maxThreatSeverity) * 100;
+  // Extract input hostname for comparison
+  let inputHost = '';
+  try {
+    const url = new URL(
+      inputURI.startsWith('http') ? inputURI : `http://${inputURI}`,
+    );
+    inputHost = url.hostname;
+  } catch {
+    inputHost = inputURI;
+  }
 
-    if (confidence) {
-      const boostCap = malicious > 0 ? 70 : 90;
-      rawScore = Math.max(rawScore, boostCap);
-    }
-    const roundedScore = Math.min(100, Math.max(0, Math.round(rawScore)));
+  // Check if input is in malicious list
+  const isInMaliciousList = maliciousHosts.has(inputHost);
 
-    // Determine site grade based on security score
-    let grade;
-    if (roundedScore >= 90) grade = 'A';
-    else if (roundedScore >= 80) grade = 'B';
-    else if (roundedScore >= 70) grade = 'C';
-    else if (roundedScore >= 60) grade = 'D';
-    else grade = 'F';
-
-    return {
-      securityScore: roundedScore,
-      confidenceFlag: confidence,
-      siteGrade: grade,
-    };
-  }, [stats]);
-
-  // Determine safety status based on securityScore
-  const safetyStatus = useMemo(() => {
-    if (stats.malicious > 0 && !confidenceFlag) return 'unsafe';
-    if (stats.malicious > 0) return 'moderate';
-    if (securityScore >= 85) return 'safe';
-    if (securityScore >= 65) return 'moderate';
+  // Calculate base security score and status
+  const baseSecurityScore = 100 - risk_score.result;
+  const baseSafetyStatus = useMemo(() => {
+    if (blacklists.detections === 0 && baseSecurityScore >= 85) return 'safe';
+    if (baseSecurityScore >= 65) return 'moderate';
     return 'unsafe';
-  }, [securityScore, stats, confidenceFlag]);
+  }, [baseSecurityScore, blacklists.detections]);
 
-  const getSafetySynopsis = (safetyStatus: string, securityScore: number) => {
-    switch (safetyStatus) {
+  // Apply malicious list override rules
+  const [finalSecurityScore, finalSafetyStatus] = useMemo(() => {
+    if (isInMaliciousList && baseSafetyStatus === 'safe') {
+      // Downgrade to moderate and cap security score at 79
+      return [Math.min(baseSecurityScore, 79), 'moderate'];
+    }
+    // Keep original status and score in all other cases
+    return [baseSecurityScore, baseSafetyStatus];
+  }, [isInMaliciousList, baseSafetyStatus, baseSecurityScore]);
+
+  // Determine site grade based on FINAL security score
+  const siteGrade = useMemo(() => {
+    if (finalSecurityScore >= 90) return 'A';
+    if (finalSecurityScore >= 80) return 'B';
+    if (finalSecurityScore >= 70) return 'C';
+    if (finalSecurityScore >= 60) return 'D';
+    return 'F';
+  }, [finalSecurityScore]);
+
+  // Get safety synopsis based on FINAL status
+  const synopsis = useMemo(() => {
+    switch (finalSafetyStatus) {
       case 'safe':
         return {
           short: 'URL is safe and from a trusted source.',
@@ -84,18 +106,28 @@ export const ScannerResult = ({stats, meta}: ScannerResultProps) => {
         };
       case 'moderate':
         return {
-          short: 'Use caution; the URL may be suspicious.',
-          long: 'This URL shows security concerns that require caution. While not overtly malicious, it exhibits suspicious characteristics that warrant careful evaluation.',
+          short: isInMaliciousList
+            ? 'This URL may pose security risks. Proceed with caution.'
+            : 'Use caution; the URL may be suspicious.',
+          long: isInMaliciousList
+            ? `This URL presents security concerns and should be approached with caution. Proceed carefully, as your location and personal information may be at risk.`
+            : `This URL shows security concerns that require caution. While not overtly malicious, it exhibits suspicious characteristics that warrant careful evaluation.While not overtly malicious, it exhibits suspicious characteristics.`,
         };
       case 'unsafe':
-        return securityScore > 30
+        return finalSecurityScore > 30
           ? {
               short: 'Potentially dangerous URL with multiple concerns.',
-              long: 'This URL exhibits multiple security concerns with potential malicious elements. Proceeding may expose your system to unnecessary risks.',
+              long: `This URL was flagged by ${
+                blacklists.detections
+              } security engine${
+                blacklists.detections !== 1 ? 's' : ''
+              } and shows a high-risk profile (${
+                risk_score.result
+              }/100 risk score). Proceeding may expose your system to unnecessary risks.`,
             }
           : {
               short: 'Confirmed malicious URL. Avoid visiting.',
-              long: 'This URL has been identified as an active security threat with confirmed malicious content. Visiting may compromise your device or data.',
+              long: `This URL has been identified as an active security threat with confirmed malicious content. Visiting may compromise your device or data.`,
             };
       default:
         return {
@@ -103,57 +135,53 @@ export const ScannerResult = ({stats, meta}: ScannerResultProps) => {
           long: 'Security scan is currently underway. Please wait for results.',
         };
     }
-  };
+  }, [
+    finalSafetyStatus,
+    blacklists.detections,
+    finalSecurityScore,
+    risk_score.result,
+    isInMaliciousList,
+  ]);
 
-  const synopsis = useMemo(
-    () => getSafetySynopsis(safetyStatus, securityScore),
-    [safetyStatus, securityScore],
-  );
-
+  // Get status color
   const getStatusColor = (status: string): string => {
     switch (status) {
       case 'safe':
-        return '#00FF7F'; // greenish #00FF7F
+        return '#00FF7F'; // Green
       case 'moderate':
-        return '#FFA500'; // orange #FFA500
+        return '#FFA500'; // Orange
       case 'unsafe':
-        return '#FF4C4C'; // red #FF4C4C
+        return '#FF4C4C'; // Red
       default:
-        return '#FFFFFF'; // fallback white #FFFFFF
+        return '#FFFFFF'; // White
     }
   };
 
   return (
     <>
-      <View
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
+      <View style={styles.statusContainer}>
         <View
-          style={{
-            width: '70%',
-            backgroundColor: getStatusColor(safetyStatus),
-            borderRadius: 20,
-          }}>
+          style={[
+            styles.statusBanner,
+            {backgroundColor: getStatusColor(finalSafetyStatus)},
+          ]}>
           <CustomText
             color="#FFF"
             variant="h2"
             fontFamily="Montserrat-Bold"
             style={{textAlign: 'center'}}>
-            {safetyStatus.toUpperCase()}
+            {finalSafetyStatus.toUpperCase()}
           </CustomText>
         </View>
       </View>
+
       <Card
         style={[
           styles.card,
-          {borderColor: getStatusColor(safetyStatus), borderWidth: 3},
+          {borderColor: getStatusColor(finalSafetyStatus), borderWidth: 3},
         ]}>
         <Card.Content>
-          <Favicon domain={meta.url_info.url} />
+          <Favicon domain={`https://${host}`} />
           <CustomText
             color="#FFF"
             variant="h2"
@@ -171,10 +199,10 @@ export const ScannerResult = ({stats, meta}: ScannerResultProps) => {
               Security Score
             </CustomText>
             <CustomText
-              color={getStatusColor(safetyStatus)}
+              color={getStatusColor(finalSafetyStatus)}
               variant="h5"
               fontFamily="Montserrat-Bold">
-              {securityScore}/100
+              {finalSecurityScore}/100
             </CustomText>
           </View>
 
@@ -186,7 +214,7 @@ export const ScannerResult = ({stats, meta}: ScannerResultProps) => {
               Site Grade
             </CustomText>
             <CustomText
-              color={getStatusColor(safetyStatus)}
+              color={getStatusColor(finalSafetyStatus)}
               variant="h5"
               fontFamily="Montserrat-Bold">
               {siteGrade}
@@ -194,16 +222,16 @@ export const ScannerResult = ({stats, meta}: ScannerResultProps) => {
           </View>
 
           <View style={styles.synopsisContainer}>
-            <CustomText
+            {/* <CustomText
               color="#FFF"
               variant="h5"
               fontFamily="Montserrat-SemiBold"
               style={styles.synopsisLabel}>
               Synopsis
-            </CustomText>
+            </CustomText> */}
 
             <CustomText
-              color={getStatusColor(safetyStatus)}
+              color={getStatusColor(finalSafetyStatus)}
               variant="h6"
               fontFamily="Montserrat-Bold"
               style={styles.synopsisText}>
@@ -214,19 +242,22 @@ export const ScannerResult = ({stats, meta}: ScannerResultProps) => {
       </Card>
 
       <WhoisCard
-        domain={meta.url_info.url}
         getStatusColor={getStatusColor}
-        safetyStatus={safetyStatus}
+        safetyStatus={finalSafetyStatus}
+        domainCreationDate={domain_info.domain_creation_date}
+        domainRegisteredData={domain_info.domain_age_in_years}
+        serverLoc={server_details.country_code}
+        serverLoc1={server_details.city_name}
       />
 
       <Card
         style={[
           styles.card,
-          {borderColor: getStatusColor(safetyStatus), borderWidth: 3},
+          {borderColor: getStatusColor(finalSafetyStatus), borderWidth: 3},
         ]}>
         <Card.Content>
           <CustomText
-            color={getStatusColor(safetyStatus)}
+            color={getStatusColor(finalSafetyStatus)}
             variant="h6"
             fontFamily="Montserrat-SemiBold"
             style={{flexShrink: 1, flexWrap: 'wrap', lineHeight: 20}}>
@@ -237,15 +268,13 @@ export const ScannerResult = ({stats, meta}: ScannerResultProps) => {
 
       <CustomButton
         title="Open Link"
-        onPress={() => {
-          Linking.openURL(meta.url_info.url);
-        }}
+        onPress={() => Linking.openURL(`https://${host}`)}
         style={{
           marginTop: 20,
           marginBottom: 10,
           width: '60%',
           alignSelf: 'center',
-          backgroundColor: getStatusColor(safetyStatus),
+          backgroundColor: getStatusColor(finalSafetyStatus),
         }}
       />
     </>
@@ -262,7 +291,6 @@ const Favicon = ({domain}: {domain: string}) => {
   const sanitizedDomain = useMemo(() => {
     if (!isValidDomain) return '';
     try {
-      // Basic URL sanitization
       let url = domain.startsWith('http') ? domain : `https://${domain}`;
       const domainObj = new URL(url);
       return domainObj.hostname;
@@ -310,62 +338,34 @@ const Favicon = ({domain}: {domain: string}) => {
 };
 
 interface WhoisCardProps {
-  domain: string;
   getStatusColor: (status: string) => string;
   safetyStatus?: string;
+  domainCreationDate: string;
+  domainRegisteredData: Number;
+  serverLoc: string;
+  serverLoc1: string;
 }
-const WhoisCard = ({domain, getStatusColor, safetyStatus}: WhoisCardProps) => {
-  const [whoisData, setWhoisData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const WhoisCard = ({
+  getStatusColor,
+  safetyStatus,
+  domainCreationDate,
+  domainRegisteredData,
+  serverLoc,
+  serverLoc1,
+}: WhoisCardProps) => {
+  function formatIsoDate(input: string): string {
+    const date = new Date(input);
 
-  useEffect(() => {
-    const fetchWhoisData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await fetch(
-          `https://api.whoisfreaks.com/v1.0/whois?whois=live&domainName=${domain}&apiKey=5c7fea39abf4463ba23afab7da0a50fb`,
-        );
-        const data = await response.json();
-        if (data.error) {
-          setError(data.error);
-        } else {
-          setWhoisData(data);
-        }
-      } catch (err) {
-        setError('Failed to fetch WHOIS data');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (domain) {
-      fetchWhoisData();
-    }
-  }, [domain]);
-
-  const getYearsAgo = (pastDateString: string): string => {
-    const pastDate = new Date(pastDateString);
-    const now = new Date();
-
-    let yearsAgo = now.getFullYear() - pastDate.getFullYear();
-
-    const hasNotHadBirthdayThisYear =
-      now.getMonth() < pastDate.getMonth() ||
-      (now.getMonth() === pastDate.getMonth() &&
-        now.getDate() < pastDate.getDate());
-
-    if (hasNotHadBirthdayThisYear) {
-      yearsAgo -= 1;
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date format');
     }
 
-    return `${yearsAgo} year${yearsAgo !== 1 ? 's' : ''} ago`;
-  };
+    const day: string = String(date.getUTCDate()).padStart(2, '0');
+    const month: string = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year: number = date.getUTCFullYear();
 
-  console.log(whoisData);
-
+    return `${day}-${month}-${year}`;
+  }
   return (
     <>
       <Card
@@ -374,74 +374,65 @@ const WhoisCard = ({domain, getStatusColor, safetyStatus}: WhoisCardProps) => {
           {borderColor: getStatusColor(safetyStatus!), borderWidth: 3},
         ]}>
         <Card.Content>
-          {loading ? (
-            <Loader />
-          ) : (
-            <>
-              {whoisData && (
-                <>
-                  <CustomText
-                    color="#FFF"
-                    variant="h4"
-                    fontFamily="Montserrat-Bold"
-                    style={{textAlign: 'center'}}>
-                    Domain Reputation Details
-                  </CustomText>
-                  <Divider style={styles.divider} />
+          <>
+            <CustomText
+              color="#FFF"
+              variant="h4"
+              fontFamily="Montserrat-Bold"
+              style={{textAlign: 'center'}}>
+              Domain Reputation Details
+            </CustomText>
+            <Divider style={styles.divider} />
 
-                  <View style={styles.cardItemContainer}>
-                    <CustomText
-                      color="#FFF"
-                      variant="h5"
-                      fontFamily="Montserrat-SemiBold">
-                      Registry Date
-                    </CustomText>
-                    {whoisData?.create_date ? (
-                      <CustomText
-                        color={getStatusColor(safetyStatus!)}
-                        variant="h5"
-                        fontFamily="Montserrat-SemiBold">
-                        {getYearsAgo(whoisData?.create_date)}
-                        {/* {whoisData?.create_date} */}
-                      </CustomText>
-                    ) : (
-                      <CustomText
-                        color={getStatusColor(safetyStatus!)}
-                        variant="h5"
-                        fontFamily="Montserrat-SemiBold">
-                        N/A
-                      </CustomText>
-                    )}
-                  </View>
+            <View style={styles.cardItemContainer}>
+              <CustomText
+                color="#FFF"
+                numberOfLine={2}
+                variant="h5"
+                fontFamily="Montserrat-SemiBold">
+                Registry Date
+              </CustomText>
 
-                  <View style={styles.cardItemContainer}>
-                    <CustomText
-                      color="#FFF"
-                      variant="h5"
-                      fontFamily="Montserrat-SemiBold">
-                      Country Of Origin
-                    </CustomText>
+              <CustomText
+                color={getStatusColor(safetyStatus!)}
+                variant="h5"
+                fontFamily="Montserrat-SemiBold">
+                {formatIsoDate(domainCreationDate)}
+              </CustomText>
+            </View>
 
-                    {whoisData?.registrant_contact?.country_name ? (
-                      <CustomText
-                        color={getStatusColor(safetyStatus!)}
-                        variant="h5"
-                        fontFamily="Montserrat-SemiBold">
-                        {whoisData?.registrant_contact?.country_name}
-                      </CustomText>
-                    ) : (
-                      <CustomText
-                        color={getStatusColor(safetyStatus!)}
-                        variant="h5"
-                        fontFamily="Montserrat-SemiBold">
-                        N/A
-                      </CustomText>
-                    )}
-                  </View>
-                </>
-              )}
-            </>
-          )}
+             <View style={styles.cardItemContainer}>
+              <CustomText
+                color="#FFF"
+                variant="h5"
+                fontFamily="Montserrat-SemiBold">
+                Domain Age
+              </CustomText>
+              <CustomText
+                color={getStatusColor(safetyStatus!)}
+                variant="h5"
+                fontFamily="Montserrat-SemiBold">
+                {domainRegisteredData.toString()} years
+              </CustomText>
+            </View>
+
+            <View style={styles.cardItemContainer}>
+              <CustomText
+                color="#FFF"
+                numberOfLine={2}
+                variant="h5"
+                fontFamily="Montserrat-SemiBold">
+                Server Location
+              </CustomText>
+
+              <CustomText
+                color={getStatusColor(safetyStatus!)}
+                variant="h5"
+                fontFamily="Montserrat-SemiBold">
+                {serverLoc},{serverLoc1}
+              </CustomText>
+            </View>
+          </>
         </Card.Content>
       </Card>
     </>
@@ -449,9 +440,20 @@ const WhoisCard = ({domain, getStatusColor, safetyStatus}: WhoisCardProps) => {
 };
 
 const styles = StyleSheet.create({
+  statusContainer: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  statusBanner: {
+    width: '70%',
+    borderRadius: 20,
+    paddingVertical: 8,
+  },
   card: {
     borderRadius: 20,
-    // backgroundColor: 'transparent',
     marginTop: 20,
   },
   cardItemContainer: {
@@ -476,8 +478,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     lineHeight: 20,
   },
-
-  // Favicon
   container: {
     alignItems: 'center',
     marginVertical: 10,

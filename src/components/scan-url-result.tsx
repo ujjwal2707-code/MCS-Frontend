@@ -1,7 +1,7 @@
 import {Alert, Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useRef} from 'react';
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
-import {ScanURLResult} from 'types/types';
+import {DomainReputationResponse, ScanURLResult} from 'types/types';
 import CustomText from './ui/custom-text';
 import {Card} from 'react-native-paper';
 import HorizontalBarsChart from './bar-chart';
@@ -15,10 +15,11 @@ import { ScannerResult } from './scanner-result';
 interface ScanUrlResultProps {
   isOpen: boolean;
   onClose: () => void;
-  scanResult: ScanURLResult;
+  scanResult: DomainReputationResponse;
+  inputURI:string;
 }
 
-const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
+const ScanUrlResult = ({isOpen, onClose, scanResult,inputURI}: ScanUrlResultProps) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const copyToClipboard = (text: string) => {
@@ -61,10 +62,10 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
             fontFamily="Montserrat-SemiBold"
             fontSize={18}
             style={{textAlign: 'center'}}>
-            {scanResult.meta.url_info.url}
+            {inputURI}
           </CustomText>
           <TouchableOpacity
-            onPress={() => copyToClipboard(scanResult.meta.url_info.url)}>
+            onPress={() => copyToClipboard(inputURI)}>
             <MaterialCommunityIcons
               name="content-copy"
               size={24}
@@ -76,8 +77,9 @@ const ScanUrlResult = ({isOpen, onClose, scanResult}: ScanUrlResultProps) => {
         {scanResult && (
           <>
             <ScannerResult
-              stats={scanResult.stats}
-              meta={scanResult.meta}
+              inputURI={inputURI}
+              data={scanResult}
+
             />
           </>
         )}
